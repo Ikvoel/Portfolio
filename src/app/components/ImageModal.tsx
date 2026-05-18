@@ -42,7 +42,7 @@ export function ImageModal({ isOpen, onClose, image }: ImageModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 cursor-pointer"
+            className="fixed inset-0 bg-black/90 md:backdrop-blur-md z-50 cursor-pointer"
           />
           
           {/* Modal */}
@@ -70,6 +70,8 @@ export function ImageModal({ isOpen, onClose, image }: ImageModalProps) {
                 <img
                   src={image.image}
                   alt={image.title}
+                  loading="eager"
+                  decoding="async"
                   className="w-full h-auto max-h-[85vh] object-contain"
                 />
                 

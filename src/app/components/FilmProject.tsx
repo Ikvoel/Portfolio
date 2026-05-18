@@ -150,6 +150,8 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
               <img
                 src={currentImage}
                 alt={project.title}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               />
             </motion.div>
@@ -159,6 +161,8 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
               <img 
                 src="https://i.ibb.co.com/MD6xpWds/hsno-mark-f.png" 
                 alt="Watermark" 
+                loading="lazy"
+                decoding="async"
                 className="w-auto h-12 sm:h-16 md:h-20 drop-shadow-lg object-contain"
                 style={{ filter: 'brightness(0) invert(1)' }}
               />
@@ -227,7 +231,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
                   className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center"
                   style={{
                     background: isMobile ? 'rgba(205, 92, 92, 0.9)' : 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: isMobile ? 'blur(8px)' : 'blur(12px)',
+                    backdropFilter: isMobile ? 'none' : 'blur(12px)',
                     border: `1px solid ${isMobile ? 'rgba(205, 92, 92, 1)' : 'rgba(255, 255, 255, 0.2)'}`,
                     boxShadow: isMobile ? '0 4px 16px rgba(0,0,0,0.4)' : `0 8px 32px ${glowColor}`,
                   }}
@@ -264,7 +268,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
                         className="absolute inset-0 rounded-lg"
                         style={{
                           background: 'rgba(255, 255, 255, 0.1)',
-                          backdropFilter: 'blur(8px)',
+                          backdropFilter: isMobile ? 'none' : 'blur(8px)',
                           border: '1px solid rgba(255, 255, 255, 0.15)',
                         }}
                       />
@@ -286,6 +290,8 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
                       <img
                         src={client.logo}
                         alt={client.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-contain"
                         style={{
                           filter: 'brightness(0) invert(1) drop-shadow(0 2px 8px rgba(0,0,0,0.3))',
@@ -313,7 +319,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
                 className="metadata px-3 py-1.5 rounded-full text-white/85 text-xs"
                 style={{
                   background: 'rgba(255, 255, 255, 0.08)',
-                  backdropFilter: 'blur(8px)',
+                  backdropFilter: isMobile ? 'none' : 'blur(8px)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                 }}
               >
@@ -323,7 +329,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
                 className="metadata px-3 py-1.5 rounded-full text-white/65 text-xs"
                 style={{
                   background: 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(8px)',
+                  backdropFilter: isMobile ? 'none' : 'blur(8px)',
                 }}
               >
                 {project.year}

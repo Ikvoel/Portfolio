@@ -23,14 +23,14 @@ const commercialWorks: CommercialItem[] = [
     client: 'SonicFlo - Rayu Membiru',
     role: 'Set Lighting Technician',
     year: '2026',
-    category: 'Set Lighting Technician',
+    category: 'SLT',
   },
   {
     id: 2,
     client: 'Ekhsan - Resign',
     role: '2nd Assistant Camera',
     year: '2025',
-    category: '2nd Assistant Camera',
+    category: 'Music Video',
   },
   // Add more commercial & MV works here
 ];
@@ -143,7 +143,7 @@ export function CommercialMV() {
       </div>
 
       {/* Custom scrollbar for horizontal version */}
-      <style jsx>{`
+      <style>{`
         div::-webkit-scrollbar {
           height: 4px;
         }

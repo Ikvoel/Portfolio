@@ -149,7 +149,7 @@ const photoGallery = [
 		image: "https://i.ibb.co.com/9HpST4jD/LRM-20230609-143215.jpg",
 		description: "Minimalist product shots with dramatic lighting.",
 	},
-    {
+	{
 		id: 17,
 		title: "",
 		category: "Commercial",
@@ -157,7 +157,7 @@ const photoGallery = [
 		image: "https://i.ibb.co.com/23JsYKKB/S3-N0-LOG-14-of-14.jpg",
 		description: "Minimalist product shots with dramatic lighting.",
 	},
-    {
+	{
 		id: 17,
 		title: "",
 		category: "Potrait",
@@ -165,7 +165,7 @@ const photoGallery = [
 		image: "",
 		description: "Minimalist product shots with dramatic lighting.",
 	},
-    {
+	{
 		id: 17,
 		title: "",
 		category: "Potrait",
@@ -232,7 +232,7 @@ export function Photography() {
 											>
 												{/* CARD */}
 												<motion.div whileHover={{ scale: 1.015 }} transition={{ type: "spring", stiffness: 260, damping: 22 }} className="relative overflow-hidden rounded-xl bg-black/20">
-													<img src={photo.image} alt={photo.title} className="w-full h-auto object-cover" style={{ display: "block" }} />
+													<img src={photo.image} alt={photo.title} loading="lazy" decoding="async" className="w-full h-auto object-cover" style={{ display: "block" }} />
 
 													{/* Hover Overlay with red accent */}
 													<motion.div

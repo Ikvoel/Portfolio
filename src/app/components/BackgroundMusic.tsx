@@ -26,7 +26,7 @@ interface BackgroundMusicProps {
 
 export function BackgroundMusic({ audioUrl }: BackgroundMusicProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export function BackgroundMusic({ audioUrl }: BackgroundMusicProps) {
         ref={audioRef}
         src={audioUrl}
         loop
-        preload="auto"
+        preload="none"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
       />

@@ -14,12 +14,42 @@ import { useEffect, useState } from 'react';
 
 export function AnimatedBackground() {
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const updateIsMobile = () => setIsMobile(mediaQuery.matches);
+
+    updateIsMobile();
+    mediaQuery.addEventListener('change', updateIsMobile);
+
+    return () => mediaQuery.removeEventListener('change', updateIsMobile);
   }, []);
 
   if (!mounted) return null;
+
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-black" />
+        <div
+          className="absolute inset-0 opacity-70"
+          style={{
+            background:
+              'radial-gradient(circle at 20% 10%, rgba(147, 51, 234, 0.18), transparent 36%), radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.14), transparent 34%), radial-gradient(circle at 50% 90%, rgba(245, 158, 11, 0.10), transparent 38%)',
+          }}
+        />
+        <div
+          className="absolute inset-0 opacity-70"
+          style={{
+            background: 'radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.45) 100%)',
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">

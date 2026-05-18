@@ -50,6 +50,8 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
         <img
           src={project.image}
           alt={project.title}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover bg-black"
         />
 
@@ -63,6 +65,8 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
             <img
               src={project.watermarkLogo}
               alt="Watermark"
+              loading="lazy"
+              decoding="async"
               className="w-auto h-12 sm:h-20 md:h-32 lg:h-40 drop-shadow-2xl object-contain"
               style={{ filter: 'brightness(0) invert(1)' }}
             />
@@ -83,6 +87,8 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
             <img
               src={project.image}
               alt={project.title}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-contain"
             />
             {/* Mobile Watermark */}
@@ -91,6 +97,8 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
                 <img
                   src={project.watermarkLogo}
                   alt="Watermark"
+                  loading="lazy"
+                  decoding="async"
                   className="w-auto h-10 drop-shadow-lg object-contain"
                   style={{ filter: 'brightness(0) invert(1)' }}
                 />
