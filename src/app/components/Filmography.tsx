@@ -224,6 +224,16 @@ const projects = [
 		videoUrl: "https://drive.google.com/file/d/1oU7CyDyzLufDJckvhAvY6F3kU5XsA_bM/preview",
 		roles: ["Director", "Editor"],
 	},
+	{
+		id: 20,
+		title: "Blue Before Dawn",
+		category: "Short Film",
+		year: "2027",
+		description: "",
+		image: "hthttps://i.ibb.co.com/YTZD58vL/still-kedua-1-48-1.jpg",
+		videoUrl: "https://drive.google.com/file/d/1oU7CyDyzLufDJckvhAvY6F3kU5XsA_bM/preview",
+		roles: ["Director", "Editor"],
+	},
 ]
 
 export function Filmography() {
