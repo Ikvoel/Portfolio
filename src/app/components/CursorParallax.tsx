@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { motion } from "motion/react"
+import { motion, useMotionValue } from "motion/react"
 
 /**
  * CURSOR PARALLAX EFFECT
@@ -9,9 +9,13 @@ import { motion } from "motion/react"
  */
 
 export function CursorParallax() {
-	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-	const [isVisible, setIsVisible] = useState(false)
 	const [isEnabled, setIsEnabled] = useState(false)
+	const primaryX = useMotionValue(0)
+	const primaryY = useMotionValue(0)
+	const secondaryX = useMotionValue(0)
+	const secondaryY = useMotionValue(0)
+	const primaryOpacity = useMotionValue(0)
+	const secondaryOpacity = useMotionValue(0)
 
 	useEffect(() => {
 		const mobileQuery = window.matchMedia("(max-width: 767px)")
@@ -34,12 +38,17 @@ export function CursorParallax() {
 		if (!isEnabled) return
 
 		const handleMouseMove = (e: MouseEvent) => {
-			setMousePosition({ x: e.clientX, y: e.clientY })
-			setIsVisible(true)
+			primaryX.set(e.clientX - 210)
+			primaryY.set(e.clientY - 210)
+			secondaryX.set(e.clientX - 90)
+			secondaryY.set(e.clientY - 90)
+			primaryOpacity.set(0.12)
+			secondaryOpacity.set(0.08)
 		}
 
 		const handleMouseLeave = () => {
-			setIsVisible(false)
+			primaryOpacity.set(0)
+			secondaryOpacity.set(0)
 		}
 
 		window.addEventListener("mousemove", handleMouseMove)
@@ -49,7 +58,7 @@ export function CursorParallax() {
 			window.removeEventListener("mousemove", handleMouseMove)
 			document.removeEventListener("mouseleave", handleMouseLeave)
 		}
-	}, [isEnabled])
+	}, [isEnabled, primaryOpacity, primaryX, primaryY, secondaryOpacity, secondaryX, secondaryY])
 
 	if (!isEnabled) return null
 
@@ -58,44 +67,30 @@ export function CursorParallax() {
 			{/* Primary cursor spotlight - soft radial gradient */}
 			<motion.div
 				className="fixed pointer-events-none z-40 mix-blend-soft-light"
-				animate={{
-					x: mousePosition.x - 300,
-					y: mousePosition.y - 300,
-					opacity: isVisible ? 0.2 : 0,
-				}}
-				transition={{
-					type: "spring",
-					damping: 35,
-					stiffness: 180,
-					mass: 0.6,
-				}}
 				style={{
-					width: "600px",
-					height: "600px",
-					background: "radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(200, 180, 255, 0.2) 40%, transparent 70%)",
-					filter: "blur(60px)",
+					x: primaryX,
+					y: primaryY,
+					opacity: primaryOpacity,
+					transition: "opacity 180ms ease-out",
+					width: "420px",
+					height: "420px",
+					background: "radial-gradient(circle, rgba(255, 255, 255, 0.32) 0%, rgba(200, 180, 255, 0.16) 42%, transparent 70%)",
+					filter: "blur(32px)",
 				}}
 			/>
 
 			{/* Secondary glow - color-shifting */}
 			<motion.div
 				className="fixed pointer-events-none z-40 mix-blend-screen"
-				animate={{
-					x: mousePosition.x - 120,
-					y: mousePosition.y - 120,
-					opacity: isVisible ? 0.12 : 0,
-				}}
-				transition={{
-					type: "spring",
-					damping: 25,
-					stiffness: 250,
-					mass: 0.4,
-				}}
 				style={{
-					width: "240px",
-					height: "240px",
-					background: "radial-gradient(circle, rgba(168, 85, 247, 0.5) 0%, rgba(59, 130, 246, 0.3) 50%, transparent 70%)",
-					filter: "blur(40px)",
+					x: secondaryX,
+					y: secondaryY,
+					opacity: secondaryOpacity,
+					transition: "opacity 180ms ease-out",
+					width: "180px",
+					height: "180px",
+					background: "radial-gradient(circle, rgba(168, 85, 247, 0.34) 0%, rgba(59, 130, 246, 0.2) 50%, transparent 72%)",
+					filter: "blur(24px)",
 				}}
 			/>
 		</>

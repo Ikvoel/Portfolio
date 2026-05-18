@@ -37,7 +37,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  
+
   const rotateX = useTransform(mouseY, [-150, 150], [3, -3]);
   const rotateY = useTransform(mouseX, [-150, 150], [-3, 3]);
 
@@ -48,7 +48,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
   useEffect(() => {
     if (isHovered && hasStills) {
       const interval = setInterval(() => {
-        setCurrentStillIndex((prev) => 
+        setCurrentStillIndex((prev) =>
           (prev + 1) % project.cinematicStills!.length
         );
       }, 1800);
@@ -91,8 +91,8 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
     mouseY.set(0);
   };
 
-  const currentImage = hasStills && isHovered 
-    ? project.cinematicStills![currentStillIndex] 
+  const currentImage = hasStills && isHovered
+    ? project.cinematicStills![currentStillIndex]
     : project.image;
 
   const glowColor = `rgba(${dominantColor.r}, ${dominantColor.g}, ${dominantColor.b}, 0.6)`;
@@ -118,8 +118,8 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
         onClick={() => project.videoUrl && setIsModalOpen(true)}
         style={{
           transformStyle: 'preserve-3d',
-          padding: isMobile ? '0' : '48px', // Disable glow padding on mobile
-          margin: isMobile ? '0' : '-48px',
+          padding: isMobile ? '0' : '24px',
+          margin: isMobile ? '0' : '-24px',
         }}
       >
         {/* TRUE 360-DEGREE AMBIENT GLOW - Environmental Light Layer */}
@@ -129,9 +129,9 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
           className="relative overflow-hidden rounded-2xl"
           style={{
             background: 'rgba(255, 255, 255, 0.04)',
-            backdropFilter: isMobile ? 'none' : 'blur(16px)',
+            backdropFilter: isMobile ? 'none' : 'blur(8px)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            boxShadow: `0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
+            boxShadow: `0 6px 22px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
             rotateX: (isHovered && !isMobile) ? rotateX : 0,
             rotateY: (isHovered && !isMobile) ? rotateY : 0,
           }}
@@ -158,9 +158,9 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
 
             {/* Watermark Logo - Top Right (Responsive Constraints) */}
             <div className="absolute top-3 right-4 md:top- -1 md:right-4 z-10 opacity-20 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
-              <img 
-                src="https://i.ibb.co.com/MD6xpWds/hsno-mark-f.png" 
-                alt="Watermark" 
+              <img
+                src="https://i.ibb.co.com/MD6xpWds/hsno-mark-f.png"
+                alt="Watermark"
                 loading="lazy"
                 decoding="async"
                 className="w-auto h-12 sm:h-16 md:h-20 drop-shadow-lg object-contain"
@@ -169,7 +169,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
             </div>
 
             {/* Color-adaptive ambient overlay */}
-            <motion.div 
+            <motion.div
               className="absolute inset-0 mix-blend-soft-light pointer-events-none"
               animate={{
                 opacity: isHovered ? 0.35 : 0.15,
@@ -195,7 +195,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
                     <motion.div
                       className="h-full bg-white rounded-full"
                       initial={{ width: '0%' }}
-                      animate={{ 
+                      animate={{
                         width: idx === currentStillIndex ? '100%' : '0%',
                       }}
                       transition={{ duration: 1.8, ease: "linear" }}
@@ -231,9 +231,9 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
                   className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center"
                   style={{
                     background: isMobile ? 'rgba(205, 92, 92, 0.9)' : 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: isMobile ? 'none' : 'blur(12px)',
+                    backdropFilter: isMobile ? 'none' : 'blur(6px)',
                     border: `1px solid ${isMobile ? 'rgba(205, 92, 92, 1)' : 'rgba(255, 255, 255, 0.2)'}`,
-                    boxShadow: isMobile ? '0 4px 16px rgba(0,0,0,0.4)' : `0 8px 32px ${glowColor}`,
+                    boxShadow: isMobile ? '0 4px 16px rgba(0,0,0,0.4)' : `0 6px 20px ${glowColor}`,
                   }}
                   whileHover={{ scale: 1.15 }}
                   whileTap={{ scale: 0.95 }}
@@ -245,7 +245,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
 
             {/* CLIENT LOGOS - Bottom Right */}
             {project.clientLogos && project.clientLogos.length > 0 && (
-              <div 
+              <div
                 className="absolute bottom-4 right-4 z-10 flex gap-2"
                 style={{
                   /* Adjust logo container positioning:
@@ -264,18 +264,18 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
                   >
                     {/* Optional Glass Badge - Toggle per logo */}
                     {client.hasGlassBadge !== false && (
-                      <div 
+                      <div
                         className="absolute inset-0 rounded-lg"
                         style={{
                           background: 'rgba(255, 255, 255, 0.1)',
-                          backdropFilter: isMobile ? 'none' : 'blur(8px)',
+                          backdropFilter: isMobile ? 'none' : 'blur(4px)',
                           border: '1px solid rgba(255, 255, 255, 0.15)',
                         }}
                       />
                     )}
-                    
+
                     {/* Client Logo Image */}
-                    <div 
+                    <div
                       className="relative p-2"
                       style={{
                         /* Adjust individual logo size:
@@ -309,38 +309,38 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
             className="p-6 relative"
             style={{
               background: 'rgba(0, 0, 0, 0.3)',
-              backdropFilter: isMobile ? 'none' : 'blur(12px)',
+              backdropFilter: isMobile ? 'none' : 'blur(6px)',
               borderTop: '1px solid rgba(255, 255, 255, 0.05)',
             }}
           >
             {/* Category & Year Tags */}
             <div className="flex items-center justify-between mb-3">
-              <span 
+              <span
                 className="metadata px-3 py-1.5 rounded-full text-white/85 text-xs"
                 style={{
                   background: 'rgba(255, 255, 255, 0.08)',
-                  backdropFilter: isMobile ? 'none' : 'blur(8px)',
+                  backdropFilter: isMobile ? 'none' : 'blur(4px)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                 }}
               >
                 {project.category}
               </span>
-              <span 
+              <span
                 className="metadata px-3 py-1.5 rounded-full text-white/65 text-xs"
                 style={{
                   background: 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: isMobile ? 'none' : 'blur(8px)',
+                  backdropFilter: isMobile ? 'none' : 'blur(4px)',
                 }}
               >
                 {project.year}
               </span>
             </div>
-            
+
             {/* Film Title */}
             <h3 className="film-title mb-3 text-white tracking-wide">
               {project.title}
             </h3>
-            
+
             {/* Description */}
             <p className="body-text text-white/70 text-sm mb-4 leading-relaxed line-clamp-2">
               {project.description}
@@ -364,7 +364,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
           </div>
 
           {/* Soft inner highlight (top edge glow) */}
-          <div 
+          <div
             className="absolute top-0 left-0 right-0 h-px opacity-60 pointer-events-none"
             style={{
               background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
@@ -372,14 +372,14 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
           />
 
           {/* Delicate edge glow - adapts to dominant color */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0 rounded-2xl pointer-events-none"
             animate={{
               opacity: isHovered ? 0.8 : 0,
             }}
             transition={{ duration: 0.5 }}
             style={{
-              boxShadow: `inset 0 0 40px rgba(${dominantColor.r}, ${dominantColor.g}, ${dominantColor.b}, 0.25), inset 0 0 80px rgba(${dominantColor.r}, ${dominantColor.g}, ${dominantColor.b}, 0.1)`,
+              boxShadow: `inset 0 0 24px rgba(${dominantColor.r}, ${dominantColor.g}, ${dominantColor.b}, 0.2), inset 0 0 44px rgba(${dominantColor.r}, ${dominantColor.g}, ${dominantColor.b}, 0.08)`,
             }}
           />
         </motion.div>

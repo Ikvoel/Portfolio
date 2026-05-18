@@ -248,7 +248,7 @@ export function Filmography() {
 					<p className="body-text text-white/50 max-w-2xl mx-auto text-sm">A curated selection of recent work</p>
 				</motion.div>
 
-				{Object.entries(groupedProjects).map(([category, categoryProjects], groupIndex) => {
+				{Object.entries(groupedProjects).map(([category, categoryProjects]) => {
 					if (categoryProjects.length === 0) return null
 
 					return (
@@ -265,7 +265,7 @@ export function Filmography() {
 							</motion.div>
 
 							{/* Projects Grid */}
-							<motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8" layout>
+							<motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 								{categoryProjects.map((project, index) => (
 									<FilmProject key={project.id} project={project} index={index} isInView={isInView} />
 								))}

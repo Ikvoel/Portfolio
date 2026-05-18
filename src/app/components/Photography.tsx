@@ -1,7 +1,6 @@
 import { motion } from "motion/react"
 import { useInView } from "motion/react"
 import { useRef, useState } from "react"
-import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { ImageModal } from "./ImageModal"
 
 const photoGallery = [
@@ -199,7 +198,8 @@ export function Photography() {
 				</motion.div>
 
 				{Object.entries(groupedPhotos).map(([category, photos]) => {
-					if (photos.length === 0) return null
+					const visiblePhotos = photos.filter((p) => p.image)
+					if (visiblePhotos.length === 0) return null
 
 					return (
 						<div key={category} className="mb-24 last:mb-0">
@@ -214,51 +214,41 @@ export function Photography() {
 								<div className="h-[1px] flex-grow bg-gradient-to-r from-white/20 to-transparent" />
 							</motion.div>
 
-							{/* ALL CATEGORIES NOW USE MASONRY GRID */}
-							<ResponsiveMasonry columnsCountBreakPoints={{ 350: 2, 900: 3, 1200: 4 }}>
-								<Masonry gutter="1rem">
-									{photos
-										.filter((p) => p.image)
-										.map((photo, index) => (
-											<motion.div
-												key={photo.id + "-" + index}
-												initial={{ opacity: 0, y: 20 }}
-												animate={isInView ? { opacity: 1, y: 0 } : {}}
-												transition={{ duration: 0.5, delay: index * 0.05 }}
-												className="relative group cursor-pointer"
-												onMouseEnter={() => setHoveredId(photo.id)}
-												onMouseLeave={() => setHoveredId(null)}
-												onClick={() => setSelectedImage(photo)}
-											>
-												{/* CARD */}
-												<motion.div whileHover={{ scale: 1.015 }} transition={{ type: "spring", stiffness: 260, damping: 22 }} className="relative overflow-hidden rounded-xl bg-black/20">
-													<img src={photo.image} alt={photo.title} loading="lazy" decoding="async" className="w-full h-auto object-cover" style={{ display: "block" }} />
+							<div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+								{visiblePhotos.map((photo, index) => (
+									<motion.button
+										key={photo.id + "-" + index}
+										type="button"
+										initial={{ opacity: 0, y: 16 }}
+										animate={isInView ? { opacity: 1, y: 0 } : {}}
+										transition={{ duration: 0.35, delay: index * 0.025 }}
+										className="relative aspect-[4/5] overflow-hidden rounded-xl bg-black/20 text-left group"
+										onMouseEnter={() => setHoveredId(photo.id)}
+										onMouseLeave={() => setHoveredId(null)}
+										onClick={() => setSelectedImage(photo)}
+									>
+										<img src={photo.image} alt={photo.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.025]" />
 
-													{/* Hover Overlay with red accent */}
-													<motion.div
-														className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3"
-														initial={{ opacity: 0 }}
-														animate={{ opacity: hoveredId === photo.id ? 1 : 0 }}
-													>
-														{photo.title && <p className="text-white/90 text-sm font-medium mb-1">{photo.title}</p>}
-														<div className="flex items-center gap-2 text-xs">
-															<p className="metadata text-white/70">{photo.year}</p>
-															{photo.title && (
-																<>
-																	<div className="w-1 h-1 rounded-full bg-[var(--accent-red)]" />
-																	<p className="metadata text-white/50">{photo.category}</p>
-																</>
-															)}
-														</div>
-													</motion.div>
+										<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
+											{photo.title && <p className="text-white/90 text-sm font-medium mb-1">{photo.title}</p>}
+											<div className="flex items-center gap-2 text-xs">
+												<p className="metadata text-white/70">{photo.year}</p>
+												{photo.title && (
+													<>
+														<div className="w-1 h-1 rounded-full bg-[var(--accent-red)]" />
+														<p className="metadata text-white/50">{photo.category}</p>
+													</>
+												)}
+											</div>
+										</div>
 
-													{/* Red accent border on hover */}
-													<div className="absolute inset-0 border border-transparent group-hover:border-[var(--accent-red-subtle)] transition-all duration-300 rounded-xl pointer-events-none" />
-												</motion.div>
-											</motion.div>
-										))}
-								</Masonry>
-							</ResponsiveMasonry>
+										<div
+											className={`absolute inset-0 rounded-xl border transition-colors duration-300 pointer-events-none ${hoveredId === photo.id ? "border-[var(--accent-red-subtle)]" : "border-transparent"
+												}`}
+										/>
+									</motion.button>
+								))}
+							</div>
 						</div>
 					)
 				})}
