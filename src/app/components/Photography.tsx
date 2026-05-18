@@ -158,10 +158,10 @@ const photoGallery = [
 	},
 	{
 		id: 17,
-		title: "",
-		category: "Potrait",
+		title: "Kadapi Fadli",
+		category: "Event",
 		year: "2023",
-		image: "",
+		image: "https://i.ibb.co.com/DDtnS1Xr/S3-N0-LOG-27.jpg",
 		description: "Minimalist product shots with dramatic lighting.",
 	},
 	{
