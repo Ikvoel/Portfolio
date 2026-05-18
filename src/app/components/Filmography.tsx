@@ -40,7 +40,7 @@ const projects = [
 		year: "2025",
 		description:
 			"In a calm, understated job interview, Gracia is asked about her favorite drink. Her answer, matcha, triggers a series of intimate memories moments, silent laughter, and a presence that once felt close.",
-		image: "https://i.ibb.co.com/n8tPFCsq/Still-2025-12-23-074938-1-10-1.jpg",
+		image: "https://i.ibb.co.com/YTZD58vL/still-kedua-1-48-1.jpg",
 		videoUrl: "https://drive.google.com/file/d/1ZyzkPKSyEyvtr7JRHftPhSDk6jhsnL0w/preview",
 		roles: ["Writter", "Director", "Cinematographer", "Editor"],
 		cinematicStills: [
@@ -224,16 +224,7 @@ const projects = [
 		videoUrl: "https://drive.google.com/file/d/1oU7CyDyzLufDJckvhAvY6F3kU5XsA_bM/preview",
 		roles: ["Director", "Editor"],
 	},
-	{
-		id: 20,
-		title: "Blue Before Dawn",
-		category: "Short Film",
-		year: "2027",
-		description: "",
-		image: "hthttps://i.ibb.co.com/YTZD58vL/still-kedua-1-48-1.jpg",
-		videoUrl: "https://drive.google.com/file/d/1oU7CyDyzLufDJckvhAvY6F3kU5XsA_bM/preview",
-		roles: ["Director", "Editor"],
-	},
+
 ]
 
 export function Filmography() {
