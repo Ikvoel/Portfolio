@@ -14,7 +14,8 @@ interface CommercialItem {
   client: string; // Client or Artist name
   role: string; // Your role
   year: string;
-  category: 'Commercial' | 'Music Video' | 'SLT'; // SLT = Set Lighting Technician
+  category: 'Commercial' | 'Music Video';
+  indicator?: boolean; // Optional highlight toggle for the role badge
 }
 
 const commercialWorks: CommercialItem[] = [
@@ -23,7 +24,8 @@ const commercialWorks: CommercialItem[] = [
     client: 'SonicFlo - Rayu Membiru',
     role: 'Set Lighting Technician',
     year: '2026',
-    category: 'SLT',
+    category: 'Music Video',
+    indicator: true,
   },
   {
     id: 2,
@@ -31,6 +33,7 @@ const commercialWorks: CommercialItem[] = [
     role: '2nd Assistant Camera',
     year: '2025',
     category: 'Music Video',
+    indicator: true,
   },
   // Add more commercial & MV works here
 ];
@@ -62,7 +65,7 @@ export function CommercialMV() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4"
         >
           {commercialWorks.map((work, index) => {
-            const isSLT = work.category === 'SLT';
+            const isHighlighted = !!work.indicator;
 
             return (
               <motion.div
@@ -70,17 +73,15 @@ export function CommercialMV() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: 0.3 + index * 0.05 }}
-                className={`relative group ${
-                  isSLT ? 'sm:col-span-2 lg:col-span-1' : ''
-                }`}
+                className={`relative group ${isHighlighted ? 'sm:col-span-2 lg:col-span-1' : ''
+                  }`}
               >
                 {/* Card Container */}
                 <div
-                  className={`p-4 md:p-5 rounded-lg border transition-all duration-300 ${
-                    isSLT
-                      ? 'bg-[var(--accent-red-faint)] border-[var(--accent-red-subtle)] hover:border-[var(--accent-red)]'
-                      : 'bg-white/[0.02] border-white/[0.08] hover:border-white/20'
-                  }`}
+                  className={`p-4 md:p-5 rounded-lg border transition-all duration-300 ${isHighlighted
+                    ? 'bg-[var(--accent-red-faint)] border-[var(--accent-red-subtle)] hover:border-[var(--accent-red)]'
+                    : 'bg-white/[0.02] border-white/[0.08] hover:border-white/20'
+                    }`}
                 >
                   {/* Client/Artist Name */}
                   <h3 className="text-white font-medium text-base md:text-lg mb-2 line-clamp-1">
@@ -90,21 +91,21 @@ export function CommercialMV() {
                   {/* Role & Year */}
                   <div className="flex items-center gap-2 text-xs md:text-sm">
                     <span className="metadata text-white/60">{work.role}</span>
-                    <div className={`w-1 h-1 rounded-full ${isSLT ? 'bg-[var(--accent-red)]' : 'bg-white/30'}`} />
+                    <div className={`w-1 h-1 rounded-full ${isHighlighted ? 'bg-[var(--accent-red)]' : 'bg-white/30'}`} />
                     <span className="metadata text-white/40">{work.year}</span>
                   </div>
 
-                  {/* SLT Indicator */}
-                  {isSLT && (
+                  {/* Role Indicator */}
+                  {isHighlighted && (
                     <div className="mt-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[var(--accent-red-subtle)] text-white/90 text-xs font-medium">
                       <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                      Set Lighting Technician
+                      {work.role}
                     </div>
                   )}
                 </div>
 
                 {/* Subtle hover indicator line */}
-                {!isSLT && (
+                {!isHighlighted && (
                   <div className="absolute bottom-0 left-0 w-0 h-[2px] bg-[var(--accent-red)] group-hover:w-full transition-all duration-500" />
                 )}
               </motion.div>

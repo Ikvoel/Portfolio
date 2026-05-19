@@ -1,7 +1,9 @@
 import { motion } from "motion/react"
 import { useInView } from "motion/react"
 import { useRef, useState } from "react"
+import React from "react"
 import { FilmProject } from "./FilmProject"
+import { CommercialMV } from "./CommercialMV"
 
 const projects = [
 	{
@@ -253,28 +255,29 @@ export function Filmography() {
 					if (categoryProjects.length === 0) return null
 
 					return (
-						<div key={category} className="mb-24 last:mb-0">
-							<motion.div
-								initial={{ opacity: 0, x: -20 }}
-								whileInView={{ opacity: 1, x: 0 }}
-								viewport={{ once: true, margin: "-100px" }}
-								transition={{ duration: 0.5 }}
-								className="mb-8 flex items-center gap-4"
-							>
-								<h3 className="film-title text-2xl md:text-3xl text-white">{category === "Short Film" ? "Short Film" : category}</h3>
-								<div className="h-[1px] flex-grow bg-gradient-to-r from-white/20 to-transparent" />
-							</motion.div>
+						<React.Fragment key={category}>
+							<div className="mb-24 last:mb-0">
+								<motion.div
+									initial={{ opacity: 0, x: -20 }}
+									whileInView={{ opacity: 1, x: 0 }}
+									viewport={{ once: true, margin: "-100px" }}
+									transition={{ duration: 0.5 }}
+									className="mb-8 flex items-center gap-4"
+								>
+									<h3 className="film-title text-2xl md:text-3xl text-white">{category === "Short Film" ? "Short Film" : category}</h3>
+									<div className="h-[1px] flex-grow bg-gradient-to-r from-white/20 to-transparent" />
+								</motion.div>
 
-							{/* Projects Grid */}
-							<motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-								{categoryProjects.map((project, index) => (
-									<FilmProject key={project.id} project={project} index={index} isInView={isInView} />
-								))}
-							</motion.div>
-						</div>
-					)
+								{/* Projects Grid */}
+								<motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+									{categoryProjects.map((project, index) => (
+										<FilmProject key={project.id} project={project} index={index} isInView={isInView} />
+									))}
+								</motion.div>
+							</div>
+							)
 				})}
-			</div>
+						</div>
 		</section>
 	)
 }
