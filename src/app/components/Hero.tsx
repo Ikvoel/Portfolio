@@ -26,7 +26,7 @@ export function Hero() {
           Your browser does not support the video tag.
         </video>
         {/* Gradient overlay to seamlessly blend with the page background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#0a0a0a]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-[#0a0a0a]"></div>
       </div>
 
       {/* ===== BRAND LOGO - TOP LEFT ===== */}
@@ -58,13 +58,23 @@ export function Hero() {
         >
           {/* Main headline - Glamour Absolute font */}
           <motion.h1
-            className="section-title mb-6 text-white"
+            className="section-title mb-3 text-white"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             Muhammad Nur Husein
           </motion.h1>
+
+          {/* Role Stack */}
+          <motion.div
+            className="metadata text-white/80 mb-8 tracking-[0.2em] uppercase text-xs md:text-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+          >
+            Cinematographer — Editor — Colorist
+          </motion.div>
 
           {/* Subtitle - minimal and secondary */}
           <motion.p
