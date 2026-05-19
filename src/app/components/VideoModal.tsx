@@ -43,14 +43,14 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, year, description
             className="fixed inset-0 bg-black/95 md:backdrop-blur-md z-50 cursor-pointer"
           />
 
-          {/* Modal - PERFECTLY CENTERED AND SCALED FOR MOBILE */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4">
+          {/* Modal - COMPACT AND PADDED FOR MOBILE */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.3 }}
-              className="relative w-full h-full md:h-auto max-w-6xl md:max-h-[95vh] flex flex-col overflow-hidden rounded-none md:rounded-2xl shadow-2xl bg-black md:bg-black/90"
+              className="relative w-full h-auto max-w-6xl max-h-[90vh] md:max-h-[95vh] flex flex-col overflow-hidden rounded-xl md:rounded-2xl shadow-2xl bg-black/95 md:bg-black/90"
               style={{
                 border: '1px solid rgba(255, 255, 255, 0.1)',
               }}
@@ -59,7 +59,7 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, year, description
               {/* Close Button floating over video */}
               <motion.button
                 onClick={onClose}
-                className="absolute top-3 right-3 md:top-4 md:right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full transition-colors shadow-xl"
+                className="absolute top-2 right-2 md:top-4 md:right-4 z-50 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full transition-colors shadow-xl"
                 style={{
                   background: 'rgba(205, 92, 92, 0.9)',
                   border: '1px solid rgba(205, 92, 92, 1)',
@@ -67,19 +67,16 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, year, description
                 whileHover={{ scale: 1.1, background: 'rgba(205, 92, 92, 1)' }}
                 whileTap={{ scale: 0.9 }}
               >
-                <X className="w-5 h-5 text-white" />
+                <X className="w-4 h-4 md:w-5 md:h-5 text-white" />
               </motion.button>
 
-              {/* Video Container - PERFECTLY CENTERED & SCALED */}
-              <div className="relative w-full flex-1 flex items-center justify-center bg-black min-h-0">
+              {/* Video Container - STRICT 16:9 WITHIN BOUNDS */}
+              <div className="relative w-full bg-black flex-shrink-0" style={{ aspectRatio: '16/9' }}>
                 <iframe
                   src={videoUrl}
-                  className="w-full h-full"
+                  className="absolute inset-0 w-full h-full"
                   style={{
                     border: 'none',
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    aspectRatio: '16/9'
                   }}
                   allow="autoplay; fullscreen"
                   allowFullScreen
@@ -87,7 +84,7 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, year, description
               </div>
 
               {/* Metadata below video - Scrollable on mobile if needed */}
-              <div className="w-full flex-shrink-0 overflow-y-auto max-h-[45vh] md:max-h-none p-5 md:p-6 lg:p-8 bg-black/95 md:bg-black/40 md:backdrop-blur-xl border-t border-white/10 md:border-t-0">
+              <div className="w-full flex-shrink-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-transparent border-t border-white/10 md:border-t-0">
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">

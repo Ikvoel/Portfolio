@@ -56,7 +56,7 @@ const photoGallery = [
 	{
 		id: 3,
 		title: "Capturing Bernadya on stage.",
-		category: "Street",
+		category: "Event",
 		year: "2024",
 		image: "https://i.ibb.co.com/G48sf2NH/S3-N0-LOG-382.jpg",
 		description: "Documenting everyday life and candid moments.",
@@ -209,7 +209,7 @@ export function Photography() {
 	const groupedPhotos = {
 		Commercial: photoGallery.filter((p) => p.category === "Commercial"),
 		Portrait: photoGallery.filter((p) => p.category === "Portrait"),
-		Street: photoGallery.filter((p) => p.category === "Street"),
+		Landscape: photoGallery.filter((p) => p.category === "Landscape"),
 		Event: photoGallery.filter((p) => p.category === "Event"),
 	}
 
