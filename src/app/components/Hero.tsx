@@ -22,11 +22,11 @@ export function Hero() {
           className="w-full h-full object-cover opacity-30"
         >
           {/* Default placeholder cinematic video */}
-          <source src="https://www.dropbox.com/scl/fi/zbnjeay7s0i705evagzga/ripped-my-heart-out-8.mp4?rlkey=3ueanvb1590170gorzoelkhe7&st=74wt26cg&raw=1" type="video/mp4" />
+          <source src="https://www.dropbox.com/scl/fi/jogcbx3iuwi1dux4ykdjh/web-play-bg.mp4?rlkey=pxobr35dj2f9ma7yos3dlgtxu&st=ohlftfr5&raw=1" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         {/* Gradient overlay to seamlessly blend with the page background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-[#0a0a0a]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-[#0a0a0a]"></div>
       </div>
 
       {/* ===== BRAND LOGO - TOP LEFT ===== */}
