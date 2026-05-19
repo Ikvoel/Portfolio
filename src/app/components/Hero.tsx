@@ -22,7 +22,7 @@ export function Hero() {
           className="w-full h-full object-cover opacity-30"
         >
           {/* Default placeholder cinematic video */}
-          <source src="https://drive.google.com/uc?export=download&id=1-FKwu5GItWsuy-Ya5muObs_7ckocxKbV" type="video/mp4" />
+          <source src="https://www.dropbox.com/scl/fi/zbnjeay7s0i705evagzga/ripped-my-heart-out-8.mp4?rlkey=3ueanvb1590170gorzoelkhe7&st=74wt26cg&raw=1" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         {/* Gradient overlay to seamlessly blend with the page background */}
