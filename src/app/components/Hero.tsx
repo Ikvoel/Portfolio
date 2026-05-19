@@ -11,6 +11,18 @@ export function Hero() {
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      {/* ===== BACKGROUND IMAGE ===== */}
+      {/* You can replace this src with your own image URL */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="https://i.ibb.co.com/spcQHZ5n/SEN-8.jpg"
+          alt="Cinematic Background"
+          className="w-full h-full object-cover opacity-30"
+        />
+        {/* Gradient overlay to seamlessly blend with the page background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#0a0a0a]"></div>
+      </div>
+
       {/* ===== BRAND LOGO - TOP LEFT ===== */}
       {/* Adjust positioning with these classes: */}
       {/* Mobile: top-4 left-4 = 16px from edges */}
