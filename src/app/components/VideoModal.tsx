@@ -50,7 +50,7 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, year, description
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.3 }}
-              className="relative w-full max-w-6xl overflow-hidden rounded-xl md:rounded-2xl"
+              className="relative w-full max-w-6xl max-h-[95vh] flex flex-col overflow-y-auto rounded-xl md:rounded-2xl shadow-2xl"
               style={{
                 background: 'rgba(0, 0, 0, 0.8)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -72,7 +72,7 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, year, description
               </motion.button>
 
               {/* Video Container - 16:9 ASPECT RATIO ENFORCED */}
-              <div className="relative w-full aspect-video bg-black">
+              <div className="relative w-full aspect-video bg-black flex-shrink-0">
                 <iframe
                   src={videoUrl}
                   className="absolute top-0 left-0 w-full h-full"

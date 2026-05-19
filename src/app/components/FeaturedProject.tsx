@@ -89,7 +89,7 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
               alt={project.title}
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
             />
             {/* Mobile Watermark */}
             {project.watermarkLogo && (

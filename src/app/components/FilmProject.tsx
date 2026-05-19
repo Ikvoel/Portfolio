@@ -208,18 +208,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
             {/* Play Button - PERFECTLY CENTERED FOR ALL DEVICES */}
             {project.videoUrl && (
               <motion.div
-                className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center"
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
+                className="absolute inset-0 z-20 flex items-center justify-center"
                 initial={{ opacity: isMobile ? 0.8 : 0, scale: 0.85 }}
                 animate={{
                   opacity: (isHovered || isMobile) ? 1 : 0,
