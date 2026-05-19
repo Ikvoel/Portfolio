@@ -11,14 +11,20 @@ export function Hero() {
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
-      {/* ===== BACKGROUND IMAGE ===== */}
-      {/* You can replace this src with your own image URL */}
+      {/* ===== BACKGROUND VIDEO ===== */}
+      {/* You can replace this src with your own video URL (MP4 format works best) */}
       <div className="absolute inset-0 z-0">
-        <img
-          src="https://i.ibb.co.com/spcQHZ5n/SEN-8.jpg"
-          alt="Cinematic Background"
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           className="w-full h-full object-cover opacity-30"
-        />
+        >
+          {/* Default placeholder cinematic video */}
+          <source src="https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
         {/* Gradient overlay to seamlessly blend with the page background */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#0a0a0a]"></div>
       </div>
