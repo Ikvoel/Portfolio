@@ -2,7 +2,6 @@ import { Hero } from './components/Hero';
 import { About } from './components/About';
 import { FeaturedProjects } from './components/FeaturedProjects';
 import { Filmography } from './components/Filmography';
-import { CommercialMV } from './components/CommercialMV';
 import { Photography } from './components/Photography';
 import { Clients } from './components/Clients';
 import { Contact } from './components/Contact';
@@ -28,7 +27,6 @@ export default function App() {
         <About />
         <FeaturedProjects />
         <Filmography />
-        <CommercialMV />
         <Photography />
         <Clients />
         <Contact />
