@@ -16,7 +16,7 @@ const photoGallery = [
 	{
 		id: 5,
 		title: "Ravina On Pose",
-		category: "Potrait",
+		category: "Portrait",
 		year: "2023",
 		image: "https://i.ibb.co.com/bj1VjhX4/S3-N0-LOG-12.jpg",
 		description: "High-end portrait and fashion campaign.",
@@ -48,7 +48,7 @@ const photoGallery = [
 	{
 		id: 2,
 		title: "Urban Landscapes",
-		category: "Potrait",
+		category: "Portrait",
 		year: "2024",
 		image: "https://i.ibb.co.com/0R8vVq6g/S3-N0-LOG-2.jpg",
 		description: "Exploring natural and urban landscapes.",
@@ -64,7 +64,7 @@ const photoGallery = [
 	{
 		id: 4,
 		title: "Wedding Moments",
-		category: "Potrait",
+		category: "Portrait",
 		year: "2024",
 		image: "https://i.ibb.co.com/Q3R5QZFM/S3-N0-LOG-2.jpg",
 		description: "Preserving precious memories of special events.",
@@ -80,7 +80,7 @@ const photoGallery = [
 	{
 		id: 8,
 		title: "",
-		category: "Potrait",
+		category: "Portrait",
 		year: "2024",
 		image: "https://i.ibb.co.com/V0RhGpnq/S3-N0-LOG-20.jpg",
 		description: "Minimalist product shots with dramatic lighting.",
@@ -88,7 +88,7 @@ const photoGallery = [
 	{
 		id: 9,
 		title: "",
-		category: "Potrait",
+		category: "Portrait",
 		year: "2023",
 		image: "https://i.ibb.co.com/xtCBGTFD/S3-N0-LOG-26.png",
 		description: "Minimalist product shots with dramatic lighting.",
@@ -96,7 +96,7 @@ const photoGallery = [
 	{
 		id: 10,
 		title: "",
-		category: "Potrait",
+		category: "Portrait",
 		year: "2023",
 		image: "https://i.ibb.co.com/Q7cV6RB2/S3-N0-LOG-333.png",
 		description: "Minimalist product shots with dramatic lighting.",
@@ -104,7 +104,7 @@ const photoGallery = [
 	{
 		id: 11,
 		title: "",
-		category: "Potrait",
+		category: "Portrait",
 		year: "2023",
 		image: "https://i.ibb.co.com/9kD7Z3ww/DSC07487.jpg",
 		description: "Minimalist product shots with dramatic lighting.",
@@ -112,7 +112,7 @@ const photoGallery = [
 	{
 		id: 12,
 		title: "",
-		category: "Potrait",
+		category: "Portrait",
 		year: "2023",
 		image: "https://i.ibb.co.com/dNTHVrc/DSC02462.jpg",
 		description: "Minimalist product shots with dramatic lighting.",
@@ -166,9 +166,33 @@ const photoGallery = [
 		description: "Minimalist product shots with dramatic lighting.",
 	},
 	{
-		id: 17,
+		id: 18,
+		title: "Masno Milk & Coffee",
+		category: "Commercial",
+		year: "2026",
+		image: "https://i.ibb.co.com/WWByV8dr/Artboard-3-6.png",
+		description: "Minimalist product shots with dramatic lighting.",
+	},
+	{
+		id: 19,
+		title: "Las Flores Beans",
+		category: "Commercial",
+		year: "2024",
+		image: "https://i.ibb.co.com/m5NdKsXJ/las-flores.png",
+		description: "Minimalist product shots with dramatic lighting.",
+	},
+	{
+		id: 20,
 		title: "",
-		category: "Potrait",
+		category: "Portrait",
+		year: "2023",
+		image: "",
+		description: "Minimalist product shots with dramatic lighting.",
+	},
+	{
+		id: 21,
+		title: "",
+		category: "Portrait",
 		year: "2023",
 		image: "",
 		description: "Minimalist product shots with dramatic lighting.",
@@ -184,7 +208,7 @@ export function Photography() {
 
 	const groupedPhotos = {
 		Commercial: photoGallery.filter((p) => p.category === "Commercial"),
-		Potrait: photoGallery.filter((p) => p.category === "Potrait"),
+		Portrait: photoGallery.filter((p) => p.category === "Portrait"),
 		Street: photoGallery.filter((p) => p.category === "Street"),
 		Event: photoGallery.filter((p) => p.category === "Event"),
 	}
