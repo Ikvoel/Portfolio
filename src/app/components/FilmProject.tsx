@@ -219,10 +219,10 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
                 <motion.div
                   className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center"
                   style={{
-                    background: isMobile ? 'rgba(205, 92, 92, 0.9)' : 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: isMobile ? 'none' : 'blur(6px)',
-                    border: `1px solid ${isMobile ? 'rgba(205, 92, 92, 1)' : 'rgba(255, 255, 255, 0.2)'}`,
-                    boxShadow: isMobile ? '0 4px 16px rgba(0,0,0,0.4)' : `0 6px 20px ${glowColor}`,
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(6px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    boxShadow: `0 6px 20px ${glowColor}`,
                   }}
                   whileHover={{ scale: 1.15 }}
                   whileTap={{ scale: 0.95 }}
