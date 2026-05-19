@@ -22,7 +22,7 @@ export function Hero() {
           className="w-full h-full object-cover opacity-30"
         >
           {/* Default placeholder cinematic video */}
-          <source src="https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4" type="video/mp4" />
+          <source src="https://drive.google.com/file/d/1-FKwu5GItWsuy-Ya5muObs_7ckocxKbV/preview.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         {/* Gradient overlay to seamlessly blend with the page background */}
