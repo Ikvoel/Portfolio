@@ -60,7 +60,7 @@ export function About() {
 									Based in Jakarta, <span className="text-white font-medium">Seno</span> is a multidisciplinary filmmaker focusing on emotionally-driven narratives, intimate visuals, and atmospheric
 									storytelling.
 								</p>
-								<p className="body-text text-white/70 leading-relaxed text-base">
+								<p className="body-text text-white/80 leading-relaxed text-base">
 									Currently exploring themes of identity, isolation, and psychological tension through narrative and experimental film.
 								</p>
 							</motion.div>
