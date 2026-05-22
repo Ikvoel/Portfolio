@@ -173,7 +173,7 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
               </div>
               <span className="metadata text-white text-xs">Not Available</span>
             </motion.button>
-          )},
+          )}
         </div>
       </div>
 
