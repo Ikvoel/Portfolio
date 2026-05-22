@@ -63,7 +63,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            Kairo
+            Seno party
           </motion.h1>
 
           {/* Role Stack */}
