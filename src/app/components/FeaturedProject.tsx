@@ -1,8 +1,43 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Play } from 'lucide-react';
 import { VideoModal } from './VideoModal';
+
+// CINEMATIC MOVING POSTER CONFIGURATION
+// Use this block to easily customize or manually override the moving poster behavior.
+export const MOVING_POSTER_CONFIG = {
+  enabled: true, // Master switch for the Cinematic Moving Poster feature
+  transitionDelayMs: 3000, // Display still image for this many milliseconds before transitioning (between 2000 and 5000)
+
+  // Manual URL overrides map (Project Title -> Video Loop URL)
+  // You can manually assign test video links here to override the dataset configuration.
+  manualOverrides: {
+    'My Hand, Her Signature': '',
+    'Blue Before Dawn': '',
+    'The Mute Room': '',
+  } as Record<string, string>,
+};
+
+// Helper function to normalize Dropbox links to direct stream links (raw=1)
+function normalizeVideoUrl(url: string | undefined): string | undefined {
+  if (!url) return url;
+  if (url.includes('dropbox.com')) {
+    let normalized = url;
+    // Replace standard preview/download query params with raw=1 for HTML5 direct stream
+    if (normalized.includes('dl=raw1')) {
+      normalized = normalized.replace('dl=raw1', 'raw=1');
+    } else if (normalized.includes('dl=0')) {
+      normalized = normalized.replace('dl=0', 'raw=1');
+    } else if (normalized.includes('dl=1')) {
+      normalized = normalized.replace('dl=1', 'raw=1');
+    } else if (!normalized.includes('raw=1')) {
+      normalized += (normalized.includes('?') ? '&' : '?') + 'raw=1';
+    }
+    return normalized;
+  }
+  return url;
+}
 
 interface FeaturedProjectData {
   title: string;
@@ -15,6 +50,7 @@ interface FeaturedProjectData {
   statusColor?: string; // Optional: color of status badge (e.g., 'yellow', 'red', 'green', 'blue')
   watermarkLogo?: string; // Optional: watermark logo URL
   videoUrl?: string;
+  previewVideoUrl?: string; // Optional: Cinematic Moving Poster URL
 }
 
 interface FeaturedProjectProps {
@@ -24,7 +60,93 @@ interface FeaturedProjectProps {
 export function FeaturedProject({ project }: FeaturedProjectProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
+
+  // Track dynamic visibility for video playback (does not run only once)
+  const isCurrentlyVisible = useInView(ref, { once: false, amount: 0.3 });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Cinematic Moving Poster State & Logic
+  const [showVideo, setShowVideo] = useState(false);
+  const videoRefDesktop = useRef<HTMLVideoElement>(null);
+  const videoRefMobile = useRef<HTMLVideoElement>(null);
+
+  // Resolve the video preview URL using manual overrides, then dataset properties
+  const rawPreviewUrl = MOVING_POSTER_CONFIG.manualOverrides[project.title] || project.previewVideoUrl;
+  const previewVideoUrl = normalizeVideoUrl(rawPreviewUrl);
+  const isPosterEnabled = MOVING_POSTER_CONFIG.enabled && !!previewVideoUrl;
+
+  // Manage transition countdown timer
+  useEffect(() => {
+    if (!isPosterEnabled) {
+      console.log(`[Cinematic Moving Poster] Fallback active for project "${project.title}". Remaining static as no video URL was found/enabled.`);
+      return;
+    }
+
+    if (isCurrentlyVisible) {
+      console.log(`[Cinematic Moving Poster] "${project.title}" is in view. Starting ${MOVING_POSTER_CONFIG.transitionDelayMs}ms countdown before cross-fade.`);
+
+      const timer = setTimeout(() => {
+        console.log(`[Cinematic Moving Poster] Transitioning "${project.title}" from still image to autoplaying loop video: ${previewVideoUrl}`);
+        setShowVideo(true);
+      }, MOVING_POSTER_CONFIG.transitionDelayMs);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    } else {
+      console.log(`[Cinematic Moving Poster] "${project.title}" scrolled out of view. Resetting to still image.`);
+      setShowVideo(false);
+    }
+  }, [isCurrentlyVisible, isPosterEnabled, previewVideoUrl, project.title]);
+
+  // Manage programmatic play/pause behavior to ensure bypass of browser-level autoplay holds
+  useEffect(() => {
+    if (showVideo) {
+      const playVideo = async () => {
+        try {
+          if (videoRefDesktop.current) {
+            videoRefDesktop.current.muted = true;
+            await videoRefDesktop.current.play();
+            console.log(`[Cinematic Moving Poster] Desktop video play started for "${project.title}".`);
+          }
+        } catch (err) {
+          console.warn(`[Cinematic Moving Poster] Desktop video autoplay failed for "${project.title}":`, err);
+        }
+        try {
+          if (videoRefMobile.current) {
+            videoRefMobile.current.muted = true;
+            await videoRefMobile.current.play();
+            console.log(`[Cinematic Moving Poster] Mobile video play started for "${project.title}".`);
+          }
+        } catch (err) {
+          console.warn(`[Cinematic Moving Poster] Mobile video autoplay failed for "${project.title}":`, err);
+        }
+      };
+      playVideo();
+    } else {
+      if (videoRefDesktop.current) {
+        try {
+          videoRefDesktop.current.pause();
+          if (videoRefDesktop.current.readyState >= 1) {
+            videoRefDesktop.current.currentTime = 0;
+          }
+        } catch (e) {
+          console.warn(`[Cinematic Moving Poster] Error pausing desktop video for "${project.title}":`, e);
+        }
+      }
+      if (videoRefMobile.current) {
+        try {
+          videoRefMobile.current.pause();
+          if (videoRefMobile.current.readyState >= 1) {
+            videoRefMobile.current.currentTime = 0;
+          }
+        } catch (e) {
+          console.warn(`[Cinematic Moving Poster] Error pausing mobile video for "${project.title}":`, e);
+        }
+      }
+    }
+  }, [showVideo, project.title]);
 
   // Status badge color variants
   const statusColorMap: Record<string, string> = {
@@ -47,17 +169,41 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
         transition={{ duration: 1.0 }}
         className="absolute inset-0 md:block hidden"
       >
-        <img
+        {/* Still Image */}
+        <motion.img
           src={project.image}
           alt={project.title}
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover bg-black"
+          className="absolute inset-0 w-full h-full object-cover bg-black"
+          animate={{ opacity: showVideo ? 0 : 1 }}
+          transition={{ duration: 1.0, ease: 'easeInOut' }}
         />
 
+        {/* Autoplay Preview Video */}
+        {isPosterEnabled && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: showVideo ? 1 : 0 }}
+            transition={{ duration: 1.0, ease: 'easeInOut' }}
+            className="absolute inset-0 w-full h-full"
+          >
+            <video
+              ref={videoRefDesktop}
+              src={previewVideoUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              className="w-full h-full object-cover bg-black"
+            />
+          </motion.div>
+        )}
+
         {/* Multi-layer gradient for readability - Desktop only */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-black/25 to-black/50" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-black/25 to-black/50 z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10 pointer-events-none" />
 
         {/* ===== WATERMARK LOGO - TOP RIGHT - Desktop ===== */}
         {project.watermarkLogo && (
@@ -84,16 +230,41 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
         >
           {/* Mobile Image Container */}
           <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden">
-            <img
+            {/* Still Image */}
+            <motion.img
               src={project.image}
               alt={project.title}
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
+              animate={{ opacity: showVideo ? 0 : 1 }}
+              transition={{ duration: 1.0, ease: 'easeInOut' }}
             />
+
+            {/* Autoplay Preview Video */}
+            {isPosterEnabled && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: showVideo ? 1 : 0 }}
+                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                className="absolute inset-0 w-full h-full"
+              >
+                <video
+                  ref={videoRefMobile}
+                  src={previewVideoUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
+            )}
+
             {/* Mobile Watermark */}
             {project.watermarkLogo && (
-              <div className="absolute top-3 right-3 z-10 opacity-30 pointer-events-none">
+              <div className="absolute top-3 right-3 z-20 opacity-30 pointer-events-none">
                 <img
                   src={project.watermarkLogo}
                   alt="Watermark"
