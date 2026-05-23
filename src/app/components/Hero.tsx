@@ -63,7 +63,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            Seno party
+            Muhammad Nur Husein
           </motion.h1>
 
           {/* Role Stack */}
@@ -83,7 +83,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            jagonya mbg
+            Crafting visual through my lens
           </motion.p>
 
           {/* CTA Button with glass morphism */}

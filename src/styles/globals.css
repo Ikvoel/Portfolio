@@ -109,7 +109,6 @@
   .glass {
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
   }
@@ -117,7 +116,6 @@
   .glass-card {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--radius);
     box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.42);
@@ -126,7 +124,6 @@
   .glass-subtle {
     background: rgba(255, 255, 255, 0.02);
     backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
     border: 1px solid rgba(255, 255, 255, 0.06);
   }
 
@@ -152,7 +149,6 @@
   .glass-card,
   .glass-subtle {
     backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
   }
 
   /* Reduce shadows on mobile */
