@@ -11,7 +11,7 @@ const projects = [
 		title: "My Hand, Her Signature",
 		category: "Short Film",
 		year: "2026",
-		description: "A young painter is in danger of losing the most important exhibition of his career because another figure within him keeps destroying his paintings.",
+		description: "A young painter risks losing the most important exhibition of her career as another presence within herself continues to destroy her paintings.",
 		image: "https://i.ibb.co.com/xqZk5hdm/Still-2026-05-07-172137-1-53-2.jpg",
 		videoUrl: "Not available",
 		roles: ["Writter", "Director of Photography", "Music Score"],

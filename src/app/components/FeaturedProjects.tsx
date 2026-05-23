@@ -29,6 +29,7 @@ const featuredProjects = [
     statusColor: 'yellow', // Options: 'yellow', 'red', 'green', 'blue', 'purple', 'orange'
     watermarkLogo: 'https://i.ibb.co.com/B5dk6Z9Q/logo-aftertone-white-color.png', // Your production company logo
     videoUrl: 'Not Available',
+    // previewVideoUrl: 'Not Available'
   },
   {
     title: 'Blue Before Dawn',
@@ -41,6 +42,7 @@ const featuredProjects = [
     statusColor: 'red', // Different color for this project
     watermarkLogo: 'https://i.ibb.co.com/Wv7s4Nh6/kaiv-Logo.png', // Can use different logo per project
     videoUrl: 'Not Available',
+    // previewVideoUrl: 'Not Available',
   },
   {
     title: 'The Mute Room',
@@ -53,6 +55,7 @@ const featuredProjects = [
     statusColor: 'red', // Different color for this project
     watermarkLogo: 'https://i.ibb.co.com/MD6xpWds/hsno-mark-f.png', // Can use different logo per project
     videoUrl: 'Not Available',
+    // previewVideoUrl: 'Not Available',
   },
   // Add more featured projects here as needed
 ];
