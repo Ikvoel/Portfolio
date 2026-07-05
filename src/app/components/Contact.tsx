@@ -151,7 +151,7 @@ export function Contact() {
           className="text-center mt-16 pt-8 border-t border-white/10"
         >
           <p className="body-text text-white/40 text-xs">
-            © 2025 Muhammad Nur Husein. All rights reserved.
+            © 2026 Muhammad Nur Husein. All rights reserved.
           </p>
         </motion.div>
       </div>

@@ -3,6 +3,7 @@ import { useInView } from "motion/react"
 import { useRef, useState } from "react"
 import { ImageModal } from "./ImageModal"
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
+import { OptimizedImage } from "./ui/OptimizedImage"
 
 const photoGallery = [
 	{
@@ -312,7 +313,7 @@ export function Photography() {
 											>
 												{/* CARD */}
 												<motion.div whileHover={{ scale: 1.015 }} transition={{ type: "spring", stiffness: 260, damping: 22 }} className="relative overflow-hidden rounded-xl bg-black/20">
-													<img src={photo.image} alt={photo.title} className="w-full h-auto object-cover" style={{ display: "block" }} />
+													<OptimizedImage src={photo.image} alt={photo.title} className="w-full h-auto" />
 
 													{/* Hover Overlay with red accent */}
 													<motion.div
