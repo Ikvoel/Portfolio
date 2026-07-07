@@ -111,7 +111,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
   const rotateY = useTransform(mouseX, [-150, 150], [-3, 3]);
 
   const hasStills = !!(project.cinematicStills && project.cinematicStills.length > 0);
-  const hasVideo = !!(project.videoUrl && project.videoUrl !== 'Not Available' && project.videoUrl !== 'Not available');
+  const hasVideo = !!project.videoUrl;
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Cycle through cinematic stills
@@ -507,11 +507,13 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
         <VideoModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          videoUrl={project.videoUrl}
+          videoUrl={project.videoUrl || ''}
           title={project.title}
           year={project.year}
           description={project.description}
           roles={project.roles}
+          image={project.image}
+          cinematicStills={project.cinematicStills}
         />
       )}
     </>

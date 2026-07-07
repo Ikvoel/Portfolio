@@ -76,7 +76,7 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
   const rawPreviewUrl = MOVING_POSTER_CONFIG.manualOverrides[project.title] || project.previewVideoUrl;
   const previewVideoUrl = normalizeVideoUrl(rawPreviewUrl);
   const isPosterEnabled = MOVING_POSTER_CONFIG.enabled && !!previewVideoUrl;
-  const hasVideo = !!(project.videoUrl && project.videoUrl !== 'Not Available' && project.videoUrl !== 'Not available');
+  const hasVideo = !!project.videoUrl;
 
   // Manage transition countdown timer
   useEffect(() => {
@@ -434,11 +434,13 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
         <VideoModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          videoUrl={project.videoUrl}
+          videoUrl={project.videoUrl || ''}
           title={project.title}
           year={project.year}
           description={project.description}
           roles={['Director', 'Writer', 'Editor']}
+          image={project.image}
+          cinematicStills={[]}
         />
       )}
     </section>
