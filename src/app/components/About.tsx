@@ -4,11 +4,11 @@ import { useRef } from "react"
 import { OptimizedImage } from "./ui/OptimizedImage"
 
 const btsPhotos = [
-	{ id: 1, src: "https://i.ibb.co.com/Kx57YZZ4/SEN-9.jpg", alt: "On set moment" },
-	{ id: 2, src: "https://i.ibb.co.com/3yqtLf8p/Resigned-330.jpg", alt: "Cinematography work" },
-	{ id: 3, src: "https://i.ibb.co.com/spcQHZ5n/SEN-8.jpg", alt: "Behind the scenes" },
-	{ id: 4, src: "https://i.ibb.co.com/tT3J3kfP/SEN-12.jpg", alt: "On set moment" },
-	{ id: 5, src: "https://i.ibb.co.com/rKMxyV5N/Still-2025-12-31-165429-1-23-6.jpg", alt: "Set work" },
+	{ id: 1, src: "https://res.cloudinary.com/asfa6j6o/image/upload/v1783534427/SEN-10_etoyce.jpg", alt: "On set moment" },
+	{ id: 2, src: "https://res.cloudinary.com/asfa6j6o/image/upload/v1783534717/Resigned-330_c0seiq.jpg", alt: "Assistant Camera Work" },
+	{ id: 3, src: "https://res.cloudinary.com/asfa6j6o/image/upload/v1783534448/SEN-8_sns9t1.jpg", alt: "Behind the scenes" },
+	{ id: 4, src: "https://res.cloudinary.com/asfa6j6o/image/upload/v1783534423/SEN-3_qchht3.jpg", alt: "On set moment" },
+	{ id: 5, src: "https://res.cloudinary.com/asfa6j6o/image/upload/v1783535471/SEN-6_tdyd6u.jpg", alt: "Set work" },
 	// Add more BTS photos here
 ]
 
@@ -34,7 +34,7 @@ export function About() {
 								className="relative aspect-[3/4] rounded-2xl overflow-hidden group"
 							>
 								<OptimizedImage
-									src="https://i.ibb.co.com/Kx57YZZ4/SEN-9.jpg"
+									src="https://res.cloudinary.com/asfa6j6o/image/upload/v1783534787/20251009_124714_tvbntb.jpg"
 									alt="Seno - Filmmaker"
 									className="w-full h-full grayscale opacity-90 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
 								/>
