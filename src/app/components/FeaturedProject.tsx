@@ -3,6 +3,7 @@ import { useInView } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { Play } from 'lucide-react';
 import { VideoModal } from './VideoModal';
+import { OptimizedImage } from './ui/OptimizedImage';
 
 // CINEMATIC MOVING POSTER CONFIGURATION
 // Use this block to easily customize or manually override the moving poster behavior.
@@ -75,6 +76,7 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
   const rawPreviewUrl = MOVING_POSTER_CONFIG.manualOverrides[project.title] || project.previewVideoUrl;
   const previewVideoUrl = normalizeVideoUrl(rawPreviewUrl);
   const isPosterEnabled = MOVING_POSTER_CONFIG.enabled && !!previewVideoUrl;
+  const hasVideo = !!project.videoUrl;
 
   // Manage transition countdown timer
   useEffect(() => {
@@ -170,15 +172,17 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
         className="absolute inset-0 md:block hidden"
       >
         {/* Still Image */}
-        <motion.img
-          src={project.image}
-          alt={project.title}
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover bg-black"
+        <motion.div
+          className="absolute inset-0 w-full h-full"
           animate={{ opacity: showVideo ? 0 : 1 }}
           transition={{ duration: 1.0, ease: 'easeInOut' }}
-        />
+        >
+          <OptimizedImage
+            src={project.image}
+            alt={project.title}
+            className="w-full h-full"
+          />
+        </motion.div>
 
         {/* Autoplay Preview Video */}
         {isPosterEnabled && (
@@ -231,15 +235,17 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
           {/* Mobile Image Container */}
           <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden">
             {/* Still Image */}
-            <motion.img
-              src={project.image}
-              alt={project.title}
-              loading="lazy"
-              decoding="async"
-              className="absolute inset-0 w-full h-full object-cover"
+            <motion.div
+              className="absolute inset-0 w-full h-full"
               animate={{ opacity: showVideo ? 0 : 1 }}
               transition={{ duration: 1.0, ease: 'easeInOut' }}
-            />
+            >
+              <OptimizedImage
+                src={project.image}
+                alt={project.title}
+                className="w-full h-full"
+              />
+            </motion.div>
 
             {/* Autoplay Preview Video */}
             {isPosterEnabled && (
@@ -331,7 +337,7 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
           </motion.div>
 
           {/* Watch CTA */}
-          {project.videoUrl && (
+          {hasVideo && (
             <motion.button
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -342,7 +348,7 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
               <div className="glass-subtle w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-all duration-300">
                 <Play className="w-4 h-4 text-white ml-0.5" fill="white" />
               </div>
-              <span className="metadata text-white text-xs">Not Available</span>
+              <span className="metadata text-white text-xs">Watch Film</span>
             </motion.button>
           )}
         </div>
@@ -403,7 +409,7 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
           </motion.div>
 
           {/* Watch CTA */}
-          {project.videoUrl && (
+          {hasVideo && (
             <motion.button
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -416,7 +422,7 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
               <div className="glass-subtle w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-all duration-300">
                 <Play className="w-4 h-4 text-white ml-0.5" fill="white" />
               </div>
-              <span className="metadata text-white">Not Available</span>
+              <span className="metadata text-white">Watch Film</span>
             </motion.button>
           )}
         </div>
@@ -424,15 +430,17 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
 
 
       {/* Video Modal */}
-      {project.videoUrl && (
+      {hasVideo && (
         <VideoModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          videoUrl={project.videoUrl}
+          videoUrl={project.videoUrl || ''}
           title={project.title}
           year={project.year}
           description={project.description}
           roles={['Director', 'Writer', 'Editor']}
+          image={project.image}
+          cinematicStills={[]}
         />
       )}
     </section>

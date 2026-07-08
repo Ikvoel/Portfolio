@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X } from 'lucide-react';
-import { useEffect } from 'react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface VideoModalProps {
   isOpen: boolean;
@@ -10,9 +10,30 @@ interface VideoModalProps {
   year?: string;
   description?: string;
   roles?: string[];
+  image?: string;
+  cinematicStills?: string[];
 }
 
-export function VideoModal({ isOpen, onClose, videoUrl, title, year, description, roles }: VideoModalProps) {
+export function VideoModal({
+  isOpen,
+  onClose,
+  videoUrl,
+  title,
+  year,
+  description,
+  roles,
+  image,
+  cinematicStills
+}: VideoModalProps) {
+  const [activeStillIndex, setActiveStillIndex] = useState(0);
+
+  // Reset active index when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setActiveStillIndex(0);
+    }
+  }, [isOpen]);
+
   // Close on Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -29,6 +50,29 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, year, description
       document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
+
+  // A clean, simple switch to determine if the video is available.
+  // If you add a real URL later, this switches automatically back to the video iframe player.
+  const isVideoAvailable = !!(
+    videoUrl &&
+    videoUrl.trim() !== '' &&
+    videoUrl.toLowerCase() !== 'not available' &&
+    videoUrl.toLowerCase() !== 'notavailable' &&
+    videoUrl.toLowerCase() !== 'not-available'
+  );
+
+  // Collect all unique still images to show statically (no autoplay)
+  const stillsList: string[] = [];
+  if (image) {
+    stillsList.push(image);
+  }
+  if (cinematicStills && cinematicStills.length > 0) {
+    cinematicStills.forEach((still) => {
+      if (still !== image && !stillsList.includes(still)) {
+        stillsList.push(still);
+      }
+    });
+  }
 
   return (
     <AnimatePresence>
@@ -72,15 +116,72 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, year, description
 
               {/* Video Container - STRICT 16:9 WITHIN BOUNDS */}
               <div className="relative w-full bg-black flex-shrink-0" style={{ aspectRatio: '16/9' }}>
-                <iframe
-                  src={videoUrl}
-                  className="absolute inset-0 w-full h-full"
-                  style={{
-                    border: 'none',
-                  }}
-                  allow="autoplay; fullscreen"
-                  allowFullScreen
-                />
+                {isVideoAvailable ? (
+                  <iframe
+                    src={videoUrl}
+                    className="absolute inset-0 w-full h-full"
+                    style={{
+                      border: 'none',
+                    }}
+                    allow="autoplay; fullscreen"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-neutral-950 select-none overflow-hidden">
+                    {/* The Still Image */}
+                    {stillsList.length > 0 ? (
+                      <img
+                        src={stillsList[activeStillIndex]}
+                        alt={`${title} still`}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="text-white/40 text-sm">No preview available</div>
+                    )}
+
+                    {/* Navigation controls (only if there are multiple stills) */}
+                    {stillsList.length > 1 && (
+                      <>
+                        {/* Left/Right arrow overlay buttons */}
+                        <button
+                          onClick={() => setActiveStillIndex((prev) => (prev - 1 + stillsList.length) % stillsList.length)}
+                          className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white hover:bg-black/90 hover:scale-105 active:scale-95 transition-all z-20 cursor-pointer"
+                          aria-label="Previous image"
+                        >
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => setActiveStillIndex((prev) => (prev + 1) % stillsList.length)}
+                          className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white hover:bg-black/90 hover:scale-105 active:scale-95 transition-all z-20 cursor-pointer"
+                          aria-label="Next image"
+                        >
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+
+                        {/* Dot indicators at the bottom */}
+                        <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                          {stillsList.map((_, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setActiveStillIndex(idx)}
+                              className={`h-1.5 rounded-full transition-all duration-300 ${
+                                idx === activeStillIndex ? 'w-5 bg-white' : 'w-1.5 bg-white/40 hover:bg-white/60'
+                              }`}
+                              aria-label={`Go to slide ${idx + 1}`}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Elegant Cinematic Stills Badge */}
+                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20">
+                      <span className="metadata px-2.5 py-1 rounded bg-black/75 text-white/90 border border-white/15 text-[10px] md:text-xs font-medium tracking-wider uppercase backdrop-blur-sm">
+                        Cinematic Stills
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Metadata below video - Scrollable on mobile if needed */}

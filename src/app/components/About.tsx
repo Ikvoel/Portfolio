@@ -1,6 +1,7 @@
 import { motion } from "motion/react"
 import { useInView } from "motion/react"
 import { useRef } from "react"
+import { OptimizedImage } from "./ui/OptimizedImage"
 
 const btsPhotos = [
 	{ id: 1, src: "https://i.ibb.co.com/Kx57YZZ4/SEN-9.jpg", alt: "On set moment" },
@@ -32,12 +33,10 @@ export function About() {
 								transition={{ duration: 0.8 }}
 								className="relative aspect-[3/4] rounded-2xl overflow-hidden group"
 							>
-								<img
+								<OptimizedImage
 									src="https://i.ibb.co.com/Kx57YZZ4/SEN-9.jpg"
 									alt="Seno - Filmmaker"
-									loading="lazy"
-									decoding="async"
-									className="w-full h-full object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
+									className="w-full h-full grayscale opacity-90 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
 								/>
 								{/* Subtle red accent border on hover */}
 								<div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--accent-red-subtle)] transition-all duration-500 rounded-2xl pointer-events-none" />
@@ -92,7 +91,11 @@ export function About() {
 												className="flex-shrink-0 relative rounded-xl overflow-hidden group cursor-pointer"
 												style={{ width: "clamp(140px, 35vw, 210px)", height: "100%" }}
 											>
-												<img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+												<OptimizedImage
+													src={photo.src}
+													alt={photo.alt}
+													className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500"
+												/>
 												{/* Subtle overlay */}
 												<div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all duration-500" />
 												{/* Red accent border on hover */}

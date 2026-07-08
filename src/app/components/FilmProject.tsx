@@ -2,6 +2,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'motion/re
 import { useState, useEffect, useRef } from 'react';
 import { Play } from 'lucide-react';
 import { VideoModal } from './VideoModal';
+import { OptimizedImage } from './ui/OptimizedImage';
 
 // Helper function to normalize Dropbox links to direct stream links (raw=1)
 function normalizeVideoUrl(url: string | undefined): string | undefined {
@@ -110,6 +111,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
   const rotateY = useTransform(mouseX, [-150, 150], [-3, 3]);
 
   const hasStills = !!(project.cinematicStills && project.cinematicStills.length > 0);
+  const hasVideo = !!project.videoUrl;
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Cycle through cinematic stills
@@ -185,11 +187,11 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
           delay: isMobile ? 0 : index * 0.12,
           ease: [0.22, 1, 0.36, 1]
         }}
-        className="relative group cursor-pointer"
+        className={`relative group ${hasVideo ? 'cursor-pointer' : 'cursor-default'}`}
         onMouseEnter={() => !isMobile && setIsHovered(true)}
         onMouseLeave={handleMouseLeave}
         onMouseMove={!isMobile ? handleMouseMove : undefined}
-        onClick={() => project.videoUrl && setIsModalOpen(true)}
+        onClick={() => hasVideo && setIsModalOpen(true)}
         style={{
           transformStyle: 'preserve-3d',
           padding: isMobile ? '0' : '24px',
@@ -231,12 +233,10 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
           {/* Image Container */}
           <div className="relative aspect-video overflow-hidden bg-black rounded-t-2xl">
             {/* Base cover image (always visible as fallback or background) */}
-            <img
+            <OptimizedImage
               src={project.image}
               alt={project.title}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-105"
             />
 
             {/* Video preview overlay */}
@@ -285,7 +285,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
             )}
 
             {/* Watermark Logo - Top Right (Responsive Constraints) */}
-            <div className="absolute top-3 right-4 md:top- -1 md:right-4 z-10 opacity-20 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
+            <div className="absolute top-3 right-4 md:top-4 md:right-4 z-10 opacity-20 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
               <img
                 src="https://i.ibb.co.com/MD6xpWds/hsno-mark-f.png"
                 alt="Watermark"
@@ -334,7 +334,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
             )}
 
             {/* Play Button - PERFECTLY CENTERED FOR ALL DEVICES */}
-            {project.videoUrl && (
+            {hasVideo && (
               <motion.div
                 className="absolute inset-0 z-20 flex items-center justify-center"
                 initial={{ opacity: isMobile ? 0.8 : 0, scale: 0.85 }}
@@ -503,15 +503,17 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
       </motion.div>
 
       {/* Video Modal */}
-      {project.videoUrl && (
+      {hasVideo && (
         <VideoModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          videoUrl={project.videoUrl}
+          videoUrl={project.videoUrl || ''}
           title={project.title}
           year={project.year}
           description={project.description}
           roles={project.roles}
+          image={project.image}
+          cinematicStills={project.cinematicStills}
         />
       )}
     </>
