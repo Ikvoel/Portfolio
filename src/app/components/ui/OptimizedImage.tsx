@@ -37,11 +37,8 @@ export function OptimizedImage({
   const [isLoaded, setIsLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Auto-resolve WebP/AVIF filenames if not explicitly overridden
-  const resolvedAvif = avifSrc || getAlternativeExtension(src, 'avif');
-  const resolvedWebp = webpSrc || getAlternativeExtension(src, 'webp');
+  const finalPlaceholder = placeholderSrc || src;
 
-  // Trigger instant loading state if image was already cached by browser
   useEffect(() => {
     if (imgRef.current?.complete) {
       setIsLoaded(true);
@@ -57,9 +54,9 @@ export function OptimizedImage({
       }}
     >
       {/* Blurred Placeholder image (fades out once high-res loads) */}
-      {placeholderSrc && (
+      {finalPlaceholder && (
         <img
-          src={placeholderSrc}
+          src={finalPlaceholder}
           alt=""
           aria-hidden="true"
           className={`absolute inset-0 w-full h-full object-cover filter blur-md scale-105 pointer-events-none transition-opacity duration-700 ease-in-out z-10 ${
@@ -70,18 +67,12 @@ export function OptimizedImage({
 
       {/* Modern Format Wrapper */}
       <picture>
-        {resolvedAvif && (
-          <source
-            srcSet={avifSrcSet || resolvedAvif}
-            type="image/avif"
-          />
-        )}
-        {resolvedWebp && (
-          <source
-            srcSet={webpSrcSet || resolvedWebp}
-            type="image/webp"
-          />
-        )}
+        {avifSrcSet && <source srcSet={avifSrcSet} type="image/avif" />}
+        {avifSrc && <source srcSet={avifSrc} type="image/avif" />}
+
+        {webpSrcSet && <source srcSet={webpSrcSet} type="image/webp" />}
+        {webpSrc && <source srcSet={webpSrc} type="image/webp" />}
+
         <img
           ref={imgRef}
           src={src}

@@ -3,13 +3,18 @@ import { useInView } from "motion/react"
 import { useRef } from "react"
 import { OptimizedImage } from "./ui/OptimizedImage"
 
+import bts1 from "@/assets/images/bts/1.webp"
+import bts2 from "@/assets/images/bts/2.webp"
+import bts3 from "@/assets/images/bts/3.webp"
+import bts4 from "@/assets/images/bts/4.webp"
+import bts5 from "@/assets/images/bts/5.webp"
+
 const btsPhotos = [
-	{ id: 1, src: "https://res.cloudinary.com/asfa6j6o/image/upload/v1783534427/SEN-10_etoyce.jpg", alt: "On set moment" },
-	{ id: 2, src: "https://res.cloudinary.com/asfa6j6o/image/upload/v1783534717/Resigned-330_c0seiq.jpg", alt: "Assistant Camera Work" },
-	{ id: 3, src: "https://res.cloudinary.com/asfa6j6o/image/upload/v1783534448/SEN-8_sns9t1.jpg", alt: "Behind the scenes" },
-	{ id: 4, src: "https://res.cloudinary.com/asfa6j6o/image/upload/v1783534423/SEN-3_qchht3.jpg", alt: "On set moment" },
-	{ id: 5, src: "https://res.cloudinary.com/asfa6j6o/image/upload/v1783535471/SEN-6_tdyd6u.jpg", alt: "Set work" },
-	// Add more BTS photos here
+	{ id: 1, src: bts1, alt: "On set moment" },
+	{ id: 2, src: bts2, alt: "Assistant Camera Work" },
+	{ id: 3, src: bts3, alt: "Behind the scenes" },
+	{ id: 4, src: bts4, alt: "On set moment" },
+	{ id: 5, src: bts5, alt: "Set work" },
 ]
 
 export function About() {
@@ -91,11 +96,7 @@ export function About() {
 												className="flex-shrink-0 relative rounded-xl overflow-hidden group cursor-pointer"
 												style={{ width: "clamp(140px, 35vw, 210px)", height: "100%" }}
 											>
-												<OptimizedImage
-													src={photo.src}
-													alt={photo.alt}
-													className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500"
-												/>
+												<OptimizedImage src={photo.src} alt={photo.alt} className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500" />
 												{/* Subtle overlay */}
 												<div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all duration-500" />
 												{/* Red accent border on hover */}
