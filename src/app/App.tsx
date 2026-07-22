@@ -8,6 +8,7 @@ import { Contact } from './components/Contact';
 import { AnimatedBackground } from './components/AnimatedBackground';
 import { CursorParallax } from './components/CursorParallax';
 import { BackgroundMusic } from './components/BackgroundMusic';
+import seasons from "/@assets/bgmusic/seasons.wav"
 
 export default function App() {
   return (
@@ -19,7 +20,7 @@ export default function App() {
       <CursorParallax />
 
       {/* Background Music Player - z-50 */}
-      <BackgroundMusic audioUrl="https://www.dropbox.com/scl/fi/zuerv3ywjjdgwuxjlp0cb/Galdive-Teach-Me-How-To-Love-Official-Lyric-Video-music-vocals.mp3?rlkey=f9donfz10tow2ky1eusbm5pp2&st=xmv817nm&raw=1" />
+      <BackgroundMusic audioUrl="https://www.dropbox.com/scl/fi/2mt7pcgmwuefjnezl8ovy/Little-Light.wav?rlkey=4ecsjho636fjxrkv5u4p1y15m&st=w8wkv0gc&raw=1" />
 
       {/* Content - z-10 */}
       <div className="relative z-10">

@@ -1,63 +1,82 @@
 import { FeaturedProject } from './FeaturedProject';
-
-/**
- * FEATURED PROJECTS - ONGOING WORKS
- *
- * This component displays multiple ongoing featured projects stacked vertically.
- * To add more projects, simply add a new object to the featuredProjects array below.
- *
- * Each project requires:
- * - title: Project name
- * - subtitle: Project type (e.g., "Short Film", "Music Video")
- * - description: Brief synopsis (1-2 sentences)
- * - image: Full image URL (use imgbb.com for hosting)
- * - category: Genre/type
- * - year: Production year
- * - status: Current status ("On Going", "Post-Production", "Pre-Production", etc.)
- * - videoUrl: Optional - Video preview URL (Google Drive preview or YouTube embed)
- */
+import mhhs2 from "@/assets/images/thumbnail/mhhs2.webp"
+import aftone from "@/assets/images/logo/aftone.png"
+import mhhsTle from "@/assets/images/cstm-title/mhhsTle.png"
+import kaiv from "@/assets/images/logo/kaiv.png"
+import hsno from "@/assets/images/logo/hsno.png"
+import matcha2 from "@/assets/images/thumbnail/matcha2.jpg"
+import matchaTle from "@/assets/images/cstm-title/matchaTle.png"
 
 const featuredProjects = [
   {
     title: 'My Hand, Her Signature',
     subtitle: 'Short Film',
     description: 'A young painter risks losing the most important exhibition of her career as another presence within herself continues to destroy her paintings.',
-    image: 'https://i.ibb.co.com/xqZk5hdm/Still-2026-05-07-172137-1-53-2.jpg', // Video thumbnail - use a still image from your project
+    image: mhhs2,
     category: 'Short Film',
     year: '2026',
     status: 'Newly Completed',
-    statusColor: 'green', // Options: 'yellow', 'red', 'green', 'blue', 'purple', 'orange'
-    watermarkLogo: 'https://i.ibb.co.com/B5dk6Z9Q/logo-aftertone-white-color.png', // Your production company logo
-    videoUrl: 'Not Available',
-    // previewVideoUrl: 'Not Available'
+    statusColor: 'green',
+    watermarkLogo: aftone,
+    videoUrl: 'https://res.cloudinary.com/asfa6j6o/video/upload/v1784634115/MyHandHerSignature_Trailer_lhj3ob.mp4',
+    titleImage: mhhsTle,
+    previewVideoUrl: 'https://res.cloudinary.com/asfa6j6o/video/upload/v1784634115/MyHandHerSignature_Trailer_lhj3ob.mp4',
+    credits: [
+      { role: 'Writer', name: 'Muhammad Nur Husein, Valerianus Alvin Tjuarsa' },
+      { role: 'Director', name: 'Valerianus Alvin Tjuarsa' },
+      { role: 'Producer', name: 'Daniella Nediva' },
+      { role: 'Production Manager', name: 'Miracle Bernadette Louisa Tumion' },
+      { role: 'Director of Photography', name: 'Muhammad Nur Husein' },
+      { role: 'Production Designer', name: 'Mark Hector Jedidiah' },
+      { role: 'Art Director', name: 'Muhammad Farhan Fidaputra' },
+      { role: 'Assistant Director', name: 'Alodia Alfreda' },
+      { role: 'Gaffer', name: 'Ilham Nouval' },
+      { role: 'Sound Recordist', name: 'Farrel Goan Nessel' },
+      { role: 'Editor', name: 'Lady Rahma Cantique Kusuma' },
+      { role: 'Colorist', name: 'Marcello Hannan' },
+      { role: 'Sound Designer', name: 'Frizello Nathanael' },
+      { role: 'Composer', name: 'Muhammad Nur Husein' },
+    ],
   },
   {
-    title: 'Blue Before Dawn',
-    subtitle: 'Short MV Film',
-    description: 'On a quiet beach before sunrise, Julie allows herself to feel something she had long lost.',
-    image: 'https://i.ibb.co.com/mFM9zg4r/pexels-aleksandr-neplokhov-486399-3971223.jpg', // REPLACE: Upload your actual still to imgbb.com
+    title: 'Macha',
+    subtitle: 'Short Film',
+    description: 'In a calm, understated job interview, Gracia is asked about her favorite drink. Her answer, matcha, triggers a series of intimate memories moments, silent laughter, and a presence that once felt close.',
+    image: matcha2,
     category: 'Short MV Film',
-    year: '202',
-    status: 'On Development',
-    statusColor: 'red', // Different color for this project
-    watermarkLogo: 'https://i.ibb.co.com/Wv7s4Nh6/kaiv-Logo.png', // Can use different logo per project
-    videoUrl: 'Not Available',
-    // previewVideoUrl: 'Not Available',
+    year: '2025',
+    status: 'Completed',
+    statusColor: 'green',
+    watermarkLogo: hsno,
+    videoUrl: 'https://res.cloudinary.com/asfa6j6o/video/upload/v1783536926/Matcha_-_Trailer_wqodif.mov',
+    titleImage: matchaTle,
+    previewVideoUrl: 'https://res.cloudinary.com/asfa6j6o/video/upload/v1783536926/Matcha_-_Trailer_wqodif.mov',
+    credits: [
+      { role: 'Writer & Director', name: 'Muhammad Nur Husein' },
+      { role: 'Production Support', name: 'Valerianus Alvin Tjuarsa' },
+      { role: 'Talent Support', name: 'Lady Rahma Cantique Kusuma, Rachel Ratu Kiana' },
+      { role: 'Cast', name: 'Maeluna Quinteva, Muhammad Farhan, Jose Richie' },
+      { role: 'Editor & Colorist', name: 'Muhammad Nur Husein' },
+    ],
   },
-  // {
-  //   title: 'The Mute Room',
-  //   subtitle: 'Short Film',
-  //   description: 'In a room that never stays the same, Maya struggles to recognize the person she is becoming.',
-  //   image: 'https://i.ibb.co.com/1t7NzkzP/pexels-santiago-balbuena-260670847-15471907.jpg', // REPLACE: Upload your actual still to imgbb.com
-  //   category: 'Short Film',
-  //   year: '2027',
+  //  {
+  //   title: 'Blue Before Dawn',
+  //   subtitle: 'Short MV Film',
+  //   description: 'On a quiet beach before sunrise, Julie allows herself to feel something she had long lost.',
+  //   image: 'https://i.ibb.co.com/mFM9zg4r/pexels-aleksandr-neplokhov-486399-3971223.jpg',
+  //   category: 'Short MV Film',
+  //   year: '2026',
   //   status: 'On Development',
-  //   statusColor: 'red', // Different color for this project
-  //   watermarkLogo: 'https://i.ibb.co.com/MD6xpWds/hsno-mark-f.png', // Can use different logo per project
-  //   videoUrl: 'Not Available',
-  //   // previewVideoUrl: 'Not Available',
+  //   statusColor: 'red',
+  //   watermarkLogo: kaiv,
+  //   videoUrl: 'https://res.cloudinary.com/asfa6j6o/video/upload/v1783536926/Matcha_-_Trailer_wqodif.mov',
+  //   previewVideoUrl: 'https://res.cloudinary.com/asfa6j6o/video/upload/v1783536926/Matcha_-_Trailer_wqodif.mov',
+  //   credits: [
+  //     { role: 'Director', name: 'Mark Lee' },
+  //     { role: 'Music Producer', name: 'Yoko Shimomura' },
+  //     { role: 'Choreographer', name: 'Mia Wong' },
+  //   ],
   // },
-  // // Add more featured projects here as needed
 ];
 
 export function FeaturedProjects() {

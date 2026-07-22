@@ -90,7 +90,7 @@ export function Clients() {
               >
                 <motion.div
                   className={`relative w-40 md:w-56 h-24 flex items-center justify-center p-4 rounded-xl transition-all duration-300 ${
-                    client.hasGlassBadge ? 'glass-subtle hover:bg-white/10' : ''
+                    client.hasGlassBadge ? 'liquid-glass-card' : ''
                   }`}
                   whileHover={{ scale: 1.05, y: -2 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}

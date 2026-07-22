@@ -1,69 +1,69 @@
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 
-const mobileBackground =
-  'radial-gradient(circle at 20% 10%, rgba(147, 51, 234, 0.18), transparent 36%), radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.14), transparent 34%), radial-gradient(circle at 50% 90%, rgba(245, 158, 11, 0.10), transparent 38%)';
+// Mobile: 4 softer bubbles to save battery, but still vibrant
+const mobileBubbles = [
+  { color: 'rgba(168, 85, 247, 0.45)', size: '60vw', top: '-10%', left: '-10%', blur: 60 },
+  { color: 'rgba(6, 182, 212, 0.40)', size: '50vw', top: '40%', right: '-15%', blur: 70 },
+  { color: 'rgba(236, 72, 153, 0.40)', size: '55vw', bottom: '-10%', left: '20%', blur: 65 },
+  { color: 'rgba(245, 158, 11, 0.35)', size: '45vw', top: '20%', left: '30%', blur: 50 },
+];
 
-const desktopOrbs = [
+// Desktop: 6 distinct, highly blurred bubbles that melt into a mesh gradient
+const desktopBubbles = [
   {
-    style: {
-      width: '58vw',
-      height: '58vw',
-      maxWidth: '720px',
-      maxHeight: '720px',
-      background:
-        'radial-gradient(circle at center, rgba(147, 51, 234, 0.24) 0%, rgba(139, 92, 246, 0.14) 36%, transparent 68%)',
-      filter: 'blur(36px)',
-      top: '-14%',
-      left: '-12%',
-    },
-    animate: {
-      x: [0, 36, -18, 0],
-      y: [0, 48, -20, 0],
-      scale: [1, 1.08, 0.96, 1],
-      opacity: [0.36, 0.46, 0.32, 0.36],
-    },
-    duration: 34,
+    // Bubble 1: Vivid Magenta/Pink
+    color: 'rgba(236, 72, 153, 0.45)',
+    size: '45vw',
+    initial: { top: '-10%', left: '-10%' },
+    animate: { x: ['0vw', '80vw', '30vw', '0vw'], y: ['0vh', '60vh', '90vh', '0vh'], scale: [1, 1.15, 0.9, 1.05, 1] },
+    duration: 26,
+    blur: 120,
   },
   {
-    style: {
-      width: '54vw',
-      height: '54vw',
-      maxWidth: '680px',
-      maxHeight: '680px',
-      background:
-        'radial-gradient(circle at center, rgba(59, 130, 246, 0.22) 0%, rgba(6, 182, 212, 0.13) 34%, transparent 68%)',
-      filter: 'blur(36px)',
-      top: '8%',
-      right: '-12%',
-    },
-    animate: {
-      x: [0, -30, 24, 0],
-      y: [0, 42, -26, 0],
-      scale: [1, 1.1, 0.95, 1],
-      opacity: [0.3, 0.4, 0.26, 0.3],
-    },
+    // Bubble 2: Electric Cyan/Teal
+    color: 'rgba(6, 182, 212, 0.45)',
+    size: '50vw',
+    initial: { top: '60%', right: '-15%' },
+    animate: { x: ['0vw', '-70vw', '-30vw', '0vw'], y: ['0vh', '-50vh', '20vh', '0vh'], scale: [1, 0.9, 1.2, 0.95, 1] },
+    duration: 32,
+    blur: 140,
+  },
+  {
+    // Bubble 3: Deep Violet/Purple
+    color: 'rgba(168, 85, 247, 0.50)',
+    size: '55vw',
+    initial: { top: '30%', left: '40%' },
+    animate: { x: ['0vw', '40vw', '-40vw', '-10vw', '0vw'], y: ['0vh', '-40vh', '30vh', '-20vh', '0vh'], scale: [1, 1.1, 0.85, 1.15, 1] },
+    duration: 38,
+    blur: 130,
+  },
+  {
+    // Bubble 4: Warm Amber/Orange
+    color: 'rgba(245, 158, 11, 0.40)',
+    size: '40vw',
+    initial: { bottom: '-10%', left: '20%' },
+    animate: { x: ['0vw', '50vw', '-20vw', '30vw', '0vw'], y: ['0vh', '-60vh', '-30vh', '20vh', '0vh'], scale: [1, 1.05, 1.2, 0.9, 1] },
+    duration: 29,
+    blur: 110,
+  },
+  {
+    // Bubble 5: Neon Emerald/Green
+    color: 'rgba(16, 185, 129, 0.35)',
+    size: '35vw',
+    initial: { top: '10%', right: '20%' },
+    animate: { x: ['0vw', '-40vw', '20vw', '-10vw', '0vw'], y: ['0vh', '50vh', '20vh', '70vh', '0vh'], scale: [1, 0.95, 1.1, 0.9, 1] },
+    duration: 35,
+    blur: 100,
+  },
+  {
+    // Bubble 6: Bright Indigo/Blue
+    color: 'rgba(99, 102, 241, 0.45)',
+    size: '48vw',
+    initial: { bottom: '10%', right: '30%' },
+    animate: { x: ['0vw', '-50vw', '30vw', '60vw', '0vw'], y: ['0vh', '-30vh', '-60vh', '10vh', '0vh'], scale: [1, 1.1, 0.95, 1.05, 1] },
     duration: 42,
-  },
-  {
-    style: {
-      width: '52vw',
-      height: '52vw',
-      maxWidth: '660px',
-      maxHeight: '660px',
-      background:
-        'radial-gradient(circle at center, rgba(245, 158, 11, 0.18) 0%, rgba(249, 115, 22, 0.10) 34%, transparent 68%)',
-      filter: 'blur(34px)',
-      bottom: '-8%',
-      left: '22%',
-    },
-    animate: {
-      x: [0, 38, -28, 0],
-      y: [0, -36, 24, 0],
-      scale: [1, 1.06, 1.12, 1],
-      opacity: [0.24, 0.32, 0.22, 0.24],
-    },
-    duration: 50,
+    blur: 125,
   },
 ];
 
@@ -73,13 +73,10 @@ export function AnimatedBackground() {
 
   useEffect(() => {
     setMounted(true);
-
     const mediaQuery = window.matchMedia('(max-width: 767px)');
     const updateIsMobile = () => setIsMobile(mediaQuery.matches);
-
     updateIsMobile();
     mediaQuery.addEventListener('change', updateIsMobile);
-
     return () => mediaQuery.removeEventListener('change', updateIsMobile);
   }, []);
 
@@ -87,49 +84,84 @@ export function AnimatedBackground() {
 
   if (isMobile) {
     return (
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-black" />
-        <div className="absolute inset-0 opacity-70" style={{ background: mobileBackground }} />
-        <div
-          className="absolute inset-0 opacity-70"
-          style={{
-            background: 'radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.45) 100%)',
-          }}
-        />
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-[#050505]">
+        {mobileBubbles.map((bubble, index) => (
+          <motion.div
+            key={index}
+            className="absolute rounded-full"
+            style={{
+              width: bubble.size,
+              height: bubble.size,
+              background: `radial-gradient(circle at center, ${bubble.color} 0%, transparent 70%)`,
+              filter: `blur(${bubble.blur}px)`,
+              mixBlendMode: 'screen',
+              ...bubble,
+            }}
+            animate={{
+              x: [0, 30, -20, 0],
+              y: [0, -20, 30, 0],
+              scale: [1, 1.1, 0.95, 1],
+            }}
+            transition={{
+              duration: 15 + index * 3,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
+        {/* Soft vignette */}
+        <div className="absolute inset-0 opacity-60" style={{ background: 'radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.7) 100%)' }} />
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-      <div className="absolute inset-0 bg-black" />
-
-      {desktopOrbs.map((orb, index) => (
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-[#050505]">
+      {/* The Bubble Mesh Gradient Layer */}
+      {desktopBubbles.map((bubble, index) => (
         <motion.div
           key={index}
           className="absolute rounded-full"
-          style={orb.style}
-          animate={orb.animate}
+          style={{
+            width: bubble.size,
+            height: bubble.size,
+            background: `radial-gradient(circle at center, ${bubble.color} 0%, transparent 70%)`,
+            filter: `blur(${bubble.blur}px)`,
+            mixBlendMode: 'screen', // Crucial for melting the colors together
+            ...bubble.initial,
+          }}
+          animate={bubble.animate}
           transition={{
-            duration: orb.duration,
+            duration: bubble.duration,
             repeat: Infinity,
-            ease: [0.45, 0.05, 0.55, 0.95],
+            ease: 'easeInOut', // Smooth, organic floating motion
           }}
         />
       ))}
 
-      <div
-        className="absolute inset-0 opacity-30"
+      {/* Ambient global glow to tie the mesh together */}
+      <motion.div
+        className="absolute inset-0 opacity-20 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at 50% 50%, rgba(88, 28, 135, 0.08) 0%, transparent 50%)',
-          mixBlendMode: 'soft-light',
+          background: 'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 60%)',
+          mixBlendMode: 'screen',
+        }}
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.2, 0.4, 0.2],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: 'easeInOut',
         }}
       />
 
+      {/* Dark vignette to frame the vibrant center */}
       <div
-        className="absolute inset-0 opacity-60"
+        className="absolute inset-0 opacity-70 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.42) 100%)',
+          background: 'radial-gradient(circle at center, transparent 20%, rgba(5, 5, 5, 0.8) 100%)',
         }}
       />
     </div>

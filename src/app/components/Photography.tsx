@@ -312,7 +312,7 @@ export function Photography() {
 												onClick={() => setSelectedImage(photo)}
 											>
 												{/* CARD */}
-												<motion.div whileHover={{ scale: 1.015 }} transition={{ type: "spring", stiffness: 260, damping: 22 }} className="relative overflow-hidden rounded-xl bg-black/20">
+												<motion.div whileHover={{ scale: 1.015 }} transition={{ type: "spring", stiffness: 260, damping: 22 }} className="relative overflow-hidden rounded-xl liquid-glass-card">
 													<OptimizedImage src={photo.image} alt={photo.title} className="w-full h-auto" />
 
 													{/* Hover Overlay with red accent */}

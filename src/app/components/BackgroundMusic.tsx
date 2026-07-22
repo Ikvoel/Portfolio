@@ -70,7 +70,7 @@ export function BackgroundMusic({ audioUrl }: BackgroundMusicProps) {
         onClick={togglePlay}
         onMouseEnter={() => setShowControls(true)}
         onMouseLeave={() => setTimeout(() => setShowControls(false), 2000)}
-        className="fixed bottom-8 right-8 z-50 glass-card w-14 h-14 rounded-full flex items-center justify-center hover:bg-white/20 transition-all duration-300 group shadow-2xl"
+        className="fixed bottom-8 right-8 z-50 liquid-glass-floating w-14 h-14 rounded-full flex items-center justify-center group"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         initial={{ opacity: 0, scale: 0 }}
@@ -86,9 +86,9 @@ export function BackgroundMusic({ audioUrl }: BackgroundMusicProps) {
         {/* Ripple effect when playing */}
         {isPlaying && (
           <motion.div
-            className="absolute inset-0 rounded-full border-2 border-white/30"
+            className="absolute inset-0 rounded-full border border-white/30"
             animate={{
-              scale: [1, 1.5, 1],
+              scale: [1, 1.4, 1],
               opacity: [0.5, 0, 0.5],
             }}
             transition={{
@@ -107,9 +107,9 @@ export function BackgroundMusic({ audioUrl }: BackgroundMusicProps) {
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 10 }}
-            className="fixed bottom-8 right-24 z-50 glass-card px-3 py-2 rounded-lg pointer-events-none"
+            className="fixed bottom-8 right-24 z-50 liquid-glass-badge px-3 py-2 rounded-lg pointer-events-none"
           >
-            <span className="metadata text-white/80 text-xs whitespace-nowrap">
+            <span className="metadata text-white/90 text-xs whitespace-nowrap">
               {isPlaying ? 'Playing Theme' : 'Click to Play Music'}
             </span>
           </motion.div>

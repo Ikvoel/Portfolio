@@ -1,228 +1,175 @@
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { X, Play, Plus, Heart, Share2 } from 'lucide-react';
 
+interface Credit { role: string; name: string; }
 interface VideoModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  videoUrl: string;
-  title: string;
-  year?: string;
-  description?: string;
-  roles?: string[];
-  image?: string;
-  cinematicStills?: string[];
+  isOpen: boolean; onClose: () => void; videoUrl: string; title: string;
+  titleImage?: string; year: string; description: string; credits?: Credit[];
+  image: string; watermarkLogo?: string; cinematicStills?: string[];
+  category?: string; status?: string;
 }
 
-export function VideoModal({
-  isOpen,
-  onClose,
-  videoUrl,
-  title,
-  year,
-  description,
-  roles,
-  image,
-  cinematicStills
-}: VideoModalProps) {
-  const [activeStillIndex, setActiveStillIndex] = useState(0);
+export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year, description, credits, image, watermarkLogo, cinematicStills, category, status }: VideoModalProps) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  // Reset active index when the modal opens
   useEffect(() => {
-    if (isOpen) {
-      setActiveStillIndex(0);
-    }
-  }, [isOpen]);
-
-  // Close on Escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    
+    const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
+      setIsPlaying(false);
+      if (modalRef.current) modalRef.current.scrollTop = 0;
     }
-    
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = 'auto';
     };
   }, [isOpen, onClose]);
 
-  // A clean, simple switch to determine if the video is available.
-  // If you add a real URL later, this switches automatically back to the video iframe player.
-  const isVideoAvailable = !!(
-    videoUrl &&
-    videoUrl.trim() !== '' &&
-    videoUrl.toLowerCase() !== 'not available' &&
-    videoUrl.toLowerCase() !== 'notavailable' &&
-    videoUrl.toLowerCase() !== 'not-available'
-  );
+  useEffect(() => {
+    if (!isOpen && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, [isOpen]);
 
-  // Collect all unique still images to show statically (no autoplay)
-  const stillsList: string[] = [];
-  if (image) {
-    stillsList.push(image);
-  }
-  if (cinematicStills && cinematicStills.length > 0) {
-    cinematicStills.forEach((still) => {
-      if (still !== image && !stillsList.includes(still)) {
-        stillsList.push(still);
-      }
-    });
-  }
+  const safeCredits = credits || [];
+  const safeStills = cinematicStills || [];
+
+  const handlePlay = () => {
+    if (videoUrl && videoUrl !== 'Not Available' && videoUrl !== 'Not available') {
+      setIsPlaying(true);
+    }
+  };
+
+  // HeroContent accepts isPlaying to hide the "Watch Trailer" button when video is active
+  const HeroContent = ({ isPlaying = false }) => (
+    <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} className="max-w-4xl">
+      {titleImage ? (
+        <img src={titleImage} alt={title} className="h-12 md:h-24 lg:h-32 w-auto object-contain drop-shadow-2xl mb-4 md:mb-6" style={{ filter: 'brightness(0) invert(1)' }} />
+      ) : (
+        <h1 className="text-4xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white leading-[0.9] mb-4 md:mb-6 drop-shadow-2xl">{title}</h1>
+      )}
+      <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 text-white/60 text-[10px] md:text-sm uppercase tracking-[0.2em] font-medium">
+        <span>{year}</span>
+        <span className="w-1 h-1 rounded-full bg-white/30" />
+        <span>{category || 'Short Film'}</span>
+        {status && (<><span className="w-1 h-1 rounded-full bg-white/30" /><span>{status}</span></>)}
+      </div>
+      <div className="flex items-center gap-3 md:gap-6">
+        {!isPlaying && (
+          <motion.button onClick={handlePlay} className="flex items-center gap-2 md:gap-3 bg-white text-black px-6 md:px-8 py-3 md:py-3.5 rounded-full font-semibold hover:bg-white/90 transition-colors shadow-[0_8px_30px_rgba(255,255,255,0.2)] text-sm md:text-base" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Play className="w-4 h-4 md:w-5 md:h-5" fill="black" /> Watch Trailer
+          </motion.button>
+        )}
+        <motion.button className="w-10 h-10 md:w-14 md:h-14 rounded-full liquid-glass-floating flex items-center justify-center text-white" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} title="Add to List"><Plus className="w-4 h-4 md:w-6 md:h-6" /></motion.button>
+        <motion.button className="w-10 h-10 md:w-14 md:h-14 rounded-full liquid-glass-floating flex items-center justify-center text-white" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} title="Favorite"><Heart className="w-4 h-4 md:w-6 md:h-6" /></motion.button>
+        <motion.button className="w-10 h-10 md:w-14 md:h-14 rounded-full liquid-glass-floating flex items-center justify-center text-white" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} title="Share"><Share2 className="w-4 h-4 md:w-6 md:h-6" /></motion.button>
+      </div>
+    </motion.div>
+  );
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          {/* Backdrop with blur - Lighter on mobile for performance */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/95 md:backdrop-blur-md z-50 cursor-pointer"
-          />
+        <motion.div ref={modalRef} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="fixed inset-0 z-[9999] bg-[#050505] overflow-y-auto">
+          <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.4 }} type="button" onClick={onClose} className="fixed top-6 right-6 z-50 w-12 h-12 rounded-full liquid-glass-floating text-white/90 flex items-center justify-center group">
+            <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
+          </motion.button>
 
-          {/* Modal - COMPACT AND PADDED FOR MOBILE */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ duration: 0.3 }}
-              className="relative w-full h-auto max-w-6xl max-h-[90vh] md:max-h-[95vh] flex flex-col overflow-hidden rounded-xl md:rounded-2xl shadow-2xl bg-black/95 md:bg-black/90"
-              style={{
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Close Button floating over video */}
-              <motion.button
-                onClick={onClose}
-                className="absolute top-2 right-2 md:top-4 md:right-4 z-50 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full transition-colors shadow-xl"
-                style={{
-                  background: 'rgba(205, 92, 92, 0.9)',
-                  border: '1px solid rgba(205, 92, 92, 1)',
-                }}
-                whileHover={{ scale: 1.1, background: 'rgba(205, 92, 92, 1)' }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <X className="w-4 h-4 md:w-5 md:h-5 text-white" />
-              </motion.button>
+          {/* Outer wrapper: removed fixed height/overflow so content can stack naturally */}
+          <div className="relative w-full">
+            <AnimatePresence mode="wait">
+              {!isPlaying ? (
+                <motion.div key="hero-state" initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} className="relative w-full md:h-[85vh] overflow-hidden flex flex-col">
+                  <div className="relative w-full md:h-full flex-shrink-0">
+                    <img src={image} alt={title} className="w-full h-auto md:h-full object-cover block" />
+                    <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-[#050505]/80 via-transparent to-transparent pointer-events-none" />
+                    <div className="hidden md:block absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.15)] pointer-events-none" />
+                    <motion.button onClick={handlePlay} className="absolute inset-0 flex items-center justify-center z-20 group" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <div className="w-20 h-20 md:w-32 md:h-32 rounded-full liquid-glass-floating flex items-center justify-center">
+                        <Play className="w-8 h-8 md:w-14 md:h-14 text-white ml-1" fill="white" />
+                      </div>
+                    </motion.button>
+                  </div>
+                  <div className="md:hidden p-6 pb-8 bg-[#050505]"><HeroContent /></div>
+                  <div className="hidden md:block absolute bottom-0 left-0 w-full p-16 lg:p-24 z-20"><HeroContent /></div>
+                </motion.div>
+              ) : (
+                <motion.div key="video-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="relative w-full">
+                  {/* 1. Video Container (Takes up the hero space) */}
+                  <div className="relative w-full md:h-[85vh] bg-black flex items-center justify-center overflow-hidden">
+                    <video ref={videoRef} src={videoUrl} controls autoPlay className="w-full h-auto md:h-full object-contain block" playsInline>
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
 
-              {/* Video Container - STRICT 16:9 WITHIN BOUNDS */}
-              <div className="relative w-full bg-black flex-shrink-0" style={{ aspectRatio: '16/9' }}>
-                {isVideoAvailable ? (
-                  <iframe
-                    src={videoUrl}
-                    className="absolute inset-0 w-full h-full"
-                    style={{
-                      border: 'none',
-                    }}
-                    allow="autoplay; fullscreen"
-                    allowFullScreen
-                  />
-                ) : (
-                  <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-neutral-950 select-none overflow-hidden">
-                    {/* The Still Image */}
-                    {stillsList.length > 0 ? (
-                      <img
-                        src={stillsList[activeStillIndex]}
-                        alt={`${title} still`}
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <div className="text-white/40 text-sm">No preview available</div>
-                    )}
+                  {/* 2. Title & Actions (Sits cleanly below the video) */}
+                  <div className="w-full p-6 md:p-16 lg:p-24 bg-[#050505]">
+                    <HeroContent isPlaying={true} />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
-                    {/* Navigation controls (only if there are multiple stills) */}
-                    {stillsList.length > 1 && (
-                      <>
-                        {/* Left/Right arrow overlay buttons */}
-                        <button
-                          onClick={() => setActiveStillIndex((prev) => (prev - 1 + stillsList.length) % stillsList.length)}
-                          className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white hover:bg-black/90 hover:scale-105 active:scale-95 transition-all z-20 cursor-pointer"
-                          aria-label="Previous image"
-                        >
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => setActiveStillIndex((prev) => (prev + 1) % stillsList.length)}
-                          className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white hover:bg-black/90 hover:scale-105 active:scale-95 transition-all z-20 cursor-pointer"
-                          aria-label="Next image"
-                        >
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
+          {/* 3. Rest of the content (Synopsis, Credits, etc.) */}
+          <div className="max-w-5xl mx-auto px-6 md:px-16 lg:px-24 py-12 md:py-24 space-y-16 md:space-y-24">
+            <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
+              <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-6 md:mb-8">Synopsis</h2>
+              <p className="text-lg md:text-2xl lg:text-3xl text-white/85 leading-[1.6] font-light tracking-tight max-w-4xl">{description || 'No synopsis available for this feature.'}</p>
+            </motion.section>
 
-                        {/* Dot indicators at the bottom */}
-                        <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-                          {stillsList.map((_, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => setActiveStillIndex(idx)}
-                              className={`h-1.5 rounded-full transition-all duration-300 ${
-                                idx === activeStillIndex ? 'w-5 bg-white' : 'w-1.5 bg-white/40 hover:bg-white/60'
-                              }`}
-                              aria-label={`Go to slide ${idx + 1}`}
-                            />
-                          ))}
-                        </div>
-                      </>
-                    )}
-
-                    {/* Elegant Cinematic Stills Badge */}
-                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20">
-                      <span className="metadata px-2.5 py-1 rounded bg-black/75 text-white/90 border border-white/15 text-[10px] md:text-xs font-medium tracking-wider uppercase backdrop-blur-sm">
-                        Cinematic Stills
-                      </span>
+            {safeCredits.length > 0 && (
+              <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
+                <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-8 md:mb-10">Cast & Crew</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 md:gap-x-16 gap-y-6 md:gap-y-8">
+                  {safeCredits.map((credit, idx) => (
+                    <div key={idx} className="flex items-baseline gap-4 md:gap-6 border-b border-white/[0.06] pb-5 md:pb-6 group hover:border-white/20 transition-colors">
+                      <span className="text-[10px] md:text-sm text-white/40 uppercase tracking-wider min-w-[100px] md:min-w-[120px] font-medium">{credit.role}</span>
+                      <span className="text-base md:text-xl text-white font-light tracking-tight group-hover:text-white transition-colors">{credit.name}</span>
                     </div>
+                  ))}
+                </div>
+              </motion.section>
+            )}
+
+            {safeStills.length > 0 && (
+              <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
+                <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-8 md:mb-10">Behind The Scenes</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  {safeStills.map((still, idx) => (
+                    <motion.div key={idx} className="relative aspect-[16/10] overflow-hidden rounded-xl bg-white/[0.02] border border-white/[0.04] group" whileHover={{ scale: 0.98 }} transition={{ duration: 0.4 }}>
+                      <img src={still} alt={`Behind the scenes ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
+            )}
+
+            <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} className="pt-8 md:pt-12 border-t border-white/[0.06]">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8">
+                <div>
+                  <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-2 md:mb-3">Production</h2>
+                  <p className="text-white/80 text-base md:text-lg tracking-tight">{category || 'Short Film'} • {year}</p>
+                </div>
+                {watermarkLogo && (
+                  <div className="flex flex-col items-start md:items-end">
+                    <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-2 md:mb-3">Studio</h2>
+                    <img src={watermarkLogo} alt="Production Studio" className="h-6 md:h-10 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-500" style={{ filter: 'brightness(0) invert(1)' }} />
                   </div>
                 )}
               </div>
-
-              {/* Metadata below video - Scrollable on mobile if needed */}
-              <div className="w-full flex-shrink-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-transparent border-t border-white/10 md:border-t-0">
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="film-title text-white text-2xl md:text-3xl">{title}</h3>
-                      {year && (
-                        <span className="metadata px-2.5 py-1 rounded-md text-white/70 text-xs bg-white/10 border border-white/10">
-                          {year}
-                        </span>
-                      )}
-                    </div>
-                    {description && (
-                      <p className="body-text text-white/70 text-sm md:text-base leading-relaxed max-w-3xl mt-4">
-                        {description}
-                      </p>
-                    )}
-                  </div>
-                  
-                  {roles && roles.length > 0 && (
-                    <div className="flex flex-col gap-2 min-w-[200px]">
-                      <span className="metadata text-white/40 text-xs uppercase tracking-wider">Roles</span>
-                      <div className="flex flex-wrap gap-2">
-                        {roles.map((role, idx) => (
-                          <span
-                            key={idx}
-                            className="metadata px-3 py-1.5 text-white/80 text-xs rounded-full bg-white/5 border border-white/10"
-                          >
-                            {role}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+              <div className="mt-16 md:mt-24 pt-6 md:pt-8 border-t border-white/[0.04] text-center">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-white/20">© {year} • Muhammad Nur Husein</p>
               </div>
-            </motion.div>
+            </motion.section>
           </div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );

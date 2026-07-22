@@ -48,9 +48,9 @@ export function About() {
 
 								{/* Location indicator with red accent */}
 								<div className="absolute bottom-4 left-4 z-10">
-									<div className="flex items-center gap-2 glass-card px-3 py-2 rounded-full">
+									<div className="flex items-center gap-2 liquid-glass-badge px-3 py-2 rounded-full">
 										<div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-red)] animate-pulse" />
-										<span className="metadata text-white/80 text-xs">Jakarta, ID</span>
+										<span className="metadata text-white/90 text-xs">Jakarta, ID</span>
 									</div>
 								</div>
 							</motion.div>

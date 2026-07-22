@@ -51,12 +51,12 @@ export function Contact() {
                 return (
                   <motion.div
                     key={item.label}
-                    className="glass-card p-4 flex items-start gap-4 hover:bg-white/10 transition-all duration-300"
+                    className="liquid-glass-card p-4 flex items-start gap-4 transition-all duration-300"
                     whileHover={{ x: 10 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="glass-subtle w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-5 h-5 text-white/80" />
+                    <div className="liquid-glass-floating w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Icon className="w-5 h-5 text-white/90" />
                     </div>
                     <div>
                       <div className="metadata text-white/50 text-xs mb-1">{item.label}</div>
@@ -77,11 +77,11 @@ export function Contact() {
                     <motion.a
                       key={social.label}
                       href={social.url}
-                      className="glass-card w-12 h-12 rounded-full flex items-center justify-center hover:bg-white/20 transition-all duration-300"
+                      className="liquid-glass-floating w-12 h-12 rounded-full flex items-center justify-center text-white/90"
                       whileHover={{ scale: 1.15, rotate: 5 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Icon className="w-5 h-5 text-white/80" />
+                      <Icon className="w-5 h-5 text-white/90" />
                     </motion.a>
                   );
                 })}
@@ -89,12 +89,12 @@ export function Contact() {
             </div>
           </motion.div>
 
-          {/* Contact Form with glassmorphism */}
+          {/* Contact Form with Liquid Glass */}
           <motion.form
             initial={{ opacity: 0, x: 30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="glass-card p-8 space-y-6"
+            className="liquid-glass-card p-8 space-y-6"
           >
             <div>
               <label htmlFor="name" className="metadata text-white/60 text-xs mb-2 block">
@@ -103,7 +103,7 @@ export function Contact() {
               <input
                 type="text"
                 id="name"
-                className="w-full px-4 py-3 glass-subtle border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:border-white/30 transition-all duration-300 outline-none"
+                className="w-full px-4 py-3 liquid-glass-input rounded-lg text-white placeholder:text-white/30 outline-none"
                 placeholder="Your name"
               />
             </div>
@@ -115,7 +115,7 @@ export function Contact() {
               <input
                 type="email"
                 id="email"
-                className="w-full px-4 py-3 glass-subtle border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:border-white/30 transition-all duration-300 outline-none"
+                className="w-full px-4 py-3 liquid-glass-input rounded-lg text-white placeholder:text-white/30 outline-none"
                 placeholder="your@email.com"
               />
             </div>
@@ -127,14 +127,14 @@ export function Contact() {
               <textarea
                 id="message"
                 rows={5}
-                className="w-full px-4 py-3 glass-subtle border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:border-white/30 transition-all duration-300 resize-none outline-none"
+                className="w-full px-4 py-3 liquid-glass-input rounded-lg text-white placeholder:text-white/30 resize-none outline-none"
                 placeholder="Tell me about your project..."
               />
             </div>
 
             <motion.button
               type="submit"
-              className="w-full px-8 py-4 glass-card text-white hover:bg-white/20 transition-all duration-300 rounded-full metadata"
+              className="w-full px-8 py-4 liquid-glass-button text-white rounded-full metadata"
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
