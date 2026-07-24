@@ -2,6 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Play, Plus, Heart, Share2 } from 'lucide-react';
 
+// Spectral "dunia sendiri" di dalam modal (opaque thd page, tapi nyambung vibe background)
+const MODAL_SPECTRAL = `
+  radial-gradient(50% 40% at 18% 12%, rgba(124,58,237,0.50), transparent 60%),
+  radial-gradient(45% 40% at 82% 16%, rgba(236,72,153,0.42), transparent 60%),
+  radial-gradient(50% 45% at 78% 84%, rgba(6,182,212,0.42), transparent 62%),
+  radial-gradient(45% 40% at 22% 86%, rgba(249,115,22,0.40), transparent 60%),
+  linear-gradient(135deg, #150d2e 0%, #081726 50%, #1d0b27 100%)
+`;
+
 interface Credit { role: string; name: string; }
 interface VideoModalProps {
   isOpen: boolean; onClose: () => void; videoUrl: string; title: string;
@@ -40,24 +49,21 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
   const safeStills = cinematicStills || [];
 
   const handlePlay = () => {
-    if (videoUrl && videoUrl !== 'Not Available' && videoUrl !== 'Not available') {
-      setIsPlaying(true);
-    }
+    if (videoUrl && videoUrl !== 'Not Available' && videoUrl !== 'Not available') setIsPlaying(true);
   };
 
-  // HeroContent accepts isPlaying to hide the "Watch Trailer" button when video is active
   const HeroContent = ({ isPlaying = false }) => (
-    <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} className="max-w-4xl">
+    <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} className="max-w-4xl [&_*]:drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
       {titleImage ? (
         <img src={titleImage} alt={title} className="h-12 md:h-24 lg:h-32 w-auto object-contain drop-shadow-2xl mb-4 md:mb-6" style={{ filter: 'brightness(0) invert(1)' }} />
       ) : (
         <h1 className="text-4xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white leading-[0.9] mb-4 md:mb-6 drop-shadow-2xl">{title}</h1>
       )}
-      <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 text-white/60 text-[10px] md:text-sm uppercase tracking-[0.2em] font-medium">
+      <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 text-white/70 text-[10px] md:text-sm uppercase tracking-[0.2em] font-medium">
         <span>{year}</span>
-        <span className="w-1 h-1 rounded-full bg-white/30" />
+        <span className="w-1 h-1 rounded-full bg-white/40" />
         <span>{category || 'Short Film'}</span>
-        {status && (<><span className="w-1 h-1 rounded-full bg-white/30" /><span>{status}</span></>)}
+        {status && (<><span className="w-1 h-1 rounded-full bg-white/40" /><span>{status}</span></>)}
       </div>
       <div className="flex items-center gap-3 md:gap-6">
         {!isPlaying && (
@@ -75,62 +81,58 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div ref={modalRef} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="fixed inset-0 z-[9999] bg-[#050505] overflow-y-auto">
+        <motion.div ref={modalRef} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="fixed inset-0 z-[9999] isolate bg-[#070510] overflow-y-auto">
+          {/* spectral dunia sendiri (fixed biar ikut scroll), OPAQUE thd page karena root bg solid */}
+          <div className="pointer-events-none fixed inset-0 -z-10" style={{ background: MODAL_SPECTRAL }} />
+          <div className="pointer-events-none fixed inset-0 -z-10" style={{ background: 'radial-gradient(circle at 50% 40%, transparent 25%, rgba(0,0,0,0.55) 100%)' }} />
+
           <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.4 }} type="button" onClick={onClose} className="fixed top-6 right-6 z-50 w-12 h-12 rounded-full liquid-glass-floating text-white/90 flex items-center justify-center group">
             <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </motion.button>
 
-          {/* Outer wrapper: removed fixed height/overflow so content can stack naturally */}
           <div className="relative w-full">
             <AnimatePresence mode="wait">
               {!isPlaying ? (
                 <motion.div key="hero-state" initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} className="relative w-full md:h-[85vh] overflow-hidden flex flex-col">
                   <div className="relative w-full md:h-full flex-shrink-0">
                     <img src={image} alt={title} className="w-full h-auto md:h-full object-cover block" />
-                    <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-[#050505]/80 via-transparent to-transparent pointer-events-none" />
-                    <div className="hidden md:block absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.15)] pointer-events-none" />
+                    <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-[#070510]/80 via-transparent to-transparent pointer-events-none" />
                     <motion.button onClick={handlePlay} className="absolute inset-0 flex items-center justify-center z-20 group" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <div className="w-20 h-20 md:w-32 md:h-32 rounded-full liquid-glass-floating flex items-center justify-center">
                         <Play className="w-8 h-8 md:w-14 md:h-14 text-white ml-1" fill="white" />
                       </div>
                     </motion.button>
                   </div>
-                  <div className="md:hidden p-6 pb-8 bg-[#050505]"><HeroContent /></div>
+                  <div className="md:hidden p-6 pb-8 bg-gradient-to-b from-black/20 to-transparent"><HeroContent /></div>
                   <div className="hidden md:block absolute bottom-0 left-0 w-full p-16 lg:p-24 z-20"><HeroContent /></div>
                 </motion.div>
               ) : (
                 <motion.div key="video-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="relative w-full">
-                  {/* 1. Video Container (Takes up the hero space) */}
                   <div className="relative w-full md:h-[85vh] bg-black flex items-center justify-center overflow-hidden">
                     <video ref={videoRef} src={videoUrl} controls autoPlay className="w-full h-auto md:h-full object-contain block" playsInline>
                       Your browser does not support the video tag.
                     </video>
                   </div>
-
-                  {/* 2. Title & Actions (Sits cleanly below the video) */}
-                  <div className="w-full p-6 md:p-16 lg:p-24 bg-[#050505]">
-                    <HeroContent isPlaying={true} />
-                  </div>
+                  <div className="w-full p-6 md:p-16 lg:p-24 bg-gradient-to-b from-black/30 to-transparent"><HeroContent isPlaying={true} /></div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* 3. Rest of the content (Synopsis, Credits, etc.) */}
-          <div className="max-w-5xl mx-auto px-6 md:px-16 lg:px-24 py-12 md:py-24 space-y-16 md:space-y-24">
+          <div className="max-w-5xl mx-auto px-6 md:px-16 lg:px-24 py-12 md:py-24 space-y-16 md:space-y-24 [&_*]:[text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">
             <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
-              <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-6 md:mb-8">Synopsis</h2>
-              <p className="text-lg md:text-2xl lg:text-3xl text-white/85 leading-[1.6] font-light tracking-tight max-w-4xl">{description || 'No synopsis available for this feature.'}</p>
+              <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/50 font-semibold mb-6 md:mb-8">Synopsis</h2>
+              <p className="text-lg md:text-2xl lg:text-3xl text-white/90 leading-[1.6] font-light tracking-tight max-w-4xl">{description || 'No synopsis available for this feature.'}</p>
             </motion.section>
 
             {safeCredits.length > 0 && (
               <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
-                <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-8 md:mb-10">Cast & Crew</h2>
+                <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/50 font-semibold mb-8 md:mb-10">Cast & Crew</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 md:gap-x-16 gap-y-6 md:gap-y-8">
                   {safeCredits.map((credit, idx) => (
-                    <div key={idx} className="flex items-baseline gap-4 md:gap-6 border-b border-white/[0.06] pb-5 md:pb-6 group hover:border-white/20 transition-colors">
-                      <span className="text-[10px] md:text-sm text-white/40 uppercase tracking-wider min-w-[100px] md:min-w-[120px] font-medium">{credit.role}</span>
-                      <span className="text-base md:text-xl text-white font-light tracking-tight group-hover:text-white transition-colors">{credit.name}</span>
+                    <div key={idx} className="flex items-baseline gap-4 md:gap-6 border-b border-white/[0.08] pb-5 md:pb-6 group hover:border-white/25 transition-colors">
+                      <span className="text-[10px] md:text-sm text-white/50 uppercase tracking-wider min-w-[100px] md:min-w-[120px] font-medium">{credit.role}</span>
+                      <span className="text-base md:text-xl text-white font-light tracking-tight">{credit.name}</span>
                     </div>
                   ))}
                 </div>
@@ -139,10 +141,10 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
 
             {safeStills.length > 0 && (
               <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
-                <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-8 md:mb-10">Behind The Scenes</h2>
+                <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/50 font-semibold mb-8 md:mb-10">Behind The Scenes</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {safeStills.map((still, idx) => (
-                    <motion.div key={idx} className="relative aspect-[16/10] overflow-hidden rounded-xl bg-white/[0.02] border border-white/[0.04] group" whileHover={{ scale: 0.98 }} transition={{ duration: 0.4 }}>
+                    <motion.div key={idx} className="relative aspect-[16/10] overflow-hidden rounded-xl bg-white/[0.02] border border-white/[0.06] group" whileHover={{ scale: 0.98 }} transition={{ duration: 0.4 }}>
                       <img src={still} alt={`Behind the scenes ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
                     </motion.div>
@@ -151,21 +153,21 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
               </motion.section>
             )}
 
-            <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} className="pt-8 md:pt-12 border-t border-white/[0.06]">
+            <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} className="pt-8 md:pt-12 border-t border-white/[0.08]">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8">
                 <div>
-                  <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-2 md:mb-3">Production</h2>
-                  <p className="text-white/80 text-base md:text-lg tracking-tight">{category || 'Short Film'} • {year}</p>
+                  <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/50 font-semibold mb-2 md:mb-3">Production</h2>
+                  <p className="text-white/85 text-base md:text-lg tracking-tight">{category || 'Short Film'} • {year}</p>
                 </div>
                 {watermarkLogo && (
                   <div className="flex flex-col items-start md:items-end">
-                    <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40 font-semibold mb-2 md:mb-3">Studio</h2>
-                    <img src={watermarkLogo} alt="Production Studio" className="h-6 md:h-10 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-500" style={{ filter: 'brightness(0) invert(1)' }} />
+                    <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/50 font-semibold mb-2 md:mb-3">Studio</h2>
+                    <img src={watermarkLogo} alt="Production Studio" className="h-6 md:h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-500" style={{ filter: 'brightness(0) invert(1)' }} />
                   </div>
                 )}
               </div>
-              <div className="mt-16 md:mt-24 pt-6 md:pt-8 border-t border-white/[0.04] text-center">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-white/20">© {year} • Muhammad Nur Husein</p>
+              <div className="mt-16 md:mt-24 pt-6 md:pt-8 border-t border-white/[0.06] text-center">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-white/30">© {year} • Premium Cinematic Showcase</p>
               </div>
             </motion.section>
           </div>
