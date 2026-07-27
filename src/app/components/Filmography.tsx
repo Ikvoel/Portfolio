@@ -24,7 +24,7 @@ const projects = [
 		year: "2026",
 		description: "A young painter risks losing the most important exhibition of her career as another presence within herself continues to destroy her paintings.",
 		image: mhhs1,
-		videoUrl: "Not available",
+		videoUrl: "https://res.cloudinary.com/asfa6j6o/video/upload/v1784634115/MyHandHerSignature_Trailer_lhj3ob.mp4",
 		credits: [
 			{ role: 'Writer', name: 'Muhammad Nur Husein, Valerianus Alvin Tjuarsa' },
 			{ role: 'Director', name: 'Valerianus Alvin Tjuarsa' },
@@ -52,7 +52,7 @@ const projects = [
 		year: "2025",
 		description: "In a calm, understated job interview, Gracia is asked about her favorite drink. Her answer, matcha, triggers a series of intimate memories moments, silent laughter, and a presence that once felt close.",
 		image: "https://i.ibb.co.com/YTZD58vL/still-kedua-1-48-1.jpg",
-		videoUrl: "https://res.cloudinary.com/asfa6j6o/video/upload/v1783536926/Matcha_-_Trailer_wqodif.mov",
+		videoUrl: "https://www.youtube.com/watch?v=Z9GuYM-cOiM",
 		credits: [
 			{ role: 'Writer & Director', name: 'Muhammad Nur Husein' },
 			{ role: 'Production Support', name: 'Valerianus Alvin Tjuarsa' },
@@ -108,7 +108,7 @@ const projects = [
 		year: "2025",
 		description: "Left home alone while their parents are away, siblings Rani and Doni clash over an all-in-one universal remote capable of controlling everything in the house.",
 		image: "https://i.ibb.co.com/BV7SLvV2/Still-2025-12-31-174333-1-58-50.jpg",
-		videoUrl: "https://drive.google.com/file/d/1Hh24i0VKjqOhgNKBqJWmgKc-0rjkcUzy/preview",
+		videoUrl: "https://www.dropbox.com/scl/fi/d2agkqspjnpx94buge819/Trailer.mov?rlkey=9fclpkeuyb222an6py9l5krg0&st=0ncp0p0x&raw=1",
 		credits: [
 			{ role: "Director of Photography", name: "Seno" },
 			{ role: "Editor", name: "TBA" },
@@ -130,7 +130,7 @@ const projects = [
 		year: "2024",
 		description: "Lale falls for a virtual girl, but every moment together is just his hallucination.",
 		image: "https://i.ibb.co.com/V05BdGpv/C0140-00-05-13-13-Still002.png",
-		videoUrl: "https://drive.google.com/file/d/1s1T09HFmuxt9tloOWAlwPfdPaOP4-8Ek/preview",
+		videoUrl: "https://www.dropbox.com/scl/fi/1n5zei328qtahwgyk2p7n/LaberintoDeIllusiuonemp4.mp4?rlkey=0soj8wrgww0lhfh9aa0ceroz4&st=6d6ztjmz&raw=1",
 		credits: [
 			{ role: "Writer", name: "Seno" },
 			{ role: "Director", name: "Seno" },

@@ -62,7 +62,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
       </motion.div>
       {project.previewVideoUrl && (
         <motion.div className="absolute inset-0 pointer-events-none" initial={{ opacity: 0 }} animate={{ opacity: isHovered ? 1 : 0 }} transition={{ duration: 0.6 }}>
-          <video ref={videoRef} src={normalizeVideoUrl(project.previewVideoUrl)} loop muted playsInline preload="auto" className="w-full h-full object-cover" />
+          <video ref={videoRef} src={normalizeVideoUrl(project.previewVideoUrl)} loop muted playsInline preload="none" className="w-full h-full object-cover" />
         </motion.div>
       )}
       {!project.previewVideoUrl && hasStills && (

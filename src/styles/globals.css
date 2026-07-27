@@ -99,10 +99,10 @@
 }
 
 /* =====================================================================
-   LIQUID GLASS (UMUM) — BENING.
-   CATATAN: TIDAK pakai `position: relative` di sini — itu nimpa `fixed`
-   Tailwind (unlayered menang) & ngerusak tombol floating. overflow hidden
-   cukup buat clip; kaca gak perlu positioned context (gak ada ::before).
+   LIQUID GLASS — DEFAULT = "fake glass" MURAH (gradient+border+highlight,
+   TANPA backdrop-filter). Visual glassy ~90%, biaya render ~0.
+   backdrop-filter HANYA ditambah di elemen PREMIUM (besar & sedikit)
+   via blok di bawah, dan ITU PUN cuma di desktop.
    ===================================================================== */
 .liquid-glass-card,
 .liquid-glass-button,
@@ -115,18 +115,32 @@
 .liquid-glass-subtle,
 .glass,
 .glass-card,
-.glass-subtle {
+.glass-subtle,
+.liquid-glass-dock {
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.018) 55%, rgba(255, 255, 255, 0.04) 100%);
-  -webkit-backdrop-filter: blur(14px) saturate(1.8) contrast(1.25) brightness(1.05);
-  backdrop-filter: blur(14px) saturate(1.8) contrast(1.25) brightness(1.05);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.04) 55%, rgba(255, 255, 255, 0.07) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 0 0 1px rgba(255, 255, 255, 0.05),
     inset 0 -10px 24px -8px rgba(0, 0, 0, 0.5),
     0 12px 34px -12px rgba(0, 0, 0, 0.6);
   transition: transform .4s cubic-bezier(.16, 1, .3, 1), border-color .4s, box-shadow .4s, background .4s;
+}
+
+/* PREMIUM blur — DESKTOP ONLY, blur & saturate DITURUNIN biar ringan */
+@media (min-width: 769px) {
+
+  .liquid-glass-card,
+  .liquid-glass-floating,
+  .liquid-glass-fab,
+  .liquid-glass-button,
+  .liquid-glass-btn,
+  .liquid-glass-input,
+  .liquid-glass-dock {
+    -webkit-backdrop-filter: blur(12px) saturate(1.5) contrast(1.2) brightness(1.05);
+    backdrop-filter: blur(12px) saturate(1.5) contrast(1.2) brightness(1.05);
+  }
 }
 
 .liquid-glass-card:hover,
@@ -136,7 +150,7 @@
 .liquid-glass-floating:hover,
 .liquid-glass-fab:hover {
   border-color: rgba(255, 255, 255, 0.3);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.03) 55%, rgba(255, 255, 255, 0.06) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 55%, rgba(255, 255, 255, 0.09) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 -10px 24px -8px rgba(0, 0, 0, 0.45), 0 18px 44px -12px rgba(0, 0, 0, 0.75);
 }
 
@@ -183,24 +197,13 @@
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* =====================================================================
-   DOCK = FROSTED WHITE GLASS — susu terang yang NGANGKAT cahaya biru
-   (brightness NAIK), kontras luminance lawan bg biru dalam.
-   ===================================================================== */
+/* DOCK = FROSTED WHITE (blur cuma desktop via blok premium di atas) */
 .liquid-glass-dock {
-  overflow: hidden;
   border-radius: 0;
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.45);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.11) 55%, rgba(255, 255, 255, 0.16) 100%);
-  -webkit-backdrop-filter: blur(16px) saturate(1.5) brightness(1.25) contrast(1.05);
-  backdrop-filter: blur(16px) saturate(1.5) brightness(1.25) contrast(1.05);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.65),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.10),
-    inset 0 -10px 24px -8px rgba(20, 40, 90, 0.35),
-    0 12px 34px -12px rgba(0, 0, 0, 0.5);
-  transition: background .4s cubic-bezier(.16, 1, .3, 1), box-shadow .4s;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.10), inset 0 -10px 24px -8px rgba(20, 40, 90, 0.35), 0 12px 34px -12px rgba(0, 0, 0, 0.5);
 }
 
 .liquid-glass-dock:hover {
@@ -208,13 +211,17 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.14), inset 0 -10px 24px -8px rgba(20, 40, 90, 0.3), 0 18px 44px -12px rgba(0, 0, 0, 0.6);
 }
 
-/* teks di dock = GELAP + halo putih (koheren frosted-white; menang di atas text-white) */
 .liquid-glass-dock .body-text,
 .liquid-glass-dock .metadata {
   color: rgba(13, 22, 46, 0.92);
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
+/* =====================================================================
+   MOBILE = MATIKAN semua backdrop-filter (biang berat di HP).
+   Ganti ke kaca solid yang lebih opaque → tetap "glassy" via highlight+border,
+   tapi scroll 60/120fps & baterai aman.
+   ===================================================================== */
 @media (max-width: 768px) {
 
   .liquid-glass-card,
@@ -229,13 +236,15 @@
   .glass,
   .glass-card,
   .glass-subtle {
-    -webkit-backdrop-filter: blur(10px) saturate(1.7) contrast(1.2) brightness(1.04);
-    backdrop-filter: blur(10px) saturate(1.7) contrast(1.2) brightness(1.04);
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.07) 100%);
   }
 
   .liquid-glass-dock {
-    -webkit-backdrop-filter: blur(12px) saturate(1.4) brightness(1.22) contrast(1.04);
-    backdrop-filter: blur(12px) saturate(1.4) brightness(1.22) contrast(1.04);
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: linear-gradient(135deg, rgba(232, 238, 255, 0.86) 0%, rgba(214, 224, 250, 0.82) 100%);
   }
 }
 

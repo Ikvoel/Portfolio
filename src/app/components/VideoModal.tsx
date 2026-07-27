@@ -4,13 +4,53 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Play, Plus, Heart, Share2 } from 'lucide-react';
 
 const MODAL_SPECTRAL = `
-  radial-gradient(52% 44% at 20% 16%, rgba(29,151,241,0.5), transparent 65%),
-  radial-gradient(48% 42% at 82% 20%, rgba(199,199,242,0.42), transparent 65%),
-  radial-gradient(52% 46% at 78% 82%, rgba(8,65,201,0.5), transparent 65%),
-  radial-gradient(48% 42% at 24% 84%, rgba(3,44,125,0.55), transparent 65%),
-  radial-gradient(40% 38% at 50% 50%, rgba(255,150,90,0.16), transparent 65%),
+  radial-gradient(52% 44% at 20% 16%, rgba(29,151,241,0.5), transparent 62%),
+  radial-gradient(48% 42% at 82% 20%, rgba(199,199,242,0.42), transparent 62%),
+  radial-gradient(52% 46% at 78% 82%, rgba(8,65,201,0.5), transparent 64%),
+  radial-gradient(48% 42% at 24% 84%, rgba(3,44,125,0.55), transparent 62%),
+  radial-gradient(40% 38% at 50% 50%, rgba(255,150,90,0.16), transparent 64%),
   linear-gradient(135deg, #020D2F 0%, #032C7D 50%, #020D2F 100%)
 `;
+
+// [YOUTUBE] link YouTube MENTAH → embed URL (mulai ?t=80s / &start= didukung)
+function getYoutubeEmbed(url: string | undefined): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, '');
+    let id = '';
+    if (host === 'youtu.be') id = u.pathname.replace(/^\//, '').split('/')[0];
+    else if (host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com')) {
+      if (u.pathname.startsWith('/watch')) id = u.searchParams.get('v') || '';
+      else if (u.pathname.startsWith('/embed/')) id = u.pathname.split('/')[2] || '';
+      else if (u.pathname.startsWith('/shorts/')) id = u.pathname.split('/')[2] || '';
+    }
+    if (!id) return null;
+    let start = u.searchParams.get('start') || '';
+    const t = u.searchParams.get('t');
+    if (!start && t) start = t.replace(/s$/i, '');
+    const p = new URLSearchParams({ autoplay: '1', rel: '0', modestbranding: '1', playsinline: '1' });
+    if (start) p.set('start', start);
+    return `https://www.youtube.com/embed/${id}?${p.toString()}`;
+  } catch { return null; }
+}
+
+// [GOOGLE DRIVE] link Drive MENTAH → embed player Google (STABIL, gak kena quota/redirect
+// kayak <video>). Support /file/d/ID/, /d/ID/, /uc?...id=ID, /open?id=ID, /preview.
+function getDriveEmbed(url: string | undefined): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (!/drive\.google\.com/.test(u.hostname)) return null;
+    let id = u.searchParams.get('id') || '';
+    if (!id) {
+      const m = u.pathname.match(/\/d\/([A-Za-z0-9_-]{10,})/);
+      if (m) id = m[1];
+    }
+    if (!id) return null;
+    return `https://drive.google.com/file/d/${id}/preview`;
+  } catch { return null; }
+}
 
 interface Credit { role: string; name: string; }
 interface VideoModalProps {
@@ -45,6 +85,9 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
 
   const safeCredits = credits || [];
   const safeStills = cinematicStills || [];
+  const ytEmbed = getYoutubeEmbed(videoUrl);     // null kalau bukan YouTube
+  const driveEmbed = getDriveEmbed(videoUrl);    // null kalau bukan Google Drive
+
   const handlePlay = () => { if (videoUrl && videoUrl !== 'Not Available' && videoUrl !== 'Not available') setIsPlaying(true); };
 
   const HeroContent = ({ isPlaying = false }) => (
@@ -71,7 +114,6 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
     </motion.div>
   );
 
-  // CLOSE BUTTON di-PORTAL ke body → kebal terhadap transform/backdrop-filter ancestor (nggak geser/kepotong)
   const closeBtn = typeof document !== 'undefined' ? createPortal(
     <motion.button
       initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.25, duration: 0.4 }}
@@ -84,13 +126,27 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
     document.body
   ) : null;
 
+  // player: YouTube → iframe YT | Drive → iframe Drive | file mentah → <video> custom
+  const Player = ytEmbed ? (
+    <div className="relative w-full aspect-video md:max-w-[1280px]">
+      <iframe src={ytEmbed} title={title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen className="absolute inset-0 w-full h-full" style={{ border: 0 }} />
+    </div>
+  ) : driveEmbed ? (
+    <div className="relative w-full aspect-video md:max-w-[1280px]">
+      <iframe src={driveEmbed} title={title} allow="autoplay; encrypted-media; fullscreen" allowFullScreen className="absolute inset-0 w-full h-full" style={{ border: 0 }} />
+    </div>
+  ) : (
+    <video ref={videoRef} src={videoUrl} controls autoPlay className="w-full h-auto md:h-full object-contain block" playsInline>
+      Your browser does not support the video tag.
+    </video>
+  );
+
   return (
     <AnimatePresence>
       {isOpen && (
         <>
           {closeBtn}
           <motion.div ref={modalRef} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="fixed inset-0 z-[9999] bg-[#070510] overflow-y-auto">
-            {/* spectral "dunia sendiri" (opaque thd page karena root solid; hidup di dalam) */}
             <div className="pointer-events-none fixed inset-0 -z-10" style={{ background: MODAL_SPECTRAL }} />
             <div className="pointer-events-none fixed inset-0 -z-10" style={{ background: 'radial-gradient(circle at 50% 40%, transparent 30%, rgba(0,0,0,0.5) 100%)' }} />
 
@@ -113,7 +169,7 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
                 ) : (
                   <motion.div key="video-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="relative w-full">
                     <div className="relative w-full md:h-[85vh] bg-black flex items-center justify-center overflow-hidden">
-                      <video ref={videoRef} src={videoUrl} controls autoPlay className="w-full h-auto md:h-full object-contain block" playsInline>Your browser does not support the video tag.</video>
+                      {Player}
                     </div>
                     <div className="w-full p-6 md:p-16 lg:p-24 bg-gradient-to-b from-black/30 to-transparent"><HeroContent isPlaying={true} /></div>
                   </motion.div>
@@ -132,7 +188,6 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
                   <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-8 md:mb-10">Cast & Crew</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 md:gap-x-16 gap-y-6 md:gap-y-8">
                     {safeCredits.map((credit, idx) => (
-                      // ROLE rata KIRI, NAMA rata KANAN, justify-between + items-start = rapi & konsisten
                       <div key={idx} className="flex items-start justify-between gap-6 border-b border-white/[0.08] pb-5 md:pb-6 group hover:border-white/25 transition-colors">
                         <span className="text-[10px] md:text-sm text-white/45 uppercase tracking-wider font-medium text-left shrink-0 max-w-[42%]">{credit.role}</span>
                         <span className="text-base md:text-xl text-white font-light tracking-tight text-right">{credit.name}</span>
