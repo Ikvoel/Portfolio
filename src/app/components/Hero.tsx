@@ -1,7 +1,13 @@
+import { useState } from "react";
 import { motion } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Play } from "lucide-react";
+import { ShowreelModal } from "./ShowreelModal";
+
+const SHOWREEL_VIDEO_URL = "https://www.dropbox.com/scl/fi/jogcbx3iuwi1dux4ykdjh/web-play-bg.mp4?rlkey=pxobr35dj2f9ma7yos3dlgtxu&st=ohlftfr5&raw=1";
 
 export function Hero() {
+  const [isShowreelOpen, setIsShowreelOpen] = useState(false);
+
   const scrollToNext = () => {
     window.scrollTo({
       top: window.innerHeight,
@@ -13,7 +19,7 @@ export function Hero() {
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
         <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-30">
-          <source src="https://www.dropbox.com/scl/fi/jogcbx3iuwi1dux4ykdjh/web-play-bg.mp4?rlkey=pxobr35dj2f9ma7yos3dlgtxu&st=ohlftfr5&raw=1" type="video/mp4" />
+          <source src={SHOWREEL_VIDEO_URL} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-[#0a0a0a]"></div>
@@ -63,23 +69,45 @@ export function Hero() {
             Crafting visual through my lens
           </motion.p>
 
-          <motion.button
-            className="px-8 py-4 liquid-glass-button text-white rounded-full group relative overflow-hidden"
+          <motion.div
+            className="flex flex-col items-center justify-center gap-4 w-full max-w-xs mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={scrollToNext}
           >
-            <span className="relative z-10 metadata">View Works</span>
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5"
-              initial={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            />
-          </motion.button>
+            <motion.button
+              className="w-full px-8 py-4 liquid-glass-button text-white rounded-full group relative overflow-hidden flex items-center justify-center gap-3"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsShowreelOpen(true)}
+            >
+              <div className="liquid-glass-floating w-7 h-7 rounded-full flex items-center justify-center shrink-0">
+                <Play className="w-3.5 h-3.5 text-white ml-0.5" fill="white" />
+              </div>
+              <span className="relative z-10 metadata">See Showreel</span>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-white/15 to-white/5"
+                initial={{ opacity: 0 }}
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.button>
+
+            <motion.button
+              className="w-full px-8 py-4 liquid-glass-button text-white rounded-full group relative overflow-hidden flex items-center justify-center"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={scrollToNext}
+            >
+              <span className="relative z-10 metadata">View Works</span>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5"
+                initial={{ opacity: 0 }}
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.button>
+          </motion.div>
         </motion.div>
       </div>
 
@@ -97,6 +125,12 @@ export function Hero() {
           <ChevronDown className="w-6 h-6 text-white/90" />
         </div>
       </motion.div>
+
+      <ShowreelModal
+        isOpen={isShowreelOpen}
+        onClose={() => setIsShowreelOpen(false)}
+        videoUrl={SHOWREEL_VIDEO_URL}
+      />
     </section>
   );
 }

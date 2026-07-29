@@ -58,9 +58,10 @@ interface VideoModalProps {
   titleImage?: string; year: string; description: string; credits?: Credit[];
   image: string; watermarkLogo?: string; cinematicStills?: string[];
   category?: string; status?: string;
+  autoPlayVideo?: boolean;
 }
 
-export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year, description, credits, image, watermarkLogo, cinematicStills, category, status }: VideoModalProps) {
+export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year, description, credits, image, watermarkLogo, cinematicStills, category, status, autoPlayVideo }: VideoModalProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -70,14 +71,14 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
-      setIsPlaying(false);
+      setIsPlaying(autoPlayVideo ?? false);
       if (modalRef.current) modalRef.current.scrollTop = 0;
     }
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'auto';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, autoPlayVideo]);
 
   useEffect(() => {
     if (!isOpen && videoRef.current) { videoRef.current.pause(); videoRef.current.currentTime = 0; }
