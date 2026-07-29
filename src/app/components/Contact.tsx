@@ -1,23 +1,66 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
-import { Mail, Phone, MapPin, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Mail, Phone, MapPin, Instagram, Linkedin, Youtube, Send, MessageCircle } from 'lucide-react';
+
+const WHATSAPP_NUMBER = '6285890575606'; // without + sign
+const EMAIL_ADDRESS = 'husen.seino@gmail.com';
 
 const contactInfo = [
-  { icon: Mail, label: 'Email', value: 'senomotion@gmail.com' },
-  { icon: Phone, label: 'Phone', value: '+62 85890575606' },
+  { icon: Mail, label: 'Email', value: EMAIL_ADDRESS, href: `mailto:${EMAIL_ADDRESS}` },
+  { icon: Phone, label: 'Phone', value: '+62 85890575606', href: `https://wa.me/${WHATSAPP_NUMBER}` },
   { icon: MapPin, label: 'Location', value: 'Jakarta, Indonesia' }
 ];
 
 const socialLinks = [
-  { icon: Instagram, label: 'Instagram', url: 'https://www.instagram.com/hsno.wy' },
-  { icon: Linkedin, label: 'LinkedIn', url: '#' },
-  { icon: Youtube, label: 'YouTube', url: '#' }
+  { icon: Instagram, label: 'Instagram', url: 'https://www.instagram.com/stayinthebluu' },
+  { icon: Linkedin, label: 'LinkedIn', url: '' },
+  { icon: Youtube, label: 'YouTube', url: 'https://www.youtube.com/@senomotion' }
 ];
+
+function buildWhatsAppUrl(name: string, email: string, message: string) {
+  const text = [
+    `Hi, I'm *${name || 'someone'}*`,
+    email ? `📧 ${email}` : '',
+    '',
+    message || "I'd like to discuss a project with you.",
+  ].filter(Boolean).join('\n');
+
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
+function buildMailtoUrl(name: string, email: string, message: string) {
+  const subject = `Project Inquiry from ${name || 'Portfolio Visitor'}`;
+  const body = [
+    `Hi Muhammad Nur Husein,`,
+    '',
+    message || "I'd like to discuss a project with you.",
+    '',
+    '---',
+    `Name: ${name || '-'}`,
+    `Email: ${email || '-'}`,
+  ].join('\n');
+
+  return `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
 
 export function Contact() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleWhatsApp = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open(buildWhatsAppUrl(name, email, message), '_blank');
+  };
+
+  const handleEmail = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.location.href = buildMailtoUrl(name, email, message);
+  };
 
   return (
     <section ref={ref} className="py-24 px-4 relative overflow-hidden">
@@ -30,7 +73,7 @@ export function Contact() {
         >
           {/* Section title - Glamour Absolute font */}
           <h2 className="section-title mb-4 text-white">Let's Create Together</h2>
-          
+
           {/* Minimal secondary text */}
           <p className="body-text text-white/50 text-sm">
             Have a project in mind? Get in touch.
@@ -48,20 +91,26 @@ export function Contact() {
             <div className="space-y-4 mb-8">
               {contactInfo.map((item) => {
                 const Icon = item.icon;
+                const Wrapper = item.href ? 'a' : 'div';
+                const wrapperProps = item.href
+                  ? { href: item.href, target: '_blank' as const, rel: 'noopener noreferrer' }
+                  : {};
                 return (
                   <motion.div
                     key={item.label}
-                    className="liquid-glass-card p-4 flex items-start gap-4 transition-all duration-300"
+                    className="liquid-glass-card p-4 transition-all duration-300"
                     whileHover={{ x: 10 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="liquid-glass-floating w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-5 h-5 text-white/90" />
-                    </div>
-                    <div>
-                      <div className="metadata text-white/50 text-xs mb-1">{item.label}</div>
-                      <div className="body-text text-white/90">{item.value}</div>
-                    </div>
+                    <Wrapper {...wrapperProps} className="flex items-start gap-4 no-underline">
+                      <div className="liquid-glass-floating w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-5 h-5 text-white/90" />
+                      </div>
+                      <div>
+                        <div className="metadata text-white/50 text-xs mb-1">{item.label}</div>
+                        <div className="body-text text-white/90">{item.value}</div>
+                      </div>
+                    </Wrapper>
                   </motion.div>
                 );
               })}
@@ -77,6 +126,8 @@ export function Contact() {
                     <motion.a
                       key={social.label}
                       href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="liquid-glass-floating w-12 h-12 rounded-full flex items-center justify-center text-white/90"
                       whileHover={{ scale: 1.15, rotate: 5 }}
                       whileTap={{ scale: 0.95 }}
@@ -95,6 +146,7 @@ export function Contact() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="liquid-glass-card p-8 space-y-6"
+            onSubmit={(e) => e.preventDefault()}
           >
             <div>
               <label htmlFor="name" className="metadata text-white/60 text-xs mb-2 block">
@@ -103,6 +155,8 @@ export function Contact() {
               <input
                 type="text"
                 id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-3 liquid-glass-input rounded-lg text-white placeholder:text-white/30 outline-none"
                 placeholder="Your name"
               />
@@ -115,6 +169,8 @@ export function Contact() {
               <input
                 type="email"
                 id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 liquid-glass-input rounded-lg text-white placeholder:text-white/30 outline-none"
                 placeholder="your@email.com"
               />
@@ -127,19 +183,36 @@ export function Contact() {
               <textarea
                 id="message"
                 rows={5}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 className="w-full px-4 py-3 liquid-glass-input rounded-lg text-white placeholder:text-white/30 resize-none outline-none"
                 placeholder="Tell me about your project..."
               />
             </div>
 
-            <motion.button
-              type="submit"
-              className="w-full px-8 py-4 liquid-glass-button text-white rounded-full metadata"
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Send Message
-            </motion.button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <motion.button
+                type="button"
+                onClick={handleWhatsApp}
+                className="flex-1 px-6 py-4 liquid-glass-button text-white rounded-full metadata flex items-center justify-center gap-2.5"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <MessageCircle className="w-4 h-4" />
+                Send via WhatsApp
+              </motion.button>
+
+              <motion.button
+                type="button"
+                onClick={handleEmail}
+                className="flex-1 px-6 py-4 liquid-glass-button text-white rounded-full metadata flex items-center justify-center gap-2.5"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Send className="w-4 h-4" />
+                Send via Email
+              </motion.button>
+            </div>
           </motion.form>
         </div>
 
