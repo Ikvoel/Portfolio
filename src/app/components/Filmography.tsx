@@ -4,17 +4,45 @@ import { useRef } from "react"
 import React from "react"
 import { FilmProject } from "./FilmProject"
 import { CommercialMV } from "./CommercialMV"
-import logoBounceOfMemories from "../../assets/logo_bounce_of_memories.svg"
-import logoMatcha from "../../assets/logo_matcha.svg"
-import logoBam from "../../assets/logo_bam.svg"
 import logoLaberintoDeIllusione from "../../assets/logo_laberinto_de_illusione.svg"
-import mhhs1 from "@/assets/images/thumbnail/mhhs1.webp"
 import aftone from "@/assets/images/logo/aftone.png"
+import wawayu from "@/assets/images/logo/wawayu.png"
 import mhhsTle from "@/assets/images/cstm-title/mhhsTle.png"
 import bamTitle from "@/assets/images/cstm-title/bamTitle.png"
 import hsno from "@/assets/images/logo/hsno.png"
 import matchaTle from "@/assets/images/cstm-title/matchaTle.png"
 import bomTle from "@/assets/images/cstm-title/bomTle.png"
+import mhhs1 from "@/assets/images/mhhs/mhhs1.webp"
+import mhhs2 from "@/assets/images/mhhs/mhhs2.webp"
+import mhhs3 from "@/assets/images/mhhs/mhhs3.webp"
+import mhhs4 from "@/assets/images/mhhs/mhhs4.webp"
+import mhhs5 from "@/assets/images/mhhs/mhhs5.webp"
+import mhhs6 from "@/assets/images/mhhs/mhhs6.webp"
+import mtc1 from "@/assets/images/matcha/mtc1.webp"
+import mtc2 from "@/assets/images/matcha/mtc2.webp"
+import mtc3 from "@/assets/images/matcha/mtc3.webp"
+import mtc4 from "@/assets/images/matcha/mtc4.webp"
+import mtc5 from "@/assets/images/matcha/mtc5.webp"
+import mtc6 from "@/assets/images/matcha/mtc6.webp"
+import bom1 from "@/assets/images/bom/bom1.webp"
+import bom2 from "@/assets/images/bom/bom2.webp"
+import bom3 from "@/assets/images/bom/bom3.webp"
+import bom4 from "@/assets/images/bom/bom4.webp"
+import bom5 from "@/assets/images/bom/bom5.webp"
+import bam1 from "@/assets/images/bam/bam1.webp"
+import bam2 from "@/assets/images/bam/bam2.webp"
+import bam3 from "@/assets/images/bam/bam3.webp"
+import bam4 from "@/assets/images/bam/bam4.webp"
+import bam5 from "@/assets/images/bam/bam5.webp"
+import bam6 from "@/assets/images/bam/bam6.webp"
+import lale1 from "@/assets/images/laberinto/lale1.webp"
+import lale2 from "@/assets/images/laberinto/lale2.webp"
+import lale3 from "@/assets/images/laberinto/lale3.webp"
+import lale4 from "@/assets/images/laberinto/lale4.webp"
+import lale5 from "@/assets/images/laberinto/lale5.webp"
+import lale6 from "@/assets/images/laberinto/lale6.webp"
+import lale7 from "@/assets/images/laberinto/lale7.webp"
+
 
 const projects = [
 	{
@@ -23,7 +51,7 @@ const projects = [
 		category: "Short Film",
 		year: "2026",
 		description: "A young painter risks losing the most important exhibition of her career as another presence within herself continues to destroy her paintings.",
-		image: mhhs1,
+		image: mhhs3,
 		videoUrl: "https://res.cloudinary.com/asfa6j6o/video/upload/v1784634115/MyHandHerSignature_Trailer_lhj3ob.mp4",
 		credits: [
 			{ role: 'Writer', name: 'Muhammad Nur Husein, Valerianus Alvin Tjuarsa' },
@@ -41,7 +69,11 @@ const projects = [
 			{ role: 'Sound Designer', name: 'Frizello Nathanael' },
 			{ role: 'Composer', name: 'Muhammad Nur Husein' },
 		],
-		cinematicStills: [],
+		cinematicStills: [
+			mhhs6,
+			mhhs5,
+			mhhs4,
+		],
 		clientLogos: [{ name: "Aftrtone Pictures", logo: aftone, hasGlassBadge: false }],
 		titleImage: mhhsTle,
 	},
@@ -51,7 +83,7 @@ const projects = [
 		category: "Short Film",
 		year: "2025",
 		description: "In a calm, understated job interview, Gracia is asked about her favorite drink. Her answer, matcha, triggers a series of intimate memories moments, silent laughter, and a presence that once felt close.",
-		image: "https://i.ibb.co.com/YTZD58vL/still-kedua-1-48-1.jpg",
+		image: mtc1,
 		videoUrl: "https://www.youtube.com/watch?v=Z9GuYM-cOiM",
 		credits: [
 			{ role: 'Writer & Director', name: 'Muhammad Nur Husein' },
@@ -61,10 +93,11 @@ const projects = [
 			{ role: 'Editor & Colorist', name: 'Muhammad Nur Husein' },
 		],
 		cinematicStills: [
-			"https://i.ibb.co.com/4w0dMb8S/Still-2025-12-23-074938-1-2-1.jpg",
-			"https://i.ibb.co.com/bj6Zf0hW/Still-2025-12-23-074938-1-12-1.jpg",
-			"https://i.ibb.co.com/jv4Nqb1h/Still-2025-12-23-074938-1-48-1.jpg",
-			"https://i.ibb.co.com/HpXY8XPZ/Still-2025-12-23-074938-1-49-1.jpg",
+			mtc2,
+			mtc3,
+			mtc4,
+			mtc5,
+			mtc6,
 		],
 		clientLogos: [{ name: hsno, logo: hsno, hasGlassBadge: false }],
 		titleImage: matchaTle,
@@ -75,7 +108,7 @@ const projects = [
 		category: "Short Film",
 		year: "2025",
 		description: "A teenager and her mother, trapped in a strained relationship, must confront their emotional distance and find a way to mend what has been broken.",
-		image: "https://i.ibb.co.com/rKMxyV5N/Still-2025-12-31-165429-1-23-6.jpg",
+		image: bom1,
 		videoUrl: "https://drive.google.com/file/d/1I6hRukhDDjFUlhFn0mxOxigfkJa0_tHi/preview",
 		credits: [
 			{ role: 'Writer', name: 'Willeam Hezekiah Gunawan, Allegro Bima Satria, Gianda Emirza Fatir' },
@@ -93,10 +126,11 @@ const projects = [
 			{ role: 'Composer', name: 'Muhammad Nur Husein' },
 		],
 		cinematicStills: [
-			"https://i.ibb.co.com/dwkgZPpF/Still-2025-12-31-165429-1-1-2.jpg",
-			"https://i.ibb.co.com/qLny5zM7/Still-2025-12-31-165429-1-4-2.jpg",
-			"https://i.ibb.co.com/DDmXj9yx/Still-2025-12-31-165429-1-9-4.jpg",
-			"https://i.ibb.co.com/ZzsNLsHK/Still-2025-12-31-165429-1-22-4.jpg",
+			bom2,
+			bom3,
+			bom4,
+			bom1,
+			bom5,
 		],
 		clientLogos: [{ name: "Aftertone Pictures", logo: aftone, hasGlassBadge: false }],
 		titleImage: bomTle,
@@ -107,20 +141,27 @@ const projects = [
 		category: "Short Film",
 		year: "2025",
 		description: "Left home alone while their parents are away, siblings Rani and Doni clash over an all-in-one universal remote capable of controlling everything in the house.",
-		image: "https://i.ibb.co.com/BV7SLvV2/Still-2025-12-31-174333-1-58-50.jpg",
+		image: bam1,
 		videoUrl: "https://www.dropbox.com/scl/fi/d2agkqspjnpx94buge819/Trailer.mov?rlkey=9fclpkeuyb222an6py9l5krg0&st=0ncp0p0x&raw=1",
 		credits: [
-			{ role: "Director of Photography", name: "Seno" },
-			{ role: "Editor", name: "TBA" },
-			{ role: "Colorist", name: "TBA" }
+			{ role: 'Writer', name: 'Valerianus Alvin Tjuarsa' },
+			{ role: 'Director', name: 'Valerianus Alvin Tjuarsa' },
+			{ role: 'Producer', name: 'Mark Hector Jedidiah' },
+			{ role: 'Director of Photography', name: 'Muhammad Nur Husein' },
+			{ role: 'Art Director', name: 'Lady Rahma Cantique Kusuma' },
+			{ role: 'Editor', name: 'Miracle Bernadette Louisa Tumion, Muhammad Nur Husein' },
+			{ role: 'Colorist', name: 'Muhammad Nur Husein' },
+			{ role: 'Sound Designer', name: 'Muhammad Nur Husein' },
+			{ role: 'VFX Artist', name: 'Arya Ranu Pani' }
 		],
 		cinematicStills: [
-			"https://i.ibb.co.com/FNLrkJy/Still-2025-12-31-174333-1-58-4.jpg",
-			"https://i.ibb.co.com/DHMcJ6PK/Still-2025-12-31-174333-1-58-32.jpg",
-			"https://i.ibb.co.com/DdK5gL1/Still-2025-12-31-174333-1-58-43.jpg",
-			"https://i.ibb.co.com/CKjW5MZN/Still-2025-12-31-174333-1-58-62.jpg",
+			bam2,
+			bam3,
+			bam4,
+			bam5,
+			bam6
 		],
-		clientLogos: [{ name: "Wawayu Pictures", logo: "https://i.ibb.co.com/qYfk4ZbZ/logo.png", hasGlassBadge: false }],
+		clientLogos: [{ name: "Wawayu Pictures", logo: wawayu, hasGlassBadge: false }],
 		titleImage: bamTitle,
 	},
 	{
@@ -129,20 +170,24 @@ const projects = [
 		category: "Short Film",
 		year: "2024",
 		description: "Lale falls for a virtual girl, but every moment together is just his hallucination.",
-		image: "https://i.ibb.co.com/V05BdGpv/C0140-00-05-13-13-Still002.png",
+		image: lale1,
 		videoUrl: "https://www.dropbox.com/scl/fi/1n5zei328qtahwgyk2p7n/LaberintoDeIllusiuonemp4.mp4?rlkey=0soj8wrgww0lhfh9aa0ceroz4&st=6d6ztjmz&raw=1",
 		credits: [
-			{ role: "Writer", name: "Seno" },
-			{ role: "Director", name: "Seno" },
-			{ role: "Editor", name: "Seno" }
+			{ role: "Writer & Director", name: "Muhammad Nur Husein" },
+			{ role: "Director of Photography", name: "Muhammad Nur Husein" },
+			{ role: "Editor", name: "Muhammad Nur Husein" },
+			{ role: 'Cast', name: 'Lady Rahma Cantique Kusuma, Bryan Dafaz Junior' },
+			{ role: 'Production Support', name: 'Valerianus Alvin Tjuarsa' },
 		],
 		cinematicStills: [
-			"https://i.ibb.co.com/LjdPLvg/C0140-00-01-28-02-Still008.png",
-			"https://i.ibb.co.com/Gv9wVTBP/C0140-00-02-52-06-Still026.png",
-			"https://i.ibb.co.com/TZgWDVt/C0140-00-03-30-07-Still001.png",
-			"https://i.ibb.co.com/ynJHfnf6/C0140-00-03-48-21-Still004.png",
+			lale2,
+			lale3,
+			lale4,
+			lale5,
+			lale6,
+			lale7,
 		],
-		clientLogos: [{ name: hsno, logo: hsno, hasGlassBadge: false }],
+		clientLogos: [{ name: hsno, logo: hsno, hasGlassBadge: true }],
 		titleImage: logoLaberintoDeIllusione,
 	},
 	{
