@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
 import { VideoModal } from './VideoModal';
 import { OptimizedImage } from './ui/OptimizedImage';
+import hsno from "@/assets/images/logo/hsno.png"
 
 const MY_IDENTITIES = ['Nur Husein', 'Seno'];
 const isMyCredit = (name: string) => MY_IDENTITIES.some((id) => name.toLowerCase().includes(id.toLowerCase()));
@@ -93,7 +94,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
       </div>
     ) : (
       <div className="absolute top-4 right-4 md:top-5 md:right-5 z-20 opacity-25 pointer-events-none">
-        <img src="https://i.ibb.co.com/MD6xpWds/hsno-mark-f.png" alt="watermark" className={`w-auto object-contain ${sizeCls}`} style={{ filter: 'brightness(0) invert(1)' }} />
+        <img src={hsno} alt="watermark" className={`w-auto object-contain ${sizeCls}`} style={{ filter: 'brightness(0) invert(1)' }} />
       </div>
     );
 

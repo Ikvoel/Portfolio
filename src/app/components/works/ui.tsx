@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
     Film, Camera, ArrowDown, ArrowUp, LayoutGrid, Play, Pause,
     Shuffle, Repeat, Repeat1, SkipBack, SkipForward, Plus, Check,
@@ -33,63 +33,44 @@ function makeWave(seed: string, n = 44): number[] {
     return o;
 }
 
-/* ===== TILE SLIDESHOW — crossfade opacity + preload (anti patah & anti blip hitam) ===== */
-const SLIDE_CAP = 8;     // max foto per tile
-const SLIDE_MS = 3800;   // durasi tampil per foto
-const FADE_MS = 900;     // durasi crossfade
-
-function TileSlideshow({ pool, base, index }: { pool: string[]; base: string; index: number }) {
-    const imgs = useMemo(() => pool.slice(0, SLIDE_CAP), [pool]);
-    const [active, setActive] = useState(() => index % Math.max(imgs.length, 1));
-
-    useEffect(() => {
-        if (imgs.length < 2) return;
-        const id = setInterval(() => setActive((i) => (i + 1) % imgs.length), SLIDE_MS);
-        return () => clearInterval(id);
-    }, [imgs.length]);
-
-    // preload semua foto ke cache → crossfade gak bakal ngeblip
-    useEffect(() => {
-        imgs.forEach((src) => { const im = new Image(); im.src = src; });
-    }, [imgs]);
-
-    if (imgs.length === 0) return null;
-
-    return (
-        // `isolate` bikin z-index anak lokal → tint selalu di atas foto,
-        // tapi seluruh blok tetap di bawah glow/texture/content
-        <div className="absolute inset-0 isolate">
-            {imgs.map((src, i) => {
-                const isActive = i === active;
-                return (
-                    <img
-                        key={`${i}-${src}`}
-                        src={src}
-                        alt=""
-                        aria-hidden
-                        decoding="async"
-                        draggable={false}
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110"
-                        style={{
-                            opacity: isActive ? 1 : 0,
-                            transition: `opacity ${FADE_MS}ms ease-in-out, transform 1200ms ease-out`,
-                            zIndex: isActive ? 1 : 0,
-                        }}
-                    />
-                );
-            })}
-            {/* tint gradient khas tile, di atas stack foto */}
-            <div aria-hidden className="absolute inset-0 z-[2]" style={{ background: base, mixBlendMode: 'screen', opacity: 0.5 }} />
-        </div>
-    );
+/* ===== SEEDED PICK — deterministik per (nonce, tile) =====
+   Gak pakai Math.random() langsung biar: (1) aman SSR/hydrate, (2) re-render
+   karena hal lain (hover/sort) TIDAK ngacak ulang foto. Foto cuma berubah
+   kalau `nonce` berubah (= pas modal ditutup / pas halaman pertama load). */
+function mulberry32(a: number) {
+    return function () {
+        a |= 0; a = (a + 0x6D2B79F5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+function pickIndex(seed: number, salt: number, len: number): number {
+    if (len <= 1) return 0;
+    const h = (Math.imul(seed | 0, 2654435761) ^ Math.imul(salt | 0, 40503)) >>> 0;
+    return Math.floor(mulberry32(h)() * len);
 }
 
-/* ===== BENTO TILE ===== */
+/* ===== BENTO TILE — 1 foto statis, ganti cuma pas `nonce` berubah ===== */
 function BentoTile({
-    f, p, c, pool, index, onSelect,
-}: { f: (typeof FILTERS)[number]; p: TilePalette; c: number; pool: string[]; index: number; onSelect: (id: FilterId) => void }) {
+    f, p, c, pool, index, nonce, onSelect,
+}: { f: (typeof FILTERS)[number]; p: TilePalette; c: number; pool: string[]; index: number; nonce: number; onSelect: (id: FilterId) => void }) {
     const Icon = p.icon;
+    // target foto round ini (deterministik → re-render biasa gak ngacak ulang)
+    const target = pool.length ? pool[pickIndex(nonce, index, pool.length)] : '';
+    // shown = foto yang lagi tampil. Mulai kosong, biar load pertama = fade-in rapi.
+    const [shown, setShown] = useState('');
+    const shownRef = useRef(''); shownRef.current = shown;
+
+    // preload target dulu, baru tampilin → gak ada "kedip kosong" pas swap
+    useEffect(() => {
+        if (!target || target === shownRef.current) return;
+        const im = new Image();
+        const apply = () => setShown(target);
+        im.onload = apply; im.onerror = apply;
+        im.src = target;
+    }, [target]);
+
     return (
         <motion.button
             type="button"
@@ -103,8 +84,22 @@ function BentoTile({
             className={`group relative overflow-hidden rounded-3xl text-left ${p.spanClass}`}
             style={{ border: '1px solid rgba(255,255,255,0.16)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -10px 24px -12px rgba(0,0,0,0.6), 0 14px 34px -18px rgba(0,0,0,0.7)' }}
         >
-            <div className="absolute inset-0" style={{ background: p.base }} />
-            {pool.length > 0 && <TileSlideshow pool={pool} base={p.base} index={index} />}
+            {/* base GELAP netral — nempel pas foto belum siap / gak ada foto */}
+            <div className="absolute inset-0" style={{ background: 'radial-gradient(120% 120% at 50% 0%, #101a36 0%, #070b16 72%)' }} />
+            {shown && (
+                <img
+                    src={shown}
+                    alt=""
+                    aria-hidden
+                    loading="lazy"
+                    decoding="async"
+                    draggable={false}
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
+                />
+            )}
+            {/* tint warna khas tile di ATAS foto → identitas warna tetep ada */}
+            <div aria-hidden className="absolute inset-0" style={{ background: p.base, mixBlendMode: 'screen', opacity: 0.4 }} />
             <div aria-hidden className="absolute inset-0" style={{ background: p.glow, mixBlendMode: 'screen', animation: `bento-pulse ${5 + index}s ease-in-out infinite`, animationDelay: `${index * -0.7}s` }} />
             <div aria-hidden className="absolute inset-0 opacity-70" style={{ backgroundImage: p.texture, backgroundSize: p.textureSize, animation: 'bento-drift 18s linear infinite' }} />
             <div aria-hidden className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.18) 48%, transparent 72%)' }} />
@@ -128,8 +123,8 @@ function BentoTile({
 
 /* ===== BENTO SELECTOR ===== */
 export function BentoSelector({
-    onSelect, countFor, pools,
-}: { onSelect: (id: FilterId) => void; countFor: (id: FilterId) => number; pools: Partial<Record<FilterId, string[]>> }) {
+    onSelect, countFor, pools, nonce,
+}: { onSelect: (id: FilterId) => void; countFor: (id: FilterId) => number; pools: Partial<Record<FilterId, string[]>>; nonce: number }) {
     return (
         <>
             <style>{`
@@ -138,7 +133,7 @@ export function BentoSelector({
       `}</style>
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4 auto-rows-[120px] md:auto-rows-[188px]">
                 {FILTERS.map((f, i) => (
-                    <BentoTile key={f.id} f={f} p={categoryPalette[f.id] ?? FALLBACK_TILE} c={countFor(f.id)} pool={pools[f.id] ?? []} index={i} onSelect={onSelect} />
+                    <BentoTile key={f.id} f={f} p={categoryPalette[f.id] ?? FALLBACK_TILE} c={countFor(f.id)} pool={pools[f.id] ?? []} index={i} nonce={nonce} onSelect={onSelect} />
                 ))}
             </div>
         </>

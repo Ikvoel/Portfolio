@@ -40,27 +40,6 @@ const byYear = <T extends { year: string }>(arr: T[], mode: SortMode): T[] =>
 
 const uniqImgs = (arr: { image?: string }[]) => Array.from(new Set(arr.map((x) => x.image).filter((s): s is string => !!s && s.trim() !== '')));
 
-// hex aksen → hue; null kalau desaturated (putih/abu) biar gak di-rotate
-function hexToHue(hex: string): number | null {
-	const m = hex.replace('#', '');
-	if (m.length < 6) return null;
-	const r = parseInt(m.slice(0, 2), 16) / 255, g = parseInt(m.slice(2, 4), 16) / 255, b = parseInt(m.slice(4, 6), 16) / 255;
-	const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
-	if (max === 0 || d < 0.12) return null;
-	let h = 0;
-	if (max === r) h = ((g - b) / d) % 6; else if (max === g) h = (b - r) / d + 2; else h = (r - g) / d + 4;
-	h = Math.round(h * 60); if (h < 0) h += 360;
-	return h;
-}
-const BASE_HUE = 210;
-function hueOffsetFor(id: FilterId): number {
-	const h = hexToHue(categoryPalette[id]?.accent ?? '#88a');
-	if (h == null) return 0;
-	let off = h - BASE_HUE;
-	if (off > 180) off -= 360; if (off < -180) off += 360;
-	return off;
-}
-
 function CategoryModal({ filterId, sort, setSort, onClose }: { filterId: FilterId; sort: SortMode; setSort: (s: SortMode) => void; onClose: () => void }) {
 	const { films, credits, photos, audio } = getList(filterId);
 	const sortedFilms = byYear(films, sort);
@@ -99,10 +78,13 @@ function CategoryModal({ filterId, sort, setSort, onClose }: { filterId: FilterI
 	return (
 		<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
 			className="fixed inset-0 z-[9999] overflow-y-auto overscroll-contain">
-			{/* background = dunia biru yang SAMA, di-tint hue sesuai tile (bukan bidang item) */}
+			{/* background biru yang SAMA + tint accent MURAH (tanpa hue-rotate → gak glitch/berat) */}
 			<div aria-hidden className="fixed inset-0 z-0 pointer-events-none">
-				<AnimatedBackground hue={hueOffsetFor(filterId)} />
+				<AnimatedBackground />
 				<div className="absolute inset-0" style={{ background: 'rgba(2,13,47,0.42)' }} />
+				<div className="absolute inset-0" style={{
+					background: `radial-gradient(120% 80% at 50% -10%, ${pal.accent}33, transparent 60%), radial-gradient(120% 80% at 50% 110%, ${pal.accent}22, transparent 60%)`,
+				}} />
 			</div>
 
 			<div className="sticky top-0 z-20 px-4 md:px-8 py-4 md:py-5"
@@ -183,10 +165,14 @@ export function Filmography() {
 	const isInView = useInView(ref, { once: true, amount: 0.1 });
 	const [openCat, setOpenCat] = useState<FilterId | null>(null);
 	const [sort, setSort] = useState<SortMode>('newest');
+	// nonce = "round" foto tile. Di-acak pas load, naik +1 tiap modal ditutup
+	// → tiap balik ke selector, semua tile dapet foto baru.
+	const [nonce, setNonce] = useState(0);
+	useEffect(() => { setNonce((Math.random() * 1e9) | 0); }, []);
 
 	const countFor = (id: FilterId) => { const l = getList(id); return l.films.length + l.credits.length + l.photos.length + l.audio.length; };
 
-	// pool foto per kategori (dedupe) → slideshow tile; all = gabungan
+	// pool foto per kategori (dedupe) → thumbnail tile; all = gabungan
 	const pools = useMemo<Partial<Record<FilterId, string[]>>>(() => ({
 		all: Array.from(new Set([...uniqImgs(allFilms), ...uniqImgs(photosWithImage), ...audioTracks.map((a) => a.artwork).filter(Boolean)])),
 		featured: uniqImgs(allFilms.filter((p) => p.isFeatured)),
@@ -205,10 +191,20 @@ export function Filmography() {
 					<p className="body-text text-white/50 max-w-2xl mx-auto text-sm">Tap a world to explore — {countFor('all')} works across {FILTERS.length - 1} categories</p>
 				</motion.div>
 				<motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.1 }}>
-					<BentoSelector onSelect={setOpenCat} countFor={countFor} pools={pools} />
+					<BentoSelector onSelect={setOpenCat} countFor={countFor} pools={pools} nonce={nonce} />
 				</motion.div>
 			</div>
-			<AnimatePresence>{openCat && <CategoryModal key={openCat} filterId={openCat} sort={sort} setSort={setSort} onClose={() => setOpenCat(null)} />}</AnimatePresence>
+			<AnimatePresence>
+				{openCat && (
+					<CategoryModal
+						key={openCat}
+						filterId={openCat}
+						sort={sort}
+						setSort={setSort}
+						onClose={() => { setOpenCat(null); setNonce((n) => (n + 1) | 0); }}
+					/>
+				)}
+			</AnimatePresence>
 		</section>
 	);
 }
