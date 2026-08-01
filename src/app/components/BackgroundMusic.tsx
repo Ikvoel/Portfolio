@@ -1,30 +1,13 @@
 import { useRef, useState, useEffect } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-
-/**
- * BACKGROUND MUSIC PLAYER
- *
- * How to add your theme song:
- * 1. Upload your audio file (MP3 recommended) to a hosting service:
- *    - Google Drive: Upload → Share → Get link → Use file ID
- *    - SoundCloud: Upload and get the direct MP3 link
- *    - Or use a direct link from your server
- *
- * 2. For Google Drive:
- *    - Upload your MP3 to Google Drive
- *    - Right-click → Share → Anyone with the link
- *    - Copy the file ID from the URL
- *    - Format: https://drive.google.com/uc?export=download&id=YOUR_FILE_ID
- *
- * 3. Replace the audioUrl below with your link
- */
+import defaultGhostAudio from '../../assets/bgmusic/ghost.wav';
 
 interface BackgroundMusicProps {
-  audioUrl?: string; 
+  audioUrl?: string;
 }
 
-export function BackgroundMusic({ audioUrl }: BackgroundMusicProps) {
+export function BackgroundMusic({ audioUrl = defaultGhostAudio }: BackgroundMusicProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
@@ -60,7 +43,7 @@ export function BackgroundMusic({ audioUrl }: BackgroundMusicProps) {
         ref={audioRef}
         src={audioUrl}
         loop
-        preload="none"
+        preload="auto"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
       />

@@ -2,8 +2,13 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { ChevronDown, Play } from "lucide-react";
 import { ShowreelModal } from "./ShowreelModal";
+import hsno from "@/assets/images/logo/hsno.png"
 
-const SHOWREEL_VIDEO_URL = "https://www.dropbox.com/scl/fi/jogcbx3iuwi1dux4ykdjh/web-play-bg.mp4?rlkey=pxobr35dj2f9ma7yos3dlgtxu&st=ohlftfr5&raw=1";
+// Background ambient video — loops silently behind the hero section
+const BG_VIDEO_URL = "https://res.cloudinary.com/asfa6j6o/video/upload/v1785344176/web_play_bg_dvwrqm.mp4";
+
+// Actual showreel — plays in the modal when clicking "See Showreel"
+const SHOWREEL_VIDEO_URL = ""; // TODO: ganti dengan URL showreel yang asli
 
 export function Hero() {
   const [isShowreelOpen, setIsShowreelOpen] = useState(false);
@@ -19,7 +24,7 @@ export function Hero() {
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
         <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-30">
-          <source src={SHOWREEL_VIDEO_URL} type="video/mp4" />
+          <source src={BG_VIDEO_URL} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-[#0a0a0a]"></div>
@@ -32,11 +37,11 @@ export function Hero() {
         className="absolute top-4 left-4 md:top-8 md:left-8 z-20"
       >
         <img
-          src="https://i.ibb.co.com/MD6xpWds/hsno-mark-f.png"
+          src={hsno}
           alt="Logo"
           loading="eager"
           decoding="async"
-          className="w-auto h-16 md:h-24 lg:h-32 drop-shadow-2xl"
+          className="w-auto h-6 md:h-9 lg:h-11 drop-shadow-2xl"
         />
       </motion.div>
 

@@ -61,7 +61,7 @@ export function About() {
 							{/* Bio Text */}
 							<motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.2 }} className="space-y-6">
 								<p className="body-text text-white/90 leading-relaxed text-base md:text-lg">
-									Based in Jakarta, <span className="text-white font-medium">Seno</span> is a multidisciplinary filmmaker focusing on emotionally-driven narratives, intimate visuals, and atmospheric
+									Based in Jakarta, <span className="text-white font-medium">Muhammad Nur Husein (aka.Seno)</span> is a multidisciplinary filmmaker focusing on emotionally-driven narratives, intimate visuals, and atmospheric
 									storytelling.
 								</p>
 								<p className="body-text text-white/80 leading-relaxed text-base">
