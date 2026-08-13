@@ -66,3 +66,24 @@ export const FILTERS: { id: FilterId; label: string }[] = [
     { id: 'audio', label: 'Audio Works' },
     { id: 'Personal Projects', label: 'Personal Projects' },
 ];
+
+/* ===== slug buat URL route /works/[cat] ===== */
+export const FILTER_SLUG: Record<FilterId, string> = {
+    all: 'all',
+    featured: 'featured',
+    'Short Film': 'short-film',
+    commercial: 'commercial',
+    photography: 'photography',
+    audio: 'audio',
+    'Personal Projects': 'personal-projects',
+};
+
+export const SLUG_FILTER: Record<string, FilterId> = {
+    'all': 'all',
+    'featured': 'featured',
+    'short-film': 'Short Film',
+    'commercial': 'commercial',
+    'photography': 'photography',
+    'audio': 'audio',
+    'personal-projects': 'Personal Projects',
+};

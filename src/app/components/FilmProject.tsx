@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { useState, useEffect, useRef } from 'react';
-import { VideoModal } from './VideoModal';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useNavigate } from 'react-router';
 import { OptimizedImage } from './ui/OptimizedImage';
 import hsno from "@/assets/images/logo/hsno.png"
 
@@ -9,7 +9,7 @@ const isMyCredit = (name: string) => MY_IDENTITIES.some((id) => name.toLowerCase
 
 function normalizeVideoUrl(url: string | undefined): string | undefined {
   if (!url || url === 'Not available' || url === 'Not Available') return undefined;
-  if (url.includes('drive.google.com')) { const m = url.match(/[-\w]{25,}/); if (m) return `https://drive.google.com/uc?export=download&id=${m[0]}`; }
+  if (url.includes('drive.google.com')) { const m = url.match(/[-\\w]{25,}/); if (m) return `https://drive.google.com/uc?export=download&id=${m[0]}`; }
   if (url.includes('dropbox.com')) {
     let n = url;
     if (n.includes('dl=raw1')) n = n.replace('dl=raw1', 'raw=1');
@@ -30,36 +30,108 @@ interface Project {
 }
 interface FilmProjectProps { project: Project; index: number; isInView: boolean; }
 
-export function FilmProject({ project, index, isInView }: FilmProjectProps) {
+// Custom hook for responsive mobile detection
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < breakpoint : false
+  );
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    setIsMobile(mql.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, [breakpoint]);
+  return isMobile;
+}
+
+export const FilmProject = memo(function FilmProject({ project, index, isInView }: FilmProjectProps) {
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentStillIndex, setCurrentStillIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const preloadedRef = useRef(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const hasStills = !!(project.cinematicStills && project.cinematicStills.length > 0);
   const hasVideo = !!project.videoUrl;
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isMobile = useIsMobile();
   const isShortFilm = project.category === 'Short Film';
   const myCredits = (project.credits || []).filter((c) => isMyCredit(c.name));
 
+  // Preload cinematicStills into browser memory once
+  useEffect(() => {
+    if (hasStills && !preloadedRef.current) {
+      preloadedRef.current = true;
+      project.cinematicStills!.forEach((url) => {
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = url;
+      });
+    }
+  }, [hasStills, project.cinematicStills]);
+
+  // Slideshow interval — starts when hovered and has stills (no preview video)
   useEffect(() => {
     if (isHovered && hasStills && !project.previewVideoUrl) {
-      const id = setInterval(() => setCurrentStillIndex((p) => (p + 1) % project.cinematicStills!.length), 1800);
-      return () => clearInterval(id);
-    } else setCurrentStillIndex(0);
+      // Reset to first still immediately on hover start
+      setCurrentStillIndex(0);
+      // Start cycling after a brief delay so user sees the first still
+      const id = setInterval(() => {
+        setCurrentStillIndex((p) => (p + 1) % project.cinematicStills!.length);
+      }, 1800);
+      intervalRef.current = id;
+      return () => {
+        clearInterval(id);
+        intervalRef.current = null;
+      };
+    } else {
+      // Reset when not hovered
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      setCurrentStillIndex(0);
+    }
   }, [isHovered, hasStills, project.cinematicStills, project.previewVideoUrl]);
 
+  // Preview video play/pause
   useEffect(() => {
     if (!videoRef.current) return;
-    if (isHovered && project.previewVideoUrl) { videoRef.current.muted = true; videoRef.current.play().catch((e) => console.warn('[FilmProject] preview play failed', e)); }
-    else { videoRef.current.pause(); if (videoRef.current.readyState >= 1) videoRef.current.currentTime = 0; }
+    if (isHovered && project.previewVideoUrl) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch((e) => console.warn('[FilmProject] preview play failed', e));
+    } else {
+      videoRef.current.pause();
+      if (videoRef.current.readyState >= 1) videoRef.current.currentTime = 0;
+    }
   }, [isHovered, project.previewVideoUrl]);
 
-  // Media: frame TRANSPARAN + poster/still SEMI-TRANSPARAN → background biru tembus = react pasif.
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+  }, []);
+
+  const handleClick = useCallback(() => {
+    if (hasVideo) navigate(`/project/${project.id}`);
+  }, [hasVideo, navigate, project.id]);
+
+  // Media layer
   const Media = (
     <div className="absolute inset-0">
-      <motion.div className="absolute inset-0" animate={{ opacity: (isHovered && (hasStills || project.previewVideoUrl)) ? 0 : 1 }} transition={{ duration: 0.6 }}>
-        <OptimizedImage src={project.image} alt={project.title} className="w-full h-full object-cover opacity-[0.84] transition-transform duration-[1200ms] ease-out group-hover:scale-105" />
+      <motion.div
+        className="absolute inset-0"
+        animate={{ opacity: (isHovered && (hasStills || project.previewVideoUrl)) ? 0 : 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <OptimizedImage
+          src={project.image}
+          alt={project.title}
+          className="w-full h-full object-cover opacity-[0.84] transition-transform duration-[1200ms] ease-out will-change-transform group-hover:scale-105"
+        />
       </motion.div>
       {project.previewVideoUrl && (
         <motion.div className="absolute inset-0 pointer-events-none" initial={{ opacity: 0 }} animate={{ opacity: isHovered ? 1 : 0 }} transition={{ duration: 0.6 }}>
@@ -67,13 +139,20 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
         </motion.div>
       )}
       {!project.previewVideoUrl && hasStills && (
-        <motion.div className="absolute inset-0 pointer-events-none" initial={{ opacity: 0 }} animate={{ opacity: isHovered ? 1 : 0 }} transition={{ duration: 0.6 }}>
-          <AnimatePresence>
-            {isHovered && (
-              <motion.img key={currentStillIndex} src={project.cinematicStills![currentStillIndex]} alt={`${project.title} still`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }} className="absolute inset-0 w-full h-full object-cover opacity-[0.84]" />
-            )}
-          </AnimatePresence>
-        </motion.div>
+        <div className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+          {project.cinematicStills!.map((stillUrl, i) => (
+            <img
+              key={i}
+              src={stillUrl}
+              alt={`${project.title} still ${i + 1}`}
+              loading="eager"
+              decoding="async"
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out will-change-[opacity] ${
+                isHovered && currentStillIndex === i ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ))}
+        </div>
       )}
       {hasStills && isHovered && !project.previewVideoUrl && (
         <div className="absolute top-3 left-3 flex gap-1 z-20">
@@ -98,7 +177,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
       </div>
     );
 
-  // Logo dock = silhouette GELAP (dock sekarang frosted-putih) + halo putih biar kebaca
+  // Logo dock
   const DockLogo = () => {
     const src = project.clientLogos && project.clientLogos.length > 0 ? project.clientLogos[0].logo : 'https://i.ibb.co.com/MD6xpWds/hsno-mark-f.png';
     return <img src={src} alt="" aria-hidden className="h-4 sm:h-5 md:h-6 w-auto max-w-[45%] object-contain object-right opacity-90 shrink-0 drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]" style={{ filter: 'brightness(0)' }} />;
@@ -119,7 +198,7 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
     );
   };
 
-  // pill = kapsul LIGHT-frosted (teks gelap di-set via globals .liquid-glass-dock .metadata)
+  // pill style
   const pillStyle = {
     background: 'rgba(255,255,255,0.22)',
     border: '1px solid rgba(255,255,255,0.5)',
@@ -159,39 +238,33 @@ export function FilmProject({ project, index, isInView }: FilmProjectProps) {
   };
 
   return (
-    <>
-      <div
-        className={`relative group ${hasVideo ? 'cursor-pointer' : 'cursor-default'} w-full`}
-        onMouseEnter={() => !isMobile && setIsHovered(true)}
-        onMouseLeave={() => !isMobile && setIsHovered(false)}
-        onClick={() => hasVideo && setIsModalOpen(true)}
-      >
-        {isShortFilm ? (
-          <div className="relative z-10 rounded-3xl overflow-hidden border border-white/10 shadow-[0_24px_70px_-20px_rgba(0,0,0,0.9)] w-full">
-            {/* overflow-hidden = clip gambar scaled → stills TIDAK bocor ke dock */}
-            <div className="relative aspect-[16/10] md:aspect-[21/9] w-full overflow-hidden">
-              {Media}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
-              {TitleOverlay('lg')}
-            </div>
-            {Dock('lg')}
+    <div
+      className={`relative group ${hasVideo ? 'cursor-pointer' : 'cursor-default'} w-full`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
+    >
+      {isShortFilm ? (
+        <div className="relative z-10 rounded-3xl overflow-hidden border border-white/10 shadow-[0_24px_70px_-20px_rgba(0,0,0,0.9)] w-full">
+          {/* overflow-hidden = clip gambar scaled → stills TIDAK bocor ke dock */}
+          <div className="relative aspect-[16/10] md:aspect-[21/9] w-full overflow-hidden">
+            {Media}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
+            {TitleOverlay('lg')}
           </div>
-        ) : (
-          <div className="relative z-10 rounded-2xl overflow-hidden border border-white/10 shadow-[0_18px_50px_-18px_rgba(0,0,0,0.85)] w-full">
-            <div className="relative aspect-video w-full overflow-hidden">
-              {Media}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
-              {Watermark('h-6 md:h-9')}
-              {TitleOverlay('md')}
-            </div>
-            {Dock('md')}
+          {Dock('lg')}
+        </div>
+      ) : (
+        <div className="relative z-10 rounded-2xl overflow-hidden border border-white/10 shadow-[0_18px_50px_-18px_rgba(0,0,0,0.85)] w-full">
+          <div className="relative aspect-video w-full overflow-hidden">
+            {Media}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
+            {Watermark('h-6 md:h-9')}
+            {TitleOverlay('md')}
           </div>
-        )}
-      </div>
-
-      {hasVideo && (
-        <VideoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} videoUrl={normalizeVideoUrl(project.videoUrl) || ''} title={project.title} titleImage={project.titleImage} year={project.year} description={project.description} credits={project.credits} image={project.image} watermarkLogo={project.clientLogos?.[0]?.logo} cinematicStills={project.cinematicStills || []} category={project.category} />
+          {Dock('md')}
+        </div>
       )}
-    </>
+    </div>
   );
-}
+});

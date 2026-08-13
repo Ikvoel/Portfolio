@@ -14,10 +14,12 @@ export function Hero() {
   const [isShowreelOpen, setIsShowreelOpen] = useState(false);
 
   const scrollToNext = () => {
-    window.scrollTo({
-      top: window.innerHeight,
-      behavior: "smooth",
-    });
+    const el = document.getElementById('filmography-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+    }
   };
 
   return (
