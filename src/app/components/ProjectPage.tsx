@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Play, Plus, Heart, Share2 } from 'lucide-react';
+import { ArrowLeft, Play, Share2, Check } from 'lucide-react';
 import { getProjectById } from './works/data';
-import { AnimatedBackground } from './AnimatedBackground';
+import hsno from "@/assets/images/logo/hsno.png"
 
 const MODAL_SPECTRAL = `
   radial-gradient(52% 44% at 20% 16%, rgba(29,151,241,0.5), transparent 62%),
@@ -73,13 +72,14 @@ function getDriveEmbed(url: string | undefined): string | null {
 }
 
 export function ProjectPage() {
-    const { id } = useParams<{ id: string }>();
+    const { id, cat } = useParams<{ id: string; cat?: string }>();
     const navigate = useNavigate();
     const [isPlaying, setIsPlaying] = useState(false);
+    const [copied, setCopied] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
 
     const numericId = id ? parseInt(id, 10) : NaN;
-    const project = getProjectById(numericId);
+    const project = getProjectById(numericId, cat);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -106,6 +106,7 @@ export function ProjectPage() {
     const watermarkLogo = project.clientLogos?.[0]?.logo;
     const ytEmbed = getYoutubeEmbed(videoUrl);
     const driveEmbed = getDriveEmbed(videoUrl);
+    const showTitleImage = project.category === 'Short Film' && !!project.titleImage;
 
     const handlePlay = () => {
         if (videoUrl && videoUrl !== 'Not Available' && videoUrl !== 'Not available') {
@@ -113,14 +114,21 @@ export function ProjectPage() {
         }
     };
 
+    /* SHARE = AUTO COPY ke clipboard */
+    const handleShare = async () => {
+        const url = window.location.href;
+        try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 2000);
+        } catch {
+            window.prompt('Copy link below:', url);
+        }
+    };
+
     const HeroContent = ({ isPlaying = false }) => (
-        <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-4xl [&_*]:drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]"
-        >
-            {project.titleImage ? (
+        <div className="max-w-4xl [&_*]:drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
+            {showTitleImage ? (
                 <img
                     src={project.titleImage}
                     alt={project.title}
@@ -139,45 +147,30 @@ export function ProjectPage() {
             </div>
             <div className="flex items-center gap-3 md:gap-6">
                 {!isPlaying && (
-                    <motion.button
+                    <button
                         type="button"
                         onClick={handlePlay}
                         className="flex items-center gap-2 md:gap-3 bg-white text-black px-6 md:px-8 py-3 md:py-3.5 rounded-full font-semibold hover:bg-white/90 transition-colors shadow-[0_8px_30px_rgba(255,255,255,0.2)] text-sm md:text-base cursor-pointer"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
                     >
                         <Play className="w-4 h-4 md:w-5 md:h-5" fill="black" /> Watch Trailer
-                    </motion.button>
+                    </button>
                 )}
-                <motion.button
-                    type="button"
-                    className="w-10 h-10 md:w-14 md:h-14 rounded-full liquid-glass-floating flex items-center justify-center text-white"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    title="Add to List"
-                >
-                    <Plus className="w-4 h-4 md:w-6 md:h-6" />
-                </motion.button>
-                <motion.button
-                    type="button"
-                    className="w-10 h-10 md:w-14 md:h-14 rounded-full liquid-glass-floating flex items-center justify-center text-white"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    title="Favorite"
-                >
-                    <Heart className="w-4 h-4 md:w-6 md:h-6" />
-                </motion.button>
-                <motion.button
-                    type="button"
-                    className="w-10 h-10 md:w-14 md:h-14 rounded-full liquid-glass-floating flex items-center justify-center text-white"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    title="Share"
-                >
-                    <Share2 className="w-4 h-4 md:w-6 md:h-6" />
-                </motion.button>
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={handleShare}
+                        className="w-10 h-10 md:w-14 md:h-14 rounded-full liquid-glass-floating flex items-center justify-center text-white transition-transform hover:scale-105 active:scale-95"
+                        title="Copy project link"
+                        aria-label="Copy project link"
+                    >
+                        {copied ? <Check className="w-4 h-4 md:w-6 md:h-6" /> : <Share2 className="w-4 h-4 md:w-6 md:h-6" />}
+                    </button>
+                    {copied && (
+                        <span className="metadata text-xs text-white/85">Link copied!</span>
+                    )}
+                </div>
             </div>
-        </motion.div>
+        </div>
     );
 
     const Player = ytEmbed ? (
@@ -203,108 +196,90 @@ export function ProjectPage() {
             />
         </div>
     ) : (
-        <video ref={videoRef} src={videoUrl} controls autoPlay className="w-full h-auto md:h-full object-contain block" playsInline>
+        <video ref={videoRef} src={videoUrl} controls className="w-full h-auto md:h-full object-contain block" playsInline>
             Your browser does not support the video tag.
         </video>
     );
 
     return (
         <div className="relative min-h-screen bg-[#070510] text-white overflow-x-hidden">
-            {/* Background elements */}
             <div aria-hidden className="fixed inset-0 z-0 pointer-events-none">
-                <AnimatedBackground />
                 <div className="absolute inset-0" style={{ background: MODAL_SPECTRAL }} />
             </div>
 
-            {/* Top Navigation Bar */}
-            <div className="sticky top-0 z-50 px-4 md:px-8 py-4 bg-gradient-to-b from-[#070510]/90 to-[#070510]/40 backdrop-blur-md border-b border-white/10 flex items-center justify-between">
-                <button
-                    type="button"
-                    onClick={() => navigate(-1)}
-                    aria-label="Back"
-                    className="flex items-center gap-2 px-4 py-2 rounded-full text-white/90 bg-white/10 hover:bg-white/20 transition-all border border-white/20 text-xs md:text-sm font-medium cursor-pointer"
-                >
-                    <ArrowLeft className="w-4 h-4" /> Back
-                </button>
-                <span className="film-title text-sm md:text-lg text-white/80 truncate max-w-[200px] md:max-w-md">
-                    {project.title}
-                </span>
+            {/* TOP BAR: Back kiri + LOGO HSNO di tengah (KLIK = balik ke home) */}
+            <div className="sticky top-0 z-50 px-4 md:px-8 py-4 bg-gradient-to-b from-[#070510] to-[#070510]/85 border-b border-white/10">
+                <div className="relative flex items-center">
+                    <button
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        aria-label="Back"
+                        className="flex items-center gap-2 px-4 py-2 rounded-full text-white/90 bg-white/10 hover:bg-white/20 transition-all border border-white/20 text-xs md:text-sm font-medium cursor-pointer"
+                    >
+                        <ArrowLeft className="w-4 h-4" /> Back
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/')}
+                        aria-label="Back to home"
+                        title="Back to home"
+                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                        <img
+                            src={hsno}
+                            alt="hsno"
+                            className="h-6 md:h-8 w-auto object-contain select-none"
+                        />
+                    </button>
+                </div>
             </div>
 
-            {/* Main Hero & Player Section */}
             <div className="relative z-10 w-full">
-                <AnimatePresence mode="wait">
-                    {!isPlaying ? (
-                        <motion.div
-                            key="hero-state"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="relative w-full min-h-[60vh] md:h-[85vh] overflow-hidden flex flex-col justify-end"
-                        >
-                            <div className="absolute inset-0">
-                                <img src={project.image} alt={project.title} className="w-full h-full object-cover block" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#070510] via-[#070510]/40 to-transparent pointer-events-none" />
-                            </div>
+                {!isPlaying ? (
+                    <div className="relative w-full min-h-[60vh] md:h-[85vh] overflow-hidden flex flex-col justify-end">
+                        <div className="absolute inset-0">
+                            <img src={project.image} alt={project.title} className="w-full h-full object-cover block" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#070510] via-[#070510]/40 to-transparent pointer-events-none" />
+                        </div>
 
-                            <button
-                                type="button"
-                                onClick={handlePlay}
-                                className="absolute inset-0 flex items-center justify-center z-20 group cursor-pointer"
-                            >
-                                <div className="w-20 h-20 md:w-32 md:h-32 rounded-full liquid-glass-floating flex items-center justify-center transition-transform group-hover:scale-110">
-                                    <Play className="w-8 h-8 md:w-14 md:h-14 text-white ml-1" fill="white" />
-                                </div>
-                            </button>
-
-                            <div className="relative z-20 p-6 md:p-16 lg:p-24">
-                                <HeroContent />
-                            </div>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="video-state"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="relative w-full"
+                        <button
+                            type="button"
+                            onClick={handlePlay}
+                            className="absolute inset-0 flex items-center justify-center z-20 group cursor-pointer"
                         >
-                            <div className="relative w-full md:h-[85vh] bg-black flex items-center justify-center overflow-hidden">
-                                {Player}
+                            <div className="w-20 h-20 md:w-32 md:h-32 rounded-full liquid-glass-floating flex items-center justify-center transition-transform group-hover:scale-110">
+                                <Play className="w-8 h-8 md:w-14 md:h-14 text-white ml-1" fill="white" />
                             </div>
-                            <div className="w-full p-6 md:p-16 lg:p-24 bg-gradient-to-b from-black/30 to-transparent">
-                                <HeroContent isPlaying={true} />
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                        </button>
+
+                        <div className="relative z-20 p-6 md:p-16 lg:p-24">
+                            <HeroContent />
+                        </div>
+                    </div>
+                ) : (
+                    <div className="relative w-full">
+                        <div className="relative w-full md:h-[85vh] bg-black flex items-center justify-center overflow-hidden">
+                            {Player}
+                        </div>
+                        <div className="w-full p-6 md:p-16 lg:p-24 bg-gradient-to-b from-black/30 to-transparent">
+                            <HeroContent isPlaying={true} />
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Details Content Section */}
             <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-16 lg:px-24 py-12 md:py-20 space-y-16 md:space-y-24">
-                <motion.section
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                >
+                <section>
                     <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-4 md:mb-6">
                         Synopsis
                     </h2>
                     <p className="text-lg md:text-2xl lg:text-3xl text-white/90 leading-[1.6] font-light tracking-tight max-w-4xl">
                         {project.description || 'No synopsis available for this feature.'}
                     </p>
-                </motion.section>
+                </section>
 
                 {safeCredits.length > 0 && (
-                    <motion.section
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                    >
+                    <section>
                         <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-6 md:mb-8">
                             Cast & Crew
                         </h2>
@@ -320,46 +295,35 @@ export function ProjectPage() {
                                 </div>
                             ))}
                         </div>
-                    </motion.section>
+                    </section>
                 )}
 
                 {safeStills.length > 0 && (
-                    <motion.section
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                    >
+                    <section>
                         <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-6 md:mb-8">
                             Behind The Scenes
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div className="columns-1 sm:columns-2 gap-4 md:gap-6">
                             {safeStills.map((still, idx) => (
-                                <motion.div
+                                <div
                                     key={idx}
-                                    className="relative aspect-[16/10] overflow-hidden rounded-xl bg-white/[0.02] border border-white/[0.06] group"
-                                    whileHover={{ scale: 0.98 }}
-                                    transition={{ duration: 0.4 }}
+                                    className="relative mb-4 md:mb-6 break-inside-avoid overflow-hidden rounded-xl bg-white/[0.02] border border-white/[0.06] group"
                                 >
                                     <img
                                         src={still}
                                         alt={`Behind the scenes ${idx + 1}`}
-                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                        loading="lazy"
+                                        decoding="async"
+                                        className="w-full h-auto block transition-transform duration-1000 group-hover:scale-[1.03]"
                                     />
                                     <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
-                                </motion.div>
+                                </div>
                             ))}
                         </div>
-                    </motion.section>
+                    </section>
                 )}
 
-                <motion.section
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="pt-8 md:pt-12 border-t border-white/[0.08]"
-                >
+                <section className="pt-8 md:pt-12 border-t border-white/[0.08]">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8">
                         <div>
                             <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-2 md:mb-3">
@@ -383,7 +347,7 @@ export function ProjectPage() {
                             </div>
                         )}
                     </div>
-                </motion.section>
+                </section>
             </div>
         </div>
     );

@@ -7,6 +7,7 @@ import hsno from "@/assets/images/logo/hsno.png"
 import matcha2 from "@/assets/images/thumbnail/matcha2.jpg"
 import matchaTle from "@/assets/images/cstm-title/matchaTle.png"
 
+
 const featuredProjects = [
   {
     title: 'My Hand, Her Signature',
@@ -39,7 +40,7 @@ const featuredProjects = [
     ],
   },
   {
-    title: 'Macha',
+    title: 'Matcha',
     subtitle: 'Short Film',
     description: 'In a calm, understated job interview, Gracia is asked about her favorite drink. Her answer, matcha, triggers a series of intimate memories moments, silent laughter, and a presence that once felt close.',
     image: matcha2,

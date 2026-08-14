@@ -87,3 +87,21 @@ export const SLUG_FILTER: Record<string, FilterId> = {
     'audio': 'audio',
     'personal-projects': 'Personal Projects',
 };
+
+/* ===== helper buat slugify category di URL ===== */
+export const slugifyCategory = (cat: string): string =>
+    cat.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+export const unslugifyCategory = (slug: string): string => {
+    // Mapping eksplisit buat case yang nggak standar
+    const map: Record<string, string> = {
+        'short-film': 'Short Film',
+        'short-mv-film': 'Short MV Film',
+        'commercial': 'Commercial',
+        'music-video': 'Music Video',
+        'personal-project': 'Personal Project',
+        'personal-projects': 'Personal Projects',
+    };
+    if (map[slug]) return map[slug];
+    return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+};

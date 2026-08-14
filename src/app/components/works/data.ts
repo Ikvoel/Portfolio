@@ -5,12 +5,18 @@ import { musicVideos } from './musicVideos';
 import { photos } from './photos';
 import { audioTracks } from './audioTracks';
 import type { Project, MVWork, Photo, AudioTrack, FilterId, SortMode } from './types';
+import { slugifyCategory } from './types';
 
 export const allFilms: Project[] = [...shortFilms, ...commercials, ...personalProjects];
 export const photosWithImage: Photo[] = photos.filter((p) => p.image && p.image.trim() !== '');
 
-export function getProjectById(id: number): Project | undefined {
-    return allFilms.find((p) => p.id === id);
+export function getProjectById(id: number, categorySlug?: string): Project | undefined {
+    if (!categorySlug) {
+        // Fallback lama (cari first match) — tetap ada buat backward compat
+        return allFilms.find((p) => p.id === id);
+    }
+    // Exact match: id + category slug harus sama
+    return allFilms.find((p) => p.id === id && slugifyCategory(p.category) === categorySlug);
 }
 
 export const PHOTO_ORDER = ['Commercial', 'Portrait', 'Event', 'Landscape'];

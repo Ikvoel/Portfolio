@@ -1,79 +1,139 @@
-'use client';
-import { motion } from 'motion/react';
-import { useNavigate } from 'react-router';
-import { FILTERS, FILTER_SLUG } from './types';
+import type { CSSProperties } from 'react';
+import {
+    LayoutGrid, Sparkles, Clapperboard, Megaphone, Camera, Headphones, Heart,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { FILTERS } from './types';
 import type { FilterId } from './types';
 import { categoryPalette } from './palette';
 
-export { SortControl, CreditCard, EmptyState, PhotoCard, AudioList } from './cards';
-
 interface BentoSelectorProps {
-    onSelect?: (id: FilterId) => void;
+    onSelect: (id: FilterId) => void;
     countFor: (id: FilterId) => number;
     pools: Partial<Record<FilterId, string[]>>;
     nonce: number;
 }
 
+function hexToRgba(hex: string, a: number): string {
+    const h = hex.replace('#', '');
+    const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+    const num = parseInt(full, 16);
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+/* Glow pakai box-shadow (statis, GPU-friendly). NO blur filter, NO keyframes. */
+const CSS = `
+.bento-glow{
+  position:relative; overflow:hidden; border-radius:26px; text-align:left; cursor:pointer;
+  transition: transform .35s ease, box-shadow .35s ease;
+  box-shadow:
+    0 0 0 1px var(--g1),
+    0 0 18px var(--g2),
+    0 0 55px var(--g3),
+    inset 0 0 26px var(--g2),
+    inset 0 0 5px var(--g4);
+}
+.bento-glow:hover{
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 1px var(--g4),
+    0 0 26px var(--g3),
+    0 0 80px var(--g2),
+    inset 0 0 34px var(--g3),
+    inset 0 0 7px var(--g4);
+}
+.bento-glow:active{ transform: translateY(-1px) scale(.99); }
+.bento-vert{ writing-mode: vertical-rl; transform: rotate(180deg); }
+`;
+
+/* BENTO SPANS:
+   MOBILE  = grid 2 kolom: full / half+half / full / half+half / full
+   DESKTOP = grid 3 kolom: (2+1) / (1+2) / (1+1+1) seperti semula        */
+const TILES: { id: FilterId; icon: LucideIcon; span: string; h: string }[] = [
+    { id: 'all', icon: LayoutGrid, span: 'col-span-2', h: 'h-36 md:h-52' },
+    { id: 'featured', icon: Sparkles, span: 'col-span-1', h: 'h-44 md:h-52' },
+    { id: 'Short Film', icon: Clapperboard, span: 'col-span-1', h: 'h-44 md:h-52' },
+    { id: 'commercial', icon: Megaphone, span: 'col-span-2', h: 'h-36 md:h-52' },
+    { id: 'photography', icon: Camera, span: 'col-span-1', h: 'h-44 md:h-52' },
+    { id: 'audio', icon: Headphones, span: 'col-span-1', h: 'h-44 md:h-52' },
+    { id: 'Personal Projects', icon: Heart, span: 'col-span-2 md:col-span-1', h: 'h-36 md:h-52' },
+];
+
 export function BentoSelector({ onSelect, countFor, pools, nonce }: BentoSelectorProps) {
-    const navigate = useNavigate();
     return (
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-5 max-w-6xl mx-auto">
-            {FILTERS.map((f, i) => {
-                const pal = categoryPalette[f.id];
-                const count = countFor(f.id);
-                const Icon = pal.icon;
-                const pool = pools[f.id] || [];
-                const bgImg = pool.length > 0 ? pool[(nonce + i) % pool.length] : undefined;
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
+            <style>{CSS}</style>
+            {TILES.map((t, i) => {
+                const meta = FILTERS.find((f) => f.id === t.id);
+                const accent = categoryPalette[t.id]?.accent ?? '#1d97f1';
+                const pool = pools[t.id] ?? [];
+                const image = pool.length ? pool[(nonce + i) % pool.length] : undefined;
+                const count = countFor(t.id);
+                const Icon = t.icon;
+
+                const style = {
+                    '--g1': hexToRgba(accent, 0.35),
+                    '--g2': hexToRgba(accent, 0.22),
+                    '--g3': hexToRgba(accent, 0.14),
+                    '--g4': hexToRgba(accent, 0.5),
+                    background: `radial-gradient(130% 150% at 18% 0%, ${hexToRgba(accent, 0.3)} 0%, rgba(4,16,48,0.92) 48%, rgba(2,8,28,0.96) 100%)`,
+                    border: `1px solid ${hexToRgba(accent, 0.5)}`,
+                } as CSSProperties;
 
                 return (
-                    <motion.button
-                        key={f.id}
+                    <button
+                        key={t.id}
                         type="button"
-                        onClick={() => {
-                            if (onSelect) onSelect(f.id);
-                            navigate(`/works/${FILTER_SLUG[f.id]}`);
-                        }}
-                        whileHover={{ scale: 1.02, y: -4 }}
-                        whileTap={{ scale: 0.98 }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: i * 0.05 }}
-                        className={`group relative overflow-hidden rounded-3xl p-6 text-left flex flex-col justify-between min-h-[180px] md:min-h-[220px] cursor-pointer ${pal.spanClass}`}
-                        style={{
-                            background: pal.base,
-                            boxShadow: `0 10px 30px -10px ${pal.accent}33, inset 0 1px 0 rgba(255,255,255,0.25)`,
-                        }}
+                        onClick={() => onSelect(t.id)}
+                        style={style}
+                        className={`bento-glow group w-full ${t.h} ${t.span}`}
                     >
-                        {/* Background Image / Texture overlay */}
-                        {bgImg ? (
-                            <div aria-hidden className="absolute inset-0 z-0">
-                                <img src={bgImg} alt="" className="w-full h-full object-cover opacity-25 group-hover:opacity-40 transition-opacity duration-500 group-hover:scale-105" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                            </div>
-                        ) : (
-                            <div aria-hidden className="absolute inset-0 z-0 opacity-20" style={{ backgroundImage: pal.texture, backgroundSize: pal.textureSize }} />
+                        {/* Thumbnail blend SCREEN — terang ngambang "di atas kaca" */}
+                        {image && (
+                            <img
+                                src={image}
+                                alt=""
+                                aria-hidden="true"
+                                loading="lazy"
+                                decoding="async"
+                                className="absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-[0.45] saturate-[0.9] pointer-events-none transition-transform duration-700 group-hover:scale-[1.04]"
+                            />
                         )}
 
-                        {/* Glow effect */}
-                        <div aria-hidden className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: pal.glow }} />
+                        {/* Gradient bawah tipis biar label tetep kebaca */}
+                        <div
+                            aria-hidden="true"
+                            className="absolute inset-0 rounded-[26px] pointer-events-none bg-gradient-to-t from-[#02081c]/70 via-transparent to-transparent"
+                        />
 
-                        {/* Header icon & badge */}
-                        <div className="relative z-10 flex items-center justify-between">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center text-white" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}>
-                                <Icon className="w-5 h-5 md:w-6 md:h-6" />
-                            </div>
-                            <span className="metadata text-xs px-3 py-1 rounded-full text-white/80" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                                {count} karya
+                        {/* Rim light atas + vignette sudut */}
+                        <div
+                            aria-hidden="true"
+                            className="absolute inset-0 rounded-[26px] pointer-events-none"
+                            style={{
+                                background: `linear-gradient(180deg, rgba(255,255,255,0.14) 0%, transparent 22%), linear-gradient(135deg, ${hexToRgba(accent, 0.28)} 0%, transparent 32%, transparent 70%, ${hexToRgba(accent, 0.12)} 100%)`,
+                            }}
+                        />
+
+                        {/* Vertical count */}
+                        <div
+                            className="bento-vert absolute left-3 top-3 md:left-4 md:top-4 metadata text-[9px] md:text-[10px] tracking-[0.22em] uppercase"
+                            style={{ color: 'rgba(255,255,255,0.6)' }}
+                        >
+                            {count} KARYA
+                        </div>
+
+                        {/* Label bawah */}
+                        <div className="absolute left-3 bottom-3 right-3 md:left-4 md:bottom-4 md:right-4 flex items-center gap-2 md:gap-2.5">
+                            <Icon className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" style={{ color: accent }} />
+                            <span className="film-title text-white text-base md:text-xl tracking-wide truncate drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                                {meta?.label ?? t.id}
                             </span>
                         </div>
-
-                        {/* Bottom Label */}
-                        <div className="relative z-10 mt-auto">
-                            <h3 className="film-title text-white text-lg md:text-2xl font-bold group-hover:translate-x-1 transition-transform duration-300">
-                                {f.label}
-                            </h3>
-                        </div>
-                    </motion.button>
+                    </button>
                 );
             })}
         </div>

@@ -1,5 +1,4 @@
-import { motion, useInView } from 'motion/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { BentoSelector } from './works/ui';
 import { shortFilms } from './works/shortFilms';
@@ -16,8 +15,6 @@ const photosWithImage: Photo[] = photos.filter((p) => p.image && p.image.trim() 
 
 export function WorksSection() {
 	const navigate = useNavigate();
-	const ref = useRef<HTMLElement>(null);
-	const isInView = useInView(ref, { once: true, amount: 0.1 });
 	const [nonce, setNonce] = useState(0);
 
 	useEffect(() => {
@@ -49,31 +46,20 @@ export function WorksSection() {
 	);
 
 	return (
-		<section ref={ref} id="filmography-section" className="py-24 px-4 relative overflow-hidden">
+		<section id="filmography-section" className="py-24 px-4 relative overflow-hidden">
 			<div className="max-w-7xl mx-auto relative z-10">
-				<motion.div
-					initial={{ opacity: 0, y: 40 }}
-					animate={isInView ? { opacity: 1, y: 0 } : {}}
-					transition={{ duration: 0.7 }}
-					className="text-center mb-10"
-				>
+				<div className="text-center mb-10">
 					<h2 className="section-title mb-4 text-white">Selected Works</h2>
 					<p className="body-text text-white/50 max-w-2xl mx-auto text-sm">
 						Tap a world to explore — {countFor('all')} works across {FILTERS.length - 1} categories
 					</p>
-				</motion.div>
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={isInView ? { opacity: 1, y: 0 } : {}}
-					transition={{ duration: 0.6, delay: 0.1 }}
-				>
-					<BentoSelector
-						onSelect={(id: FilterId) => navigate(`/works/${FILTER_SLUG[id]}`)}
-						countFor={countFor}
-						pools={pools}
-						nonce={nonce}
-					/>
-				</motion.div>
+				</div>
+				<BentoSelector
+					onSelect={(id: FilterId) => navigate(`/works/${FILTER_SLUG[id]}`)}
+					countFor={countFor}
+					pools={pools}
+					nonce={nonce}
+				/>
 			</div>
 		</section>
 	);

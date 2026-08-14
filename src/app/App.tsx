@@ -1,7 +1,7 @@
 import { Hero } from './components/Hero';
 import { About } from './components/About';
 import { FeaturedProjects } from './components/FeaturedProjects';
-import { Filmography } from './components/Filmography';
+import { WorksSection } from './components/WorksSection';
 import { Clients } from './components/Clients';
 import { Contact } from './components/Contact';
 import { AnimatedBackground } from './components/AnimatedBackground';
@@ -19,7 +19,7 @@ export default function App() {
         <Hero />
         <About />
         <FeaturedProjects />
-        <Filmography />
+        <WorksSection />
         <Clients />
         <Contact />
       </div>

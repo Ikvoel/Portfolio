@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router';
 import { OptimizedImage } from './ui/OptimizedImage';
@@ -9,7 +8,7 @@ const isMyCredit = (name: string) => MY_IDENTITIES.some((id) => name.toLowerCase
 
 function normalizeVideoUrl(url: string | undefined): string | undefined {
   if (!url || url === 'Not available' || url === 'Not Available') return undefined;
-  if (url.includes('drive.google.com')) { const m = url.match(/[-\\w]{25,}/); if (m) return `https://drive.google.com/uc?export=download&id=${m[0]}`; }
+  if (url.includes('drive.google.com')) { const m = url.match(/[-\w]{25,}/); if (m) return `https://drive.google.com/uc?export=download&id=${m[0]}`; }
   if (url.includes('dropbox.com')) {
     let n = url;
     if (n.includes('dl=raw1')) n = n.replace('dl=raw1', 'raw=1');
@@ -30,7 +29,6 @@ interface Project {
 }
 interface FilmProjectProps { project: Project; index: number; isInView: boolean; }
 
-// Custom hook for responsive mobile detection
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth < breakpoint : false
@@ -59,7 +57,6 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
   const isShortFilm = project.category === 'Short Film';
   const myCredits = (project.credits || []).filter((c) => isMyCredit(c.name));
 
-  // Preload cinematicStills into browser memory once
   useEffect(() => {
     if (hasStills && !preloadedRef.current) {
       preloadedRef.current = true;
@@ -71,12 +68,9 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
     }
   }, [hasStills, project.cinematicStills]);
 
-  // Slideshow interval — starts when hovered and has stills (no preview video)
   useEffect(() => {
     if (isHovered && hasStills && !project.previewVideoUrl) {
-      // Reset to first still immediately on hover start
       setCurrentStillIndex(0);
-      // Start cycling after a brief delay so user sees the first still
       const id = setInterval(() => {
         setCurrentStillIndex((p) => (p + 1) % project.cinematicStills!.length);
       }, 1800);
@@ -86,7 +80,6 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
         intervalRef.current = null;
       };
     } else {
-      // Reset when not hovered
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -95,7 +88,6 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
     }
   }, [isHovered, hasStills, project.cinematicStills, project.previewVideoUrl]);
 
-  // Preview video play/pause
   useEffect(() => {
     if (!videoRef.current) return;
     if (isHovered && project.previewVideoUrl) {
@@ -116,27 +108,28 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
   }, []);
 
   const handleClick = useCallback(() => {
-    if (hasVideo) navigate(`/project/${project.id}`);
-  }, [hasVideo, navigate, project.id]);
+    if (hasVideo) {
+      const catSlug = project.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      navigate(`/project/${catSlug}/${project.id}`);
+    }
+  }, [hasVideo, navigate, project.id, project.category]);
 
-  // Media layer
   const Media = (
     <div className="absolute inset-0">
-      <motion.div
-        className="absolute inset-0"
-        animate={{ opacity: (isHovered && (hasStills || project.previewVideoUrl)) ? 0 : 1 }}
-        transition={{ duration: 0.6 }}
+      <div
+        className="absolute inset-0 transition-opacity duration-600"
+        style={{ opacity: (isHovered && (hasStills || project.previewVideoUrl)) ? 0 : 1 }}
       >
         <OptimizedImage
           src={project.image}
           alt={project.title}
           className="w-full h-full object-cover opacity-[0.84] transition-transform duration-[1200ms] ease-out will-change-transform group-hover:scale-105"
         />
-      </motion.div>
+      </div>
       {project.previewVideoUrl && (
-        <motion.div className="absolute inset-0 pointer-events-none" initial={{ opacity: 0 }} animate={{ opacity: isHovered ? 1 : 0 }} transition={{ duration: 0.6 }}>
+        <div className="absolute inset-0 pointer-events-none transition-opacity duration-600" style={{ opacity: isHovered ? 1 : 0 }}>
           <video ref={videoRef} src={normalizeVideoUrl(project.previewVideoUrl)} loop muted playsInline preload="none" className="w-full h-full object-cover" />
-        </motion.div>
+        </div>
       )}
       {!project.previewVideoUrl && hasStills && (
         <div className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
@@ -147,9 +140,8 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
               alt={`${project.title} still ${i + 1}`}
               loading="eager"
               decoding="async"
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out will-change-[opacity] ${
-                isHovered && currentStillIndex === i ? 'opacity-100' : 'opacity-0'
-              }`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out will-change-[opacity] ${isHovered && currentStillIndex === i ? 'opacity-100' : 'opacity-0'
+                }`}
             />
           ))}
         </div>
@@ -158,7 +150,7 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
         <div className="absolute top-3 left-3 flex gap-1 z-20">
           {project.cinematicStills!.map((_, i) => (
             <div key={i} className="h-0.5 w-6 bg-white/25 rounded-full overflow-hidden">
-              <motion.div className="h-full bg-white" initial={{ width: '0%' }} animate={{ width: i === currentStillIndex ? '100%' : '0%' }} transition={{ duration: 1.8, ease: 'linear' }} />
+              <div className="h-full bg-white transition-all duration-[1800ms] ease-linear" style={{ width: i === currentStillIndex ? '100%' : '0%' }} />
             </div>
           ))}
         </div>
@@ -177,7 +169,6 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
       </div>
     );
 
-  // Logo dock
   const DockLogo = () => {
     const src = project.clientLogos && project.clientLogos.length > 0 ? project.clientLogos[0].logo : 'https://i.ibb.co.com/MD6xpWds/hsno-mark-f.png';
     return <img src={src} alt="" aria-hidden className="h-4 sm:h-5 md:h-6 w-auto max-w-[45%] object-contain object-right opacity-90 shrink-0 drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]" style={{ filter: 'brightness(0)' }} />;
@@ -198,7 +189,6 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
     );
   };
 
-  // pill style
   const pillStyle = {
     background: 'rgba(255,255,255,0.22)',
     border: '1px solid rgba(255,255,255,0.5)',
@@ -221,7 +211,6 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
           </div>
           <div className="grid grid-rows-[0fr] opacity-0 group-hover:grid-rows-[1fr] group-hover:opacity-100 transition-all duration-500 ease-out">
             <div className="overflow-hidden">
-              {/* warna gelap + halo putih dari globals; tanpa inline shadow */}
               <p className={`body-text ${descCls} leading-relaxed mt-3 line-clamp-3 font-medium`}>{project.description}</p>
               {myCredits.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-3">
@@ -246,7 +235,6 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
     >
       {isShortFilm ? (
         <div className="relative z-10 rounded-3xl overflow-hidden border border-white/10 shadow-[0_24px_70px_-20px_rgba(0,0,0,0.9)] w-full">
-          {/* overflow-hidden = clip gambar scaled → stills TIDAK bocor ke dock */}
           <div className="relative aspect-[16/10] md:aspect-[21/9] w-full overflow-hidden">
             {Media}
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />

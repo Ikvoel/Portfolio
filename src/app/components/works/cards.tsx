@@ -1,6 +1,6 @@
 'use client';
-import { motion } from 'motion/react';
-import { useState, useRef, useEffect, useCallback, memo } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
+import { useNavigate } from 'react-router';
 import {
     Film, Camera, ArrowDown, ArrowUp, Play, Pause,
     Shuffle, Repeat, Repeat1, SkipBack, SkipForward, Plus, Check,
@@ -8,18 +8,24 @@ import {
 import type { MVWork, Photo, AudioTrack, SortMode, FilterId } from './types';
 import { ImageModal } from '../ImageModal';
 
-function makeWave(seed: string, n = 44): number[] {
-    let h = 0;
-    for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-    const o: number[] = [];
-    for (let i = 0; i < n; i++) {
-        h = (h * 9301 + 49297) % 233280;
-        const r = h / 233280;
-        const v = 0.25 + 0.75 * Math.abs(Math.sin(i * 0.55) * 0.6 + r);
-        o.push(Math.max(0.18, Math.min(1, v)));
-    }
-    return o;
+function hexToRgba(hex: string, a: number): string {
+    const h = hex.replace('#', '');
+    const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+    const num = parseInt(full, 16);
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
+
+/* Equalizer mini — transform doang, ringan */
+const AUDIO_CSS = `
+@keyframes eq-bounce{0%,100%{transform:scaleY(0.3)}50%{transform:scaleY(1)}}
+.eq-bar{width:3px;height:100%;border-radius:2px;transform-origin:bottom;animation:eq-bounce 1s ease-in-out infinite}
+.eq-bar:nth-child(2){animation-delay:0.2s}
+.eq-bar:nth-child(3){animation-delay:0.4s}
+@media (prefers-reduced-motion:reduce){.eq-bar{animation:none!important}}
+`;
 
 export const SortControl = memo(function SortControl({ sort, onChange }: { sort: SortMode; onChange: (s: SortMode) => void }) {
     const btn = (mode: SortMode, label: string, Icon: typeof ArrowDown) => {
@@ -34,113 +40,26 @@ export const SortControl = memo(function SortControl({ sort, onChange }: { sort:
     };
     return (
         <div className="inline-flex items-center gap-1 rounded-full p-1 shrink-0"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)' }}>
             {btn('newest', 'Newest', ArrowDown)}{btn('oldest', 'Oldest', ArrowUp)}
         </div>
     );
 });
 
-const AudioRow = memo(function AudioRow({ track, active, playing, onRowClick, onPlayClick }: { track: AudioTrack; active: boolean; playing: boolean; onRowClick: () => void; onPlayClick: () => void }) {
-    return (
-        <div className="liquid-glass-card relative overflow-hidden rounded-2xl p-3 flex items-center gap-3 cursor-pointer"
-            onClick={onRowClick}
-            style={{ boxShadow: active ? `inset 0 1px 0 rgba(255,255,255,0.14), 0 0 0 1px ${track.accent}66, 0 12px 30px -16px ${track.accent}` : 'inset 0 1px 0 rgba(255,255,255,0.10)' }}>
-            <div className="relative w-12 h-12 shrink-0 rounded-lg overflow-hidden">
-                <img src={track.artwork} alt={track.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
-            </div>
-            <div className="min-w-0 flex-1">
-                <div className="body-text text-white text-sm font-semibold truncate">{track.title}</div>
-                <div className="metadata text-white/50 text-[10px] mt-0.5 truncate">{track.film} • {track.role}</div>
-            </div>
-            <button type="button" onClick={(e) => { e.stopPropagation(); onPlayClick(); }} aria-label={active && playing ? 'Pause' : 'Play'}
-                className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white transition-transform hover:scale-105"
-                style={{ background: active ? track.accent : 'rgba(255,255,255,0.12)' }}>
-                {active && playing ? <Pause className="w-3.5 h-3.5" fill="white" /> : <Play className="w-3.5 h-3.5 ml-0.5" fill="white" />}
-            </button>
-        </div>
-    );
-});
-
-const AudioPlayer = memo(function AudioPlayer({ track, playing, prog, wave, onToggle, onPrev, onNext, shuffle, onShuffle, repeat, onRepeat, onSeek, onClose }: {
-    track: AudioTrack; playing: boolean; prog: number; wave: number[];
-    onToggle: () => void; onPrev: () => void; onNext: () => void;
-    shuffle: boolean; onShuffle: () => void; repeat: 'off' | 'all' | 'one'; onRepeat: () => void;
-    onSeek: (ratio: number) => void; onClose: () => void;
-}) {
-    const [liked, setLiked] = useState(false);
-    const [drag, setDrag] = useState(false);
-    const barRef = useRef<HTMLDivElement>(null);
-    const seekX = (clientX: number) => {
-        const el = barRef.current; if (!el) return;
-        const r = el.getBoundingClientRect();
-        onSeek(Math.max(0, Math.min(1, (clientX - r.left) / r.width)));
-    };
-    const ghost = 'w-10 h-10 rounded-full flex items-center justify-center text-white/75 hover:text-white hover:bg-white/10 transition-colors';
-    return (
-        <div className="liquid-glass-card relative overflow-hidden rounded-2xl p-4 md:p-5 flex flex-col md:flex-row gap-4 md:gap-5"
-            style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,0.14), 0 0 0 1px ${track.accent}55, 0 18px 44px -18px ${track.accent}` }}>
-            <div aria-hidden className="absolute -top-12 -right-12 w-48 h-48 rounded-full pointer-events-none"
-                style={{ background: `radial-gradient(circle, ${track.accent}40, transparent 70%)`, filter: 'blur(30px)', mixBlendMode: 'screen' }} />
-            <div className="relative w-full md:w-40 aspect-square md:aspect-square shrink-0 rounded-xl overflow-hidden">
-                <img src={track.artwork} alt={track.title} className="w-full h-full object-cover" />
-            </div>
-            <div className="relative z-10 flex-1 min-w-0 flex flex-col">
-                <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                        <div className="body-text text-white text-base md:text-lg font-semibold truncate">{track.title}</div>
-                        <div className="metadata text-white/50 text-[10px] mt-0.5 truncate">{track.film} • {track.role}</div>
-                    </div>
-                    <button type="button" onClick={onClose} aria-label="Collapse" className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10">
-                        <ArrowUp className="w-4 h-4" />
-                    </button>
-                </div>
-
-                <div ref={barRef} className="relative mt-4 h-10 flex items-end gap-[2px] cursor-pointer select-none touch-none"
-                    onPointerDown={(e) => { setDrag(true); (e.target as HTMLElement).setPointerCapture?.(e.pointerId); seekX(e.clientX); }}
-                    onPointerMove={(e) => { if (drag) seekX(e.clientX); }}
-                    onPointerUp={() => setDrag(false)} onPointerCancel={() => setDrag(false)}>
-                    {wave.map((h, i) => {
-                        const on = (i + 0.5) / wave.length <= prog;
-                        return <span key={i} className="flex-1 rounded-full transition-colors duration-150" style={{ height: `${Math.round(h * 100)}%`, background: on ? track.accent : 'rgba(255,255,255,0.16)' }} />;
-                    })}
-                </div>
-
-                <div className="flex items-center justify-center gap-3 md:gap-4 mt-3">
-                    <button type="button" aria-label="Shuffle" onClick={onShuffle} className={ghost} style={{ color: shuffle ? track.accent : undefined }}><Shuffle className="w-4 h-4" /></button>
-                    <button type="button" aria-label="Previous" onClick={onPrev} className={ghost}><SkipBack className="w-5 h-5" fill="currentColor" /></button>
-                    <button type="button" aria-label={playing ? 'Pause' : 'Play'} onClick={onToggle}
-                        className="w-14 h-14 rounded-full flex items-center justify-center text-white" style={{ background: track.accent, boxShadow: `0 8px 22px -8px ${track.accent}` }}>
-                        {playing ? <Pause className="w-5 h-5" fill="white" /> : <Play className="w-5 h-5 ml-0.5" fill="white" />}
-                    </button>
-                    <button type="button" aria-label="Next" onClick={onNext} className={ghost}><SkipForward className="w-5 h-5" fill="currentColor" /></button>
-                    <button type="button" aria-label="Repeat" onClick={onRepeat} className={ghost} style={{ color: repeat !== 'off' ? track.accent : undefined }}>
-                        {repeat === 'one' ? <Repeat1 className="w-4 h-4" /> : <Repeat className="w-4 h-4" />}
-                    </button>
-                </div>
-
-                <div className="flex justify-center mt-3">
-                    <button type="button" onClick={() => setLiked((v) => !v)}
-                        className="metadata flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] transition-colors"
-                        style={{ background: 'rgba(255,255,255,0.08)', color: liked ? track.accent : 'rgba(255,255,255,0.8)' }}>
-                        {liked ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}{liked ? 'Added' : 'Add to List'}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-});
-
+/* ================= AUDIO PLAYER — VERSI GEDE ================= */
 export function AudioList({ tracks }: { tracks: AudioTrack[] }) {
     const [idx, setIdx] = useState(0);
     const [playing, setPlaying] = useState(false);
     const [prog, setProg] = useState(0);
     const [shuffle, setShuffle] = useState(false);
     const [repeat, setRepeat] = useState<'off' | 'all' | 'one'>('off');
-    const [expanded, setExpanded] = useState(false);
+    const [liked, setLiked] = useState(false);
+    const [drag, setDrag] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
+    const barRef = useRef<HTMLDivElement>(null);
     const autoPlayRef = useRef(false);
+
     const cur = tracks[idx];
-    const wave = makeWave(cur?.title ?? 'x');
 
     useEffect(() => {
         const a = audioRef.current; if (!a) return;
@@ -161,30 +80,139 @@ export function AudioList({ tracks }: { tracks: AudioTrack[] }) {
         if (repeat === 'one') { const a = audioRef.current; if (a) { a.currentTime = 0; a.play().catch(() => { }); } return; }
         const n = nextIdx(true); if (n == null) { setPlaying(false); setProg(0); return; } autoPlayRef.current = true; setIdx(n);
     };
-    const rowClick = (i: number) => { if (i === idx) { setExpanded((e) => !e); } else { autoPlayRef.current = true; setIdx(i); setExpanded(true); } };
-    const rowPlay = (i: number) => { if (i === idx) { toggle(); } else { autoPlayRef.current = true; setIdx(i); setExpanded(true); } };
+    const switchTo = (i: number) => { if (i === idx) { toggle(); return; } autoPlayRef.current = true; setIdx(i); };
+
+    const seekX = (clientX: number) => {
+        const el = barRef.current; const a = audioRef.current;
+        if (!el || !a || !a.duration) return;
+        const r = el.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+        a.currentTime = ratio * a.duration;
+        setProg(ratio);
+    };
+
+    if (!cur) return null;
+    const accent = cur.accent;
+
+    const circle = 'w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95';
+    const glassCircle = { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as const;
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            {tracks.map((t, i) => {
-                const active = i === idx;
-                const open = active && expanded;
-                return (
-                    <motion.div key={`audio-${t.id}`} layout className={open ? 'md:col-span-2' : ''}
-                        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: Math.min(i * 0.04, 0.2) }}>
-                        {open ? (
-                            <AudioPlayer track={t} playing={playing} prog={prog} wave={wave}
-                                onToggle={toggle} onPrev={goPrev} onNext={goNext}
-                                shuffle={shuffle} onShuffle={() => setShuffle((s) => !s)} repeat={repeat} onRepeat={() => setRepeat((r) => (r === 'off' ? 'all' : r === 'all' ? 'one' : 'off'))}
-                                onSeek={(ratio) => { const a = audioRef.current; if (!a || !a.duration) return; a.currentTime = ratio * a.duration; setProg(ratio); }}
-                                onClose={() => setExpanded(false)} />
-                        ) : (
-                            <AudioRow track={t} active={active} playing={active && playing} onRowClick={() => rowClick(i)} onPlayClick={() => rowPlay(i)} />
-                        )}
-                    </motion.div>
-                );
-            })}
-            <audio ref={audioRef} src={cur?.audio} preload="metadata"
+        <div className="relative">
+            <style>{AUDIO_CSS}</style>
+
+            {/* Player card — LEBAR: max-w-4xl */}
+            <div className="relative max-w-4xl mx-auto rounded-[32px] p-7 md:p-10"
+                style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%)',
+                    border: '1px solid rgba(255,255,255,0.14)',
+                    boxShadow: '0 30px 70px -30px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.15)',
+                }}>
+                <div className="flex items-start gap-6 md:gap-8">
+                    {/* Cover art GEDE */}
+                    <img
+                        src={cur.artwork}
+                        alt={cur.title}
+                        className="w-32 h-32 md:w-44 md:h-44 rounded-2xl md:rounded-3xl object-cover shrink-0"
+                        style={{ boxShadow: `0 16px 40px -14px ${hexToRgba(accent, 0.55)}` }}
+                    />
+                    <div className="flex-1 min-w-0">
+                        <div className="body-text text-white text-xl md:text-2xl font-semibold truncate">{cur.title}</div>
+                        <div className="metadata text-white/50 text-xs md:text-sm mt-1.5 truncate uppercase tracking-wider">{cur.film} • {cur.role}</div>
+                        <p className="body-text text-white/40 text-xs md:text-sm leading-relaxed mt-3 md:mt-4 line-clamp-2">
+                            Original audio untuk “{cur.film}” — {cur.year}.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setLiked((v) => !v)}
+                        aria-label={liked ? 'Added' : 'Add to List'}
+                        className="shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95"
+                        style={liked
+                            ? { background: '#22c55e', color: '#06240f' }
+                            : { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.75)' }}>
+                        {liked ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : <Plus className="w-4 h-4 md:w-5 md:h-5" />}
+                    </button>
+                </div>
+
+                {/* Seek bar */}
+                <div
+                    ref={barRef}
+                    className="mt-7 md:mt-8 h-2 rounded-full bg-white/10 cursor-pointer relative overflow-hidden touch-none"
+                    onPointerDown={(e) => { setDrag(true); (e.target as HTMLElement).setPointerCapture?.(e.pointerId); seekX(e.clientX); }}
+                    onPointerMove={(e) => { if (drag) seekX(e.clientX); }}
+                    onPointerUp={() => setDrag(false)}
+                    onPointerCancel={() => setDrag(false)}>
+                    <div
+                        className="absolute inset-y-0 left-0 rounded-full"
+                        style={{ width: `${Math.round(prog * 100)}%`, background: accent, boxShadow: `0 0 12px ${hexToRgba(accent, 0.8)}` }}
+                    />
+                </div>
+
+                {/* Controls */}
+                <div className="mt-6 md:mt-7 flex items-center justify-center gap-2.5 md:gap-3">
+                    <button type="button" aria-label="Shuffle" onClick={() => setShuffle((s) => !s)} className={circle}
+                        style={{ ...glassCircle, color: shuffle ? accent : 'rgba(255,255,255,0.7)' }}>
+                        <Shuffle className="w-4 h-4 md:w-5 md:h-5" />
+                    </button>
+                    <button type="button" aria-label="Previous" onClick={goPrev} className={circle}
+                        style={{ ...glassCircle, color: 'rgba(255,255,255,0.8)' }}>
+                        <SkipBack className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" />
+                    </button>
+                    <button type="button" aria-label={playing ? 'Pause' : 'Play'} onClick={toggle}
+                        className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95"
+                        style={{ background: '#fff', color: '#0b1020', boxShadow: '0 10px 28px -8px rgba(255,255,255,0.5)' }}>
+                        {playing ? <Pause className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" /> : <Play className="w-5 h-5 md:w-6 md:h-6 ml-0.5" fill="currentColor" />}
+                    </button>
+                    <button type="button" aria-label="Next" onClick={goNext} className={circle}
+                        style={{ ...glassCircle, color: 'rgba(255,255,255,0.8)' }}>
+                        <SkipForward className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" />
+                    </button>
+                    <button type="button" aria-label="Repeat" onClick={() => setRepeat((r) => (r === 'off' ? 'all' : r === 'all' ? 'one' : 'off'))} className={circle}
+                        style={{ ...glassCircle, color: repeat !== 'off' ? accent : 'rgba(255,255,255,0.7)' }}>
+                        {repeat === 'one' ? <Repeat1 className="w-4 h-4 md:w-5 md:h-5" /> : <Repeat className="w-4 h-4 md:w-5 md:h-5" />}
+                    </button>
+                </div>
+            </div>
+
+            {/* PLAYLIST — rows lebih gede */}
+            {tracks.length > 1 && (
+                <div className="relative mt-7 md:mt-8 max-w-4xl mx-auto space-y-2.5 md:space-y-3">
+                    {tracks.map((t, i) => {
+                        const active = i === idx;
+                        return (
+                            <button
+                                key={`track-${t.id}`}
+                                type="button"
+                                onClick={() => switchTo(i)}
+                                className="w-full flex items-center gap-4 md:gap-5 rounded-2xl md:rounded-3xl px-5 py-4 md:px-6 md:py-5 text-left transition-all duration-300 hover:bg-white/[0.06]"
+                                style={active
+                                    ? { background: 'rgba(255,255,255,0.07)', border: `1px solid ${hexToRgba(t.accent, 0.45)}`, boxShadow: `0 0 24px -12px ${hexToRgba(t.accent, 0.6)}` }
+                                    : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                                <img src={t.artwork} alt={t.title} loading="lazy" decoding="async" className="w-14 h-14 md:w-16 md:h-16 rounded-xl object-cover shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                    <div className="body-text text-base md:text-lg font-semibold truncate" style={{ color: active ? '#fff' : 'rgba(255,255,255,0.78)' }}>
+                                        {t.title}
+                                    </div>
+                                    <div className="metadata text-[11px] md:text-xs text-white/45 truncate mt-1">{t.film} • {t.role}</div>
+                                </div>
+                                <span className="metadata text-[11px] md:text-xs text-white/40 tabular-nums shrink-0">{t.year}</span>
+                                {active && playing ? (
+                                    <span className="flex items-end gap-[2.5px] h-4 md:h-5 shrink-0" aria-hidden>
+                                        <span className="eq-bar" style={{ background: t.accent }} />
+                                        <span className="eq-bar" style={{ background: t.accent }} />
+                                        <span className="eq-bar" style={{ background: t.accent }} />
+                                    </span>
+                                ) : (
+                                    <Play className="w-4 h-4 md:w-5 md:h-5 text-white/40 shrink-0" fill="currentColor" />
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            <audio ref={audioRef} src={cur.audio} preload="metadata"
                 onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
                 onTimeUpdate={(e) => { const a = e.currentTarget; if (a.duration) setProg(a.currentTime / a.duration); }}
                 onEnded={onEnded} />
@@ -192,6 +220,7 @@ export function AudioList({ tracks }: { tracks: AudioTrack[] }) {
     );
 }
 
+/* ================= PHOTO CARD (tetap) ================= */
 export const PhotoCard = memo(function PhotoCard({ photo }: { photo: Photo }) {
     const [open, setOpen] = useState(false);
     return (
@@ -212,11 +241,16 @@ export const PhotoCard = memo(function PhotoCard({ photo }: { photo: Photo }) {
     );
 });
 
+/* ================= CREDIT CARD (tetap) ================= */
 export const CreditCard = memo(function CreditCard({ work }: { work: MVWork }) {
+    const navigate = useNavigate();
+    const catSlug = work.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const handleClick = () => navigate(`/project/${catSlug}/${work.id}`);
+
     return (
-        <div className="liquid-glass-card relative h-full p-5 md:p-6 rounded-2xl flex flex-col justify-between gap-4 overflow-hidden"
+        <div onClick={handleClick} className="liquid-glass-card relative h-full p-5 md:p-6 rounded-2xl flex flex-col justify-between gap-4 overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
             style={work.indicator ? { boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 0 0 1px rgba(205,92,92,0.35), 0 14px 36px -16px rgba(205,92,92,0.5)' } : undefined}>
-            {work.indicator && <div aria-hidden className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(205,92,92,0.4), transparent 70%)', filter: 'blur(28px)', mixBlendMode: 'screen' }} />}
+            {work.indicator && <div aria-hidden className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(205,92,92,0.4), transparent 70%)' }} />}
             <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-3">
                     <span className="metadata liquid-glass-badge text-white/85 px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider">{work.category}</span>
@@ -232,14 +266,15 @@ export const CreditCard = memo(function CreditCard({ work }: { work: MVWork }) {
     );
 });
 
+/* ================= EMPTY STATE (tetap) ================= */
 export const EmptyState = memo(function EmptyState({ filter }: { filter: FilterId }) {
     const isPhoto = filter === 'photography';
     const Icon = isPhoto ? Camera : Film;
     return (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} className="liquid-glass-card rounded-3xl py-20 px-6 flex flex-col items-center text-center">
+        <div className="liquid-glass-card rounded-3xl py-20 px-6 flex flex-col items-center text-center">
             <div className="liquid-glass-floating w-16 h-16 rounded-full flex items-center justify-center mb-5"><Icon className="w-7 h-7 text-white/70" /></div>
             <h3 className="film-title text-white text-xl md:text-2xl mb-2">{isPhoto ? 'Galeri fotografi' : 'Belum ada karya'}</h3>
             <p className="body-text text-white/55 text-sm max-w-md">{isPhoto ? 'Karya fotografi ditampilkan di section terpisah. Mau disatukan ke filter ini? Tambahkan data foto ke sini.' : 'Belum ada karya untuk kategori ini. Cek kembali nanti atau pilih kategori lain.'}</p>
-        </motion.div>
+        </div>
     );
 });

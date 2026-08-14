@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 
-// Helper function to swap file extensions for modern image formats
 function getAlternativeExtension(url: string, ext: string): string | undefined {
   if (!url || url.startsWith('data:') || !url.includes('.')) return undefined;
   const parts = url.split('.');
@@ -12,12 +11,12 @@ interface OptimizedImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElem
   src: string;
   alt: string;
   priority?: boolean;
-  placeholderSrc?: string; // A tiny 10px wide blurred base64 placeholder or tiny image URL
+  placeholderSrc?: string;
   avifSrc?: string;
   webpSrc?: string;
   avifSrcSet?: string;
   webpSrcSet?: string;
-  aspectRatio?: string; // CSS aspect ratio (e.g., '16/9', '4/3', 'auto')
+  aspectRatio?: string;
 }
 
 export function OptimizedImage({
@@ -40,7 +39,7 @@ export function OptimizedImage({
   const finalPlaceholder = placeholderSrc || src;
 
   useEffect(() => {
-    if (imgRef.current?.complete) {
+    if (imgRef.current?.complete && imgRef.current?.naturalHeight > 0) {
       setIsLoaded(true);
     }
   }, []);
@@ -53,19 +52,16 @@ export function OptimizedImage({
         ...style,
       }}
     >
-      {/* Blurred Placeholder image (fades out once high-res loads) */}
       {finalPlaceholder && (
         <img
           src={finalPlaceholder}
           alt=""
           aria-hidden="true"
-          className={`absolute inset-0 w-full h-full object-cover filter blur-md scale-105 pointer-events-none transition-opacity duration-700 ease-in-out z-10 ${
-            isLoaded ? 'opacity-0' : 'opacity-100'
-          }`}
+          className={`absolute inset-0 w-full h-full object-cover filter blur-md scale-105 pointer-events-none transition-opacity duration-500 ease-in-out z-10 ${isLoaded ? 'opacity-0' : 'opacity-100'
+            }`}
         />
       )}
 
-      {/* Modern Format Wrapper */}
       <picture>
         {avifSrcSet && <source srcSet={avifSrcSet} type="image/avif" />}
         {avifSrc && <source srcSet={avifSrc} type="image/avif" />}
@@ -78,12 +74,13 @@ export function OptimizedImage({
           src={src}
           alt={alt}
           loading={priority ? 'eager' : 'lazy'}
+          decoding={priority ? 'sync' : 'async'}
           // @ts-ignore
-          fetchPriority={priority ? 'high' : 'low'}
+          fetchPriority={priority ? 'high' : 'auto'}
           onLoad={() => setIsLoaded(true)}
-          className={`w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
+          onError={() => setIsLoaded(true)}
+          className={`w-full h-full object-cover transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
           {...props}
         />
       </picture>

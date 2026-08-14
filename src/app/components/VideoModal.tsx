@@ -84,7 +84,7 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
 
   const HeroContent = ({ isPlaying = false }) => (
     <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} className="max-w-4xl [&_*]:drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
-      {titleImage ? (
+      {titleImage && category === 'Short Film' ? (
         <img src={titleImage} alt={title} className="h-12 md:h-24 lg:h-32 w-auto object-contain drop-shadow-2xl mb-4 md:mb-6" style={{ filter: 'brightness(0) invert(1)' }} />
       ) : (
         <h1 className="text-4xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white leading-[0.9] mb-4 md:mb-6 drop-shadow-2xl">{title}</h1>

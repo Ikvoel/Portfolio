@@ -1,9 +1,7 @@
-import { motion } from 'motion/react';
-import { useInView } from 'motion/react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Mail, Phone, MapPin, Instagram, Linkedin, Youtube, Send, MessageCircle } from 'lucide-react';
 
-const WHATSAPP_NUMBER = '6285890575606'; // without + sign
+const WHATSAPP_NUMBER = '6285890575606';
 const EMAIL_ADDRESS = 'husen.seino@gmail.com';
 
 const contactInfo = [
@@ -45,9 +43,6 @@ function buildMailtoUrl(name: string, email: string, message: string) {
 }
 
 export function Contact() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
-
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -63,30 +58,17 @@ export function Contact() {
   };
 
   return (
-    <section ref={ref} className="py-24 px-4 relative overflow-hidden">
+    <section className="py-24 px-4 relative overflow-hidden">
       <div className="max-w-6xl mx-auto relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-16"
-        >
-          {/* Section title - Glamour Absolute font */}
+        <div className="text-center mb-16">
           <h2 className="section-title mb-4 text-white">Let's Create Together</h2>
-
-          {/* Minimal secondary text */}
           <p className="body-text text-white/50 text-sm">
             Have a project in mind? Get in touch.
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid md:grid-cols-2 gap-12">
-          {/* Contact Info with glassmorphism */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <div>
             <h3 className="film-title mb-8 text-white text-2xl">Get In Touch</h3>
             <div className="space-y-4 mb-8">
               {contactInfo.map((item) => {
@@ -96,11 +78,9 @@ export function Contact() {
                   ? { href: item.href, target: '_blank' as const, rel: 'noopener noreferrer' }
                   : {};
                 return (
-                  <motion.div
+                  <div
                     key={item.label}
-                    className="liquid-glass-card p-4 transition-all duration-300"
-                    whileHover={{ x: 10 }}
-                    transition={{ duration: 0.2 }}
+                    className="liquid-glass-card p-4 transition-all duration-300 hover:translate-x-2.5"
                   >
                     <Wrapper {...wrapperProps} className="flex items-start gap-4 no-underline">
                       <div className="liquid-glass-floating w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
@@ -111,40 +91,33 @@ export function Contact() {
                         <div className="body-text text-white/90">{item.value}</div>
                       </div>
                     </Wrapper>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
 
-            {/* Social Links */}
             <div>
               <div className="metadata text-white/50 text-xs mb-4">Follow</div>
               <div className="flex gap-3">
                 {socialLinks.map((social) => {
                   const Icon = social.icon;
                   return (
-                    <motion.a
+                    <a
                       key={social.label}
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="liquid-glass-floating w-12 h-12 rounded-full flex items-center justify-center text-white/90"
-                      whileHover={{ scale: 1.15, rotate: 5 }}
-                      whileTap={{ scale: 0.95 }}
+                      className="liquid-glass-floating w-12 h-12 rounded-full flex items-center justify-center text-white/90 transition-all duration-300 hover:scale-115 hover:rotate-[5deg] active:scale-95"
                     >
                       <Icon className="w-5 h-5 text-white/90" />
-                    </motion.a>
+                    </a>
                   );
                 })}
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Contact Form with Liquid Glass */}
-          <motion.form
-            initial={{ opacity: 0, x: 30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
+          <form
             className="liquid-glass-card p-8 space-y-6"
             onSubmit={(e) => e.preventDefault()}
           >
@@ -191,42 +164,32 @@ export function Contact() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <motion.button
+              <button
                 type="button"
                 onClick={handleWhatsApp}
-                className="flex-1 px-6 py-4 liquid-glass-button text-white rounded-full metadata flex items-center justify-center gap-2.5"
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
+                className="flex-1 px-6 py-4 liquid-glass-button text-white rounded-full metadata flex items-center justify-center gap-2.5 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 <MessageCircle className="w-4 h-4" />
                 Send via WhatsApp
-              </motion.button>
+              </button>
 
-              <motion.button
+              <button
                 type="button"
                 onClick={handleEmail}
-                className="flex-1 px-6 py-4 liquid-glass-button text-white rounded-full metadata flex items-center justify-center gap-2.5"
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
+                className="flex-1 px-6 py-4 liquid-glass-button text-white rounded-full metadata flex items-center justify-center gap-2.5 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 <Send className="w-4 h-4" />
                 Send via Email
-              </motion.button>
+              </button>
             </div>
-          </motion.form>
+          </form>
         </div>
 
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-16 pt-8 border-t border-white/10"
-        >
+        <div className="text-center mt-16 pt-8 border-t border-white/10">
           <p className="body-text text-white/40 text-xs">
             © 2026 Muhammad Nur Husein. All rights reserved.
           </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
