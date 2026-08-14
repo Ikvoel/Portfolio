@@ -152,7 +152,7 @@ export function ProjectPage() {
                         onClick={handlePlay}
                         className="flex items-center gap-2 md:gap-3 bg-white text-black px-6 md:px-8 py-3 md:py-3.5 rounded-full font-semibold hover:bg-white/90 transition-colors shadow-[0_8px_30px_rgba(255,255,255,0.2)] text-sm md:text-base cursor-pointer"
                     >
-                        <Play className="w-4 h-4 md:w-5 md:h-5" fill="black" /> Watch Trailer
+                        <Play className="w-4 h-4 md:w-5 md:h-5" fill="black" /> Watch
                     </button>
                 )}
                 <div className="flex items-center gap-3">
