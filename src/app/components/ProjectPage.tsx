@@ -87,7 +87,7 @@ export function ProjectPage() {
 
     if (!project) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center text-white bg-[#070510]">
+            <div className="min-h-screen flex flex-col items-center justify-center text-white bg-[#020D2F]">
                 <h1 className="film-title text-3xl mb-4">Project Not Found</h1>
                 <button
                     type="button"
@@ -202,13 +202,15 @@ export function ProjectPage() {
     );
 
     return (
-        <div className="relative min-h-screen bg-[#070510] text-white overflow-x-hidden">
-            <div aria-hidden className="fixed inset-0 z-0 pointer-events-none">
+        /* ROOT: bg biru deep (#020D2F) — biar kalaupun ada flash, nyatu sama background */
+        <div className="relative min-h-screen bg-[#020D2F] text-white overflow-x-hidden">
+            {/* BACKGROUND: ABSOLUTE (bukan fixed) → scroll bareng konten, mustahil lag/ketarik */}
+            <div aria-hidden className="absolute inset-0 z-0 pointer-events-none">
                 <div className="absolute inset-0" style={{ background: MODAL_SPECTRAL }} />
             </div>
 
             {/* TOP BAR: Back kiri + LOGO HSNO di tengah (KLIK = balik ke home) */}
-            <div className="sticky top-0 z-50 px-4 md:px-8 py-4 bg-gradient-to-b from-[#070510] to-[#070510]/85 border-b border-white/10">
+            <div className="sticky top-0 z-50 px-4 md:px-8 py-4 bg-gradient-to-b from-[#020D2F] to-[#020D2F]/85 border-b border-white/10">
                 <div className="relative flex items-center">
                     <button
                         type="button"
@@ -239,7 +241,7 @@ export function ProjectPage() {
                     <div className="relative w-full min-h-[60vh] md:h-[85vh] overflow-hidden flex flex-col justify-end">
                         <div className="absolute inset-0">
                             <img src={project.image} alt={project.title} className="w-full h-full object-cover block" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#070510] via-[#070510]/40 to-transparent pointer-events-none" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#020D2F] via-[#020D2F]/40 to-transparent pointer-events-none" />
                         </div>
 
                         <button
@@ -301,7 +303,7 @@ export function ProjectPage() {
                 {safeStills.length > 0 && (
                     <section>
                         <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-6 md:mb-8">
-                            Behind The Scenes
+                            Stills
                         </h2>
                         <div className="columns-1 sm:columns-2 gap-4 md:gap-6">
                             {safeStills.map((still, idx) => (
