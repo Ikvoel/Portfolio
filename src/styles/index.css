@@ -5,3 +5,35 @@
 @import './default_theme.css';
 @import './globals.css';
 @source '../../**/*.{js,ts,jsx,tsx}';
+
+/* ==========================================================================
+   FIX 1: line-clamp vendor prefix warning
+   Override utility bawaan Tailwind v4 biar include standard property 'line-clamp'
+   + '-webkit-line-clamp'. Ngilangin 4 warning "Also define the standard property".
+   ========================================================================== */
+@utility line-clamp-* {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: --value(integer);
+    line-clamp: --value(integer);
+}
+
+/* ==========================================================================
+   FIX 2: vertical-align ignored warning
+   Override preflight Tailwind v4. 'initial' bikin browser nggak komplain
+   soal vertical-align di elemen display:block.
+   ========================================================================== */
+@layer base {
+
+    img,
+    svg,
+    video,
+    canvas,
+    audio,
+    iframe,
+    embed,
+    object {
+        vertical-align: initial;
+    }
+}
