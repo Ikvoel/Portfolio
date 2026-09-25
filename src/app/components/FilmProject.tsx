@@ -1,23 +1,51 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router';
 import { OptimizedImage } from './ui/OptimizedImage';
+import { slugifyProject } from './works/types';
 import hsno from "@/assets/images/logo/hsno.png"
 
 const MY_IDENTITIES = ['Nur Husein', 'Seno'];
 const isMyCredit = (name: string) => MY_IDENTITIES.some((id) => name.toLowerCase().includes(id.toLowerCase()));
 
+function isAvailableVideoUrl(url: string | undefined | null): boolean {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim().toLowerCase();
+  if (
+    !trimmed ||
+    trimmed === 'none' ||
+    trimmed === 'tba' ||
+    trimmed.includes('not available') ||
+    trimmed.includes('not availabe') ||
+    trimmed.includes('currently not available') ||
+    trimmed.includes('unavailable') ||
+    trimmed.includes('coming soon')
+  ) {
+    return false;
+  }
+  return (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('/') ||
+    trimmed.startsWith('./') ||
+    trimmed.startsWith('data:') ||
+    trimmed.startsWith('blob:')
+  );
+}
+
 function normalizeVideoUrl(url: string | undefined): string | undefined {
-  if (!url || url === 'Not available' || url === 'Not Available') return undefined;
-  if (url.includes('drive.google.com')) { const m = url.match(/[-\w]{25,}/); if (m) return `https://drive.google.com/uc?export=download&id=${m[0]}`; }
-  if (url.includes('dropbox.com')) {
-    let n = url;
+  if (!isAvailableVideoUrl(url)) return undefined;
+  let n = url!.trim();
+  if (n.includes('drive.google.com')) {
+    const m = n.match(/[-\w]{25,}/);
+    if (m) return `https://drive.google.com/uc?export=download&id=${m[0]}`;
+  }
+  if (n.includes('dropbox.com')) {
     if (n.includes('dl=raw1')) n = n.replace('dl=raw1', 'raw=1');
     else if (n.includes('dl=0')) n = n.replace('dl=0', 'raw=1');
     else if (n.includes('dl=1')) n = n.replace('dl=1', 'raw=1');
     else if (!n.includes('raw=1')) n += (n.includes('?') ? '&' : '?') + 'raw=1';
-    return n;
   }
-  return url;
+  return n;
 }
 
 interface Credit { role: string; name: string; }
@@ -51,8 +79,11 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
   const preloadedRef = useRef(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const validPreviewUrl = normalizeVideoUrl(project.previewVideoUrl);
+  const hasPreviewVideo = !!validPreviewUrl;
+  const validVideoUrl = normalizeVideoUrl(project.videoUrl);
+  const hasVideo = !!validVideoUrl;
   const hasStills = !!(project.cinematicStills && project.cinematicStills.length > 0);
-  const hasVideo = !!project.videoUrl;
   const isMobile = useIsMobile();
   const isShortFilm = project.category === 'Short Film';
   const myCredits = (project.credits || []).filter((c) => isMyCredit(c.name));
@@ -69,7 +100,7 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
   }, [hasStills, project.cinematicStills]);
 
   useEffect(() => {
-    if (isHovered && hasStills && !project.previewVideoUrl) {
+    if (isHovered && hasStills && !hasPreviewVideo) {
       setCurrentStillIndex(0);
       const id = setInterval(() => {
         setCurrentStillIndex((p) => (p + 1) % project.cinematicStills!.length);
@@ -86,18 +117,18 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
       }
       setCurrentStillIndex(0);
     }
-  }, [isHovered, hasStills, project.cinematicStills, project.previewVideoUrl]);
+  }, [isHovered, hasStills, project.cinematicStills, hasPreviewVideo]);
 
   useEffect(() => {
     if (!videoRef.current) return;
-    if (isHovered && project.previewVideoUrl) {
+    if (isHovered && hasPreviewVideo) {
       videoRef.current.muted = true;
       videoRef.current.play().catch((e) => console.warn('[FilmProject] preview play failed', e));
     } else {
       videoRef.current.pause();
       if (videoRef.current.readyState >= 1) videoRef.current.currentTime = 0;
     }
-  }, [isHovered, project.previewVideoUrl]);
+  }, [isHovered, hasPreviewVideo]);
 
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);
@@ -108,17 +139,18 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
   }, []);
 
   const handleClick = useCallback(() => {
-    if (hasVideo) {
+    if (hasVideo || project.id) {
       const catSlug = project.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      navigate(`/project/${catSlug}/${project.id}`);
+      const projectSlug = slugifyProject(project.title);
+      navigate(`/project/${catSlug}/${projectSlug}`);
     }
-  }, [hasVideo, navigate, project.id, project.category]);
+  }, [hasVideo, navigate, project.id, project.title, project.category]);
 
   const Media = (
     <div className="absolute inset-0">
       <div
         className="absolute inset-0 transition-opacity duration-600"
-        style={{ opacity: (isHovered && (hasStills || project.previewVideoUrl)) ? 0 : 1 }}
+        style={{ opacity: (isHovered && (hasStills || hasPreviewVideo)) ? 0 : 1 }}
       >
         <OptimizedImage
           src={project.image}
@@ -126,12 +158,12 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
           className="w-full h-full object-cover opacity-[0.84] transition-transform duration-[1200ms] ease-out will-change-transform group-hover:scale-105"
         />
       </div>
-      {project.previewVideoUrl && (
+      {hasPreviewVideo && (
         <div className="absolute inset-0 pointer-events-none transition-opacity duration-600" style={{ opacity: isHovered ? 1 : 0 }}>
-          <video ref={videoRef} src={normalizeVideoUrl(project.previewVideoUrl)} loop muted playsInline preload="none" className="w-full h-full object-cover" />
+          <video ref={videoRef} src={validPreviewUrl} loop muted playsInline preload="none" className="w-full h-full object-cover" />
         </div>
       )}
-      {!project.previewVideoUrl && hasStills && (
+      {!hasPreviewVideo && hasStills && (
         <div className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
           {project.cinematicStills!.map((stillUrl, i) => (
             <img
@@ -146,7 +178,7 @@ export const FilmProject = memo(function FilmProject({ project, index, isInView 
           ))}
         </div>
       )}
-      {hasStills && isHovered && !project.previewVideoUrl && (
+      {hasStills && isHovered && !hasPreviewVideo && (
         <div className="absolute top-3 left-3 flex gap-1 z-20">
           {project.cinematicStills!.map((_, i) => (
             <div key={i} className="h-0.5 w-6 bg-white/25 rounded-full overflow-hidden">

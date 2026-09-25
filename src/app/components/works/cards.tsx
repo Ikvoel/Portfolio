@@ -6,6 +6,7 @@ import {
     Shuffle, Repeat, Repeat1, SkipBack, SkipForward, Plus, Check,
 } from 'lucide-react';
 import type { MVWork, Photo, AudioTrack, SortMode, FilterId } from './types';
+import { slugifyProject } from './types';
 import { ImageModal } from '../ImageModal';
 
 function hexToRgba(hex: string, a: number): string {
@@ -245,7 +246,8 @@ export const PhotoCard = memo(function PhotoCard({ photo }: { photo: Photo }) {
 export const CreditCard = memo(function CreditCard({ work }: { work: MVWork }) {
     const navigate = useNavigate();
     const catSlug = work.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const handleClick = () => navigate(`/project/${catSlug}/${work.id}`);
+    const projectSlug = slugifyProject(work.client);
+    const handleClick = () => navigate(`/project/${catSlug}/${projectSlug}`);
 
     return (
         <div onClick={handleClick} className="liquid-glass-card relative h-full p-5 md:p-6 rounded-2xl flex flex-col justify-between gap-4 overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"

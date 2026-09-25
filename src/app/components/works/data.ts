@@ -5,18 +5,56 @@ import { musicVideos } from './musicVideos';
 import { photos } from './photos';
 import { audioTracks } from './audioTracks';
 import type { Project, MVWork, Photo, AudioTrack, FilterId, SortMode } from './types';
-import { slugifyCategory } from './types';
+import { slugifyCategory, slugifyProject, normalizeSlug } from './types';
+
+import bbd from '@/assets/images/bbd/bbdhorz.webp';
+import bbdTle from '@/assets/images/cstm-title/bbdTle.webp';
+import kaiv from '@/assets/images/logo/kaiv.png';
+
+export const featuredFilms: Project[] = [
+    {
+        id: 6,
+        title: 'Blue Before Dawn',
+        category: 'Short Film',
+        year: 'TBA',
+        isFeatured: true,
+        status: 'On Development',
+        statusColor: 'red',
+        description: 'On a quiet beach before sunrise, Julie allows herself to feel something she had long lost.',
+        image: bbd,
+        videoUrl: 'Not Available',
+        credits: [
+            { role: 'Director & Writer', name: 'Muhammad Nur Husein' },
+            { role: 'Producer', name: 'Nico Bethaven' },
+            { role: 'Project Supervisor', name: 'Mia Wong' },
+        ],
+        cinematicStills: [],
+        clientLogos: [{ name: 'Kaiv', logo: kaiv, hasGlassBadge: false }],
+        titleImage: bbdTle,
+    },
+];
 
 export const allFilms: Project[] = [...shortFilms, ...commercials, ...personalProjects];
 export const photosWithImage: Photo[] = photos.filter((p) => p.image && p.image.trim() !== '');
 
-export function getProjectById(id: number, categorySlug?: string): Project | undefined {
-    if (!categorySlug) {
-        // Fallback lama (cari first match) — tetap ada buat backward compat
-        return allFilms.find((p) => p.id === id);
-    }
-    // Exact match: id + category slug harus sama
-    return allFilms.find((p) => p.id === id && slugifyCategory(p.category) === categorySlug);
+export function getProjectById(idOrSlug: number | string, categorySlug?: string): Project | undefined {
+    const list = [...featuredFilms, ...allFilms];
+    const rawStr = String(idOrSlug).trim();
+    const isNum = typeof idOrSlug === 'number' || (/^\d+$/.test(rawStr) && !isNaN(Number(rawStr)));
+    const numId = isNum ? Number(rawStr) : NaN;
+    const querySlug = rawStr.toLowerCase();
+    const cleanQuery = normalizeSlug(querySlug);
+
+    return list.find((p) => {
+        const matchesCat = !categorySlug || slugifyCategory(p.category) === categorySlug;
+        if (!matchesCat) return false;
+
+        if (isNum && p.id === numId) return true;
+        if (slugifyProject(p.title) === querySlug) return true;
+        if (normalizeSlug(p.title) === cleanQuery) return true;
+
+        return false;
+    });
 }
 
 export const PHOTO_ORDER = ['Commercial', 'Portrait', 'Event', 'Landscape'];

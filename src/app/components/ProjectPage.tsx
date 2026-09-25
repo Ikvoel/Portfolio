@@ -13,21 +13,45 @@ const MODAL_SPECTRAL = `
   linear-gradient(135deg, #020D2F 0%, #032C7D 50%, #020D2F 100%)
 `;
 
+function isAvailableVideoUrl(url: string | undefined | null): boolean {
+    if (!url || typeof url !== 'string') return false;
+    const trimmed = url.trim().toLowerCase();
+    if (
+        !trimmed ||
+        trimmed === 'none' ||
+        trimmed === 'tba' ||
+        trimmed.includes('not available') ||
+        trimmed.includes('not availabe') ||
+        trimmed.includes('currently not available') ||
+        trimmed.includes('unavailable') ||
+        trimmed.includes('coming soon')
+    ) {
+        return false;
+    }
+    return (
+        trimmed.startsWith('http://') ||
+        trimmed.startsWith('https://') ||
+        trimmed.startsWith('/') ||
+        trimmed.startsWith('./') ||
+        trimmed.startsWith('data:') ||
+        trimmed.startsWith('blob:')
+    );
+}
+
 function normalizeVideoUrl(url: string | undefined): string | undefined {
-    if (!url || url === 'Not available' || url === 'Not Available') return undefined;
-    if (url.includes('drive.google.com')) {
-        const m = url.match(/[-\w]{25,}/);
+    if (!isAvailableVideoUrl(url)) return undefined;
+    let n = url!.trim();
+    if (n.includes('drive.google.com')) {
+        const m = n.match(/[-\w]{25,}/);
         if (m) return `https://drive.google.com/uc?export=download&id=${m[0]}`;
     }
-    if (url.includes('dropbox.com')) {
-        let n = url;
+    if (n.includes('dropbox.com')) {
         if (n.includes('dl=raw1')) n = n.replace('dl=raw1', 'raw=1');
         else if (n.includes('dl=0')) n = n.replace('dl=0', 'raw=1');
         else if (n.includes('dl=1')) n = n.replace('dl=1', 'raw=1');
         else if (!n.includes('raw=1')) n += (n.includes('?') ? '&' : '?') + 'raw=1';
-        return n;
     }
-    return url;
+    return n;
 }
 
 function getYoutubeEmbed(url: string | undefined): string | null {
@@ -71,6 +95,74 @@ function getDriveEmbed(url: string | undefined): string | null {
     }
 }
 
+function getCategoryConfig(category?: string) {
+    const cat = category?.toLowerCase() || '';
+    if (cat.includes('short') && (cat.includes('film') || cat.includes('mv'))) {
+        return {
+            badge: category || 'Short Film',
+            synopsisHeading: 'Synopsis',
+            synopsisFallback: 'No synopsis available for this short film.',
+            creditsHeading: 'Cast & Crew',
+            stillsHeading: 'Behind The Scenes',
+            productionHeading: 'Production',
+            studioHeading: 'Studio',
+        };
+    }
+    if (cat.includes('commercial') || cat.includes('ad')) {
+        return {
+            badge: 'Commercial',
+            synopsisHeading: 'Campaign Overview & Brief',
+            synopsisFallback: 'No brief available for this commercial project.',
+            creditsHeading: 'Production & Creative Crew',
+            stillsHeading: 'Campaign Frames & Stills',
+            productionHeading: 'Production Info',
+            studioHeading: 'Client / Agency',
+        };
+    }
+    if (cat.includes('music') || cat.includes('mv')) {
+        return {
+            badge: 'Music Video',
+            synopsisHeading: 'Concept & Narrative',
+            synopsisFallback: 'No concept notes available for this music video.',
+            creditsHeading: 'Artist & Production Team',
+            stillsHeading: 'Music Video Stills',
+            productionHeading: 'Release Info',
+            studioHeading: 'Label / Production',
+        };
+    }
+    if (cat.includes('personal')) {
+        return {
+            badge: 'Personal Project',
+            synopsisHeading: 'Creative Concept & Exploration',
+            synopsisFallback: 'Personal creative exploration and visual study.',
+            creditsHeading: 'Roles & Collaborators',
+            stillsHeading: 'Project Stills',
+            productionHeading: 'Project Info',
+            studioHeading: 'Studio',
+        };
+    }
+    if (cat.includes('photo')) {
+        return {
+            badge: 'Photography',
+            synopsisHeading: 'About The Series',
+            synopsisFallback: 'Photographic showcase and visual study.',
+            creditsHeading: 'Credits & Roles',
+            stillsHeading: 'Series Gallery',
+            productionHeading: 'Exhibition',
+            studioHeading: 'Studio',
+        };
+    }
+    return {
+        badge: category || 'Project',
+        synopsisHeading: 'Project Overview',
+        synopsisFallback: 'No details available for this project.',
+        creditsHeading: 'Credits & Team',
+        stillsHeading: 'Visuals & Stills',
+        productionHeading: 'Production',
+        studioHeading: 'Studio',
+    };
+}
+
 export function ProjectPage() {
     const { id, cat } = useParams<{ id: string; cat?: string }>();
     const navigate = useNavigate();
@@ -78,8 +170,7 @@ export function ProjectPage() {
     const [copied, setCopied] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
 
-    const numericId = id ? parseInt(id, 10) : NaN;
-    const project = getProjectById(numericId, cat);
+    const project = getProjectById(id || '', cat);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -100,16 +191,20 @@ export function ProjectPage() {
         );
     }
 
-    const videoUrl = normalizeVideoUrl(project.videoUrl) || '';
+    const catConfig = getCategoryConfig(project.category);
+    const validVideoUrl = normalizeVideoUrl(project.videoUrl);
+    const hasVideo = !!validVideoUrl;
+    const videoUrl = validVideoUrl || '';
     const safeCredits = project.credits || [];
     const safeStills = project.cinematicStills || [];
     const watermarkLogo = project.clientLogos?.[0]?.logo;
     const ytEmbed = getYoutubeEmbed(videoUrl);
     const driveEmbed = getDriveEmbed(videoUrl);
-    const showTitleImage = project.category === 'Short Film' && !!project.titleImage;
+    const titleImg = project.titleImage || (project as any).titleimage;
+    const showTitleImage = (project.category === 'Short Film' || project.category === 'Short MV Film' || project.category === 'Music Video') && !!titleImg;
 
     const handlePlay = () => {
-        if (videoUrl && videoUrl !== 'Not Available' && videoUrl !== 'Not available') {
+        if (hasVideo) {
             setIsPlaying(true);
         }
     };
@@ -130,7 +225,7 @@ export function ProjectPage() {
         <div className="max-w-4xl [&_*]:drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
             {showTitleImage ? (
                 <img
-                    src={project.titleImage}
+                    src={titleImg}
                     alt={project.title}
                     className="h-12 md:h-24 lg:h-32 w-auto object-contain drop-shadow-2xl mb-4 md:mb-6"
                     style={{ filter: 'brightness(0) invert(1)' }}
@@ -140,13 +235,19 @@ export function ProjectPage() {
                     {project.title}
                 </h1>
             )}
-            <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 text-white/70 text-[10px] md:text-sm uppercase tracking-[0.2em] font-medium">
+            <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 text-white/70 text-[10px] md:text-sm uppercase tracking-[0.2em] font-medium flex-wrap">
                 <span>{project.year}</span>
                 <span className="w-1 h-1 rounded-full bg-white/40" />
-                <span>{project.category || 'Short Film'}</span>
+                <span>{catConfig.badge}</span>
+                {project.status && (
+                    <>
+                        <span className="w-1 h-1 rounded-full bg-white/40" />
+                        <span className="text-white/90 px-2.5 py-0.5 rounded-full bg-white/10 text-[10px] md:text-xs">{project.status}</span>
+                    </>
+                )}
             </div>
             <div className="flex items-center gap-3 md:gap-6">
-                {!isPlaying && (
+                {hasVideo && !isPlaying && (
                     <button
                         type="button"
                         onClick={handlePlay}
@@ -159,7 +260,7 @@ export function ProjectPage() {
                     <button
                         type="button"
                         onClick={handleShare}
-                        className="w-10 h-10 md:w-14 md:h-14 rounded-full liquid-glass-floating flex items-center justify-center text-white transition-transform hover:scale-105 active:scale-95"
+                        className="w-10 h-10 md:w-14 md:h-14 rounded-full liquid-glass-floating flex items-center justify-center text-white transition-transform hover:scale-105 active:scale-95 cursor-pointer"
                         title="Copy project link"
                         aria-label="Copy project link"
                     >
@@ -244,15 +345,17 @@ export function ProjectPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-[#020D2F] via-[#020D2F]/40 to-transparent pointer-events-none" />
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={handlePlay}
-                            className="absolute inset-0 flex items-center justify-center z-20 group cursor-pointer"
-                        >
-                            <div className="w-20 h-20 md:w-32 md:h-32 rounded-full liquid-glass-floating flex items-center justify-center transition-transform group-hover:scale-110">
-                                <Play className="w-8 h-8 md:w-14 md:h-14 text-white ml-1" fill="white" />
-                            </div>
-                        </button>
+                        {hasVideo && (
+                            <button
+                                type="button"
+                                onClick={handlePlay}
+                                className="absolute inset-0 flex items-center justify-center z-20 group cursor-pointer"
+                            >
+                                <div className="w-20 h-20 md:w-32 md:h-32 rounded-full liquid-glass-floating flex items-center justify-center transition-transform group-hover:scale-110">
+                                    <Play className="w-8 h-8 md:w-14 md:h-14 text-white ml-1" fill="white" />
+                                </div>
+                            </button>
+                        )}
 
                         <div className="relative z-20 p-6 md:p-16 lg:p-24">
                             <HeroContent />
@@ -273,17 +376,17 @@ export function ProjectPage() {
             <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-16 lg:px-24 py-12 md:py-20 space-y-16 md:space-y-24">
                 <section>
                     <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-4 md:mb-6">
-                        Synopsis
+                        {catConfig.synopsisHeading}
                     </h2>
                     <p className="text-lg md:text-2xl lg:text-3xl text-white/90 leading-[1.6] font-light tracking-tight max-w-4xl">
-                        {project.description || 'No synopsis available for this feature.'}
+                        {project.description || catConfig.synopsisFallback}
                     </p>
                 </section>
 
                 {safeCredits.length > 0 && (
                     <section>
                         <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-6 md:mb-8">
-                            Cast & Crew
+                            {catConfig.creditsHeading}
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 md:gap-x-16 gap-y-4 md:gap-y-6">
                             {safeCredits.map((credit, idx) => (
@@ -303,7 +406,7 @@ export function ProjectPage() {
                 {safeStills.length > 0 && (
                     <section>
                         <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-6 md:mb-8">
-                            Stills
+                            {catConfig.stillsHeading}
                         </h2>
                         <div className="columns-1 sm:columns-2 gap-4 md:gap-6">
                             {safeStills.map((still, idx) => (
@@ -329,16 +432,16 @@ export function ProjectPage() {
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8">
                         <div>
                             <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-2 md:mb-3">
-                                Production
+                                {catConfig.productionHeading}
                             </h2>
                             <p className="text-white/85 text-base md:text-lg tracking-tight">
-                                {project.category || 'Short Film'} • {project.year}
+                                {catConfig.badge} • {project.year}
                             </p>
                         </div>
                         {watermarkLogo && (
                             <div className="flex flex-col items-start md:items-end">
                                 <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-2 md:mb-3">
-                                    Studio
+                                    {catConfig.studioHeading}
                                 </h2>
                                 <img
                                     src={watermarkLogo}

@@ -15,6 +15,8 @@ export interface Project {
     clientLogos?: ClientLogo[];
     titleImage?: string;
     isFeatured?: boolean;
+    status?: string;
+    statusColor?: string;
 }
 
 export interface MVWork {
@@ -105,3 +107,13 @@ export const unslugifyCategory = (slug: string): string => {
     if (map[slug]) return map[slug];
     return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 };
+
+/* ===== helper buat slugify project title di URL ===== */
+export const slugifyProject = (title: string): string =>
+    title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+export const normalizeSlug = (s: string): string =>
+    s.toLowerCase().replace(/[^a-z0-9]/g, '');
