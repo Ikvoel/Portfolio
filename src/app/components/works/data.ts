@@ -45,7 +45,7 @@ export function getProjectById(idOrSlug: number | string, categorySlug?: string)
     const querySlug = rawStr.toLowerCase();
     const cleanQuery = normalizeSlug(querySlug);
 
-    return list.find((p) => {
+    const found = list.find((p) => {
         const matchesCat = !categorySlug || slugifyCategory(p.category) === categorySlug;
         if (!matchesCat) return false;
 
@@ -55,6 +55,33 @@ export function getProjectById(idOrSlug: number | string, categorySlug?: string)
 
         return false;
     });
+
+    if (found) return found;
+
+    // Check music videos
+    const mv = musicVideos.find((m) => {
+        const catSlug = slugifyCategory(m.category);
+        const matchesCat = !categorySlug || catSlug === categorySlug || categorySlug === 'commercial';
+        if (!matchesCat) return false;
+        if (isNum && m.id === numId) return true;
+        if (slugifyProject(m.client) === querySlug) return true;
+        if (normalizeSlug(m.client) === cleanQuery) return true;
+        return false;
+    });
+
+    if (mv) {
+        return {
+            id: mv.id,
+            title: mv.client,
+            category: mv.category,
+            year: mv.year,
+            description: `Music Video project: ${mv.client}. Working as ${mv.role}.`,
+            image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=1080',
+            credits: [{ role: mv.role, name: 'Muhammad Nur Husein' }],
+        };
+    }
+
+    return undefined;
 }
 
 export const PHOTO_ORDER = ['Commercial', 'Portrait', 'Event', 'Landscape'];

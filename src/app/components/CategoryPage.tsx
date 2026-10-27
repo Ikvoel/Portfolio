@@ -6,6 +6,8 @@ import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ArrowLeft } from 'lucide-react';
 import { FilmProject } from './FilmProject';
 import { SortControl, CreditCard, EmptyState, PhotoCard, AudioList } from './works/cards';
+import { PhotographyClientBar } from './works/PhotographyClientBar';
+import { getPhotographyClientsByCategory } from './works/photographyClients';
 import { categoryPalette } from './works/palette';
 import { getList, byYear, normCat, PHOTO_ORDER } from './works/data';
 import { FILTERS, SLUG_FILTER } from './works/types';
@@ -45,8 +47,19 @@ export function CategoryPage() {
         return names.map((name) => ({ name, items: byYear(map.get(name)!, sort) }));
     }, [photos, sort]);
 
+    const handleBack = () => {
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('portfolio_return_to_bento', 'true');
+        }
+        navigate(-1 as any);
+    };
+
     useEffect(() => {
-        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') navigate(-1 as any); };
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                handleBack();
+            }
+        };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
     }, [navigate]);
@@ -75,11 +88,11 @@ export function CategoryPage() {
             </div>
 
             <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-                className="sticky top-0 z-20 px-4 md:px-8 py-4 md:py-5"
+                className="sticky top-0 z-20 px-4 md:px-10 lg:px-14 py-4 md:py-5"
                 style={{ background: 'linear-gradient(180deg, rgba(5,7,16,0.95), rgba(5,7,16,0.8))', borderBottom: `1px solid ${pal.accent}44` }}>
-                <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+                <div className="max-w-[1720px] mx-auto flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
-                        <button type="button" onClick={() => navigate(-1 as any)} aria-label="Back"
+                        <button type="button" onClick={handleBack} aria-label="Back"
                             className="w-10 h-10 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors shrink-0"
                             style={{ border: '1px solid rgba(255,255,255,0.2)' }}>
                             <ArrowLeft className="w-5 h-5" />
@@ -97,7 +110,7 @@ export function CategoryPage() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.05 }}
-                className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-16">
+                className="relative z-10 max-w-[1720px] mx-auto px-4 md:px-10 lg:px-14 py-8 md:py-12 space-y-16">
                 {total === 0 ? <EmptyState filter={filterId} /> : (
                     <>
                         {showVideo && (
@@ -120,26 +133,42 @@ export function CategoryPage() {
                         {photos.length > 0 && (
                             <section>
                                 {isAll && <SectionHead title="Photography" />}
-                                {photoGroups.map((g) => (
-                                    <div key={g.name} className="mb-12 last:mb-0">
-                                        {!isAll && photoGroups.length > 1 && (
-                                            <div className="mb-5 flex items-center gap-4">
-                                                <h4 className="film-title text-lg md:text-xl text-white/90 shrink-0">{g.name}</h4>
-                                                <span className="metadata text-white/40 text-[10px] tabular-nums">{g.items.length}</span>
-                                                <div className="h-[1px] flex-grow bg-gradient-to-r from-white/15 to-transparent" />
-                                            </div>
-                                        )}
-                                        <ResponsiveMasonry columnsCountBreakPoints={{ 350: 2, 900: 3, 1200: 4 }}>
-                                            <Masonry gutter="1rem">
-                                                {g.items.map((photo, i) => (
-                                                    <div key={`photo-${g.name}-${photo.id}-${i}`}>
-                                                        <PhotoCard photo={photo} />
-                                                    </div>
-                                                ))}
-                                            </Masonry>
-                                        </ResponsiveMasonry>
-                                    </div>
-                                ))}
+                                {photoGroups.map((g) => {
+                                    const isClientSection = g.name === 'Commercial' || g.name === 'Event';
+                                    const clients = isClientSection ? getPhotographyClientsByCategory(g.name as 'Commercial' | 'Event') : [];
+
+                                    return (
+                                        <div key={g.name} className="mb-14 last:mb-0">
+                                            {!isAll && photoGroups.length > 1 && (
+                                                <div className="mb-6 flex items-center gap-4">
+                                                    <h4 className="film-title text-lg md:text-xl text-white/90 shrink-0">{g.name}</h4>
+                                                    <span className="metadata text-white/40 text-[10px] tabular-nums">
+                                                        {isClientSection ? `${clients.length} clients` : `${g.items.length} photos`}
+                                                    </span>
+                                                    <div className="h-[1px] flex-grow bg-gradient-to-r from-white/15 to-transparent" />
+                                                </div>
+                                            )}
+
+                                            {isClientSection && clients.length > 0 ? (
+                                                <div className="flex flex-col gap-4 md:gap-5">
+                                                    {clients.map((client) => (
+                                                        <PhotographyClientBar key={client.id} client={client} />
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <ResponsiveMasonry columnsCountBreakPoints={{ 350: 2, 900: 3, 1200: 4 }}>
+                                                    <Masonry gutter="1rem">
+                                                        {g.items.map((photo, i) => (
+                                                            <div key={`photo-${g.name}-${photo.id}-${i}`}>
+                                                                <PhotoCard photo={photo} />
+                                                            </div>
+                                                        ))}
+                                                    </Masonry>
+                                                </ResponsiveMasonry>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </section>
                         )}
                         {sortedAudio.length > 0 && (

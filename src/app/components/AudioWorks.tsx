@@ -36,11 +36,11 @@ const TRACKS: Track[] = [
     film: 'Bounce of Memories', year: '2025', role: 'Composer',
     audio: returnbom, artwork: bom, accent: '#3b82f6',
   },
-  {
-    title: 'Laberinto de Illusione — Theme',
-    film: 'Laberinto de Illusione', year: '2024', role: 'Composer & Sound Design',
-    audio: ghost, artwork: mhhsskor, accent: '#ec4899',
-  },
+  // {
+  //   title: 'Laberinto de Illusione — Theme',
+  //   film: 'Laberinto de Illusione', year: '2024', role: 'Composer & Sound Design',
+  //   audio: ghost, artwork: mhhsskor, accent: '#ec4899',
+  // },
 ];
 
 type RepeatMode = 'off' | 'all' | 'one';

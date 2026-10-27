@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { useNavigate } from 'react-router';
 
 /**
  * CONTROL PER LOGO — atur sesuka lo:
@@ -81,28 +82,40 @@ const TILE_STYLES: Record<NonNullable<ClientConfig['tile']>, CSSProperties> = {
 };
 
 export function Clients() {
+  const navigate = useNavigate();
+
+  const handleClientClick = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('portfolio_home_scrollY', String(window.scrollY));
+    }
+    navigate('/works/commercial');
+  };
+
   return (
-    <section className="py-24 px-4 relative overflow-hidden">
+    <section className="py-24 px-4 relative overflow-hidden select-none">
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-16">
           <h2 className="section-title mb-4 text-white">Collaborations</h2>
-          <p className="body-text text-white/50 text-sm">Trusted partners and brands</p>
+          <p className="body-text text-white/50 text-sm">Trusted partners and brands • Click to explore works</p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5 max-w-6xl mx-auto">
           {clients.map((c) => (
             <div
               key={c.id}
-              title={c.name}
-              className="rounded-xl h-32 md:h-36 flex items-center justify-center p-5 md:p-6 transition-transform duration-300 hover:scale-[1.04] cursor-default"
+              onClick={handleClientClick}
+              title={`View commercial works for ${c.name}`}
+              className="rounded-xl h-32 md:h-36 flex items-center justify-center p-5 md:p-6 transition-all duration-300 hover:scale-[1.05] hover:border-white/30 cursor-pointer group"
               style={TILE_STYLES[c.tile ?? 'glass']}
             >
               <img
                 src={c.logo}
                 alt={c.name}
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
                 loading="lazy"
                 decoding="async"
-                className="max-w-full max-h-14 md:max-h-16 object-contain"
+                className="max-w-full max-h-14 md:max-h-16 object-contain pointer-events-none select-none transition-transform duration-300 group-hover:scale-105"
                 style={{
                   filter: c.logoFilter,
                   mixBlendMode: c.logoBlend,

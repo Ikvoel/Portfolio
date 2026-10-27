@@ -8,7 +8,7 @@ import hsno from "@/assets/images/logo/hsno.png"
 const BG_VIDEO_URL = "https://res.cloudinary.com/asfa6j6o/video/upload/v1785344176/web_play_bg_dvwrqm.mp4";
 
 // Actual showreel — plays in the modal when clicking "See Showreel"
-const SHOWREEL_VIDEO_URL = ""; // TODO: ganti dengan URL showreel yang asli
+const SHOWREEL_VIDEO_URL = "https://res.cloudinary.com/asfa6j6o/video/upload/v1784634115/MyHandHerSignature_Trailer_lhj3ob.mp4";
 
 export function Hero() {
   const [isShowreelOpen, setIsShowreelOpen] = useState(false);
@@ -23,9 +23,20 @@ export function Hero() {
   };
 
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 z-0">
-        <video autoPlay loop muted playsInline preload="metadata" className="w-full h-full object-cover opacity-30">
+    <section className="relative h-screen flex items-center justify-center overflow-hidden select-none">
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          // @ts-ignore
+          controlsList="nodownload noplaybackrate nofullscreen"
+          disablePictureInPicture
+          onContextMenu={(e) => e.preventDefault()}
+          className="w-full h-full object-cover opacity-30 pointer-events-none"
+        >
           <source src={BG_VIDEO_URL} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
@@ -36,9 +47,11 @@ export function Hero() {
         <img
           src={hsno}
           alt="Logo"
+          draggable={false}
+          onContextMenu={(e) => e.preventDefault()}
           loading="eager"
           decoding="async"
-          className="w-auto h-6 md:h-9 lg:h-11 drop-shadow-2xl"
+          className="w-auto h-6 md:h-9 lg:h-11 drop-shadow-2xl select-none"
         />
       </div>
 
@@ -81,15 +94,16 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer" onClick={scrollToNext}>
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-        >
-          <div className="liquid-glass-floating rounded-full p-3">
-            <ChevronDown className="w-6 h-6 text-white/90" />
-          </div>
-        </motion.div>
+      <div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer transition-transform duration-300 hover:translate-y-1 active:scale-90"
+        onClick={scrollToNext}
+        role="button"
+        tabIndex={0}
+        aria-label="Scroll to next section"
+      >
+        <div className="liquid-glass-floating rounded-full p-3 hover:bg-white/15 transition-colors">
+          <ChevronDown className="w-6 h-6 text-white/90" />
+        </div>
       </div>
 
       <ShowreelModal

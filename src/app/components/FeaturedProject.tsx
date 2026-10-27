@@ -124,6 +124,9 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
       e.preventDefault();
       e.stopPropagation();
     }
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('portfolio_home_scrollY', String(window.scrollY));
+    }
     navigate(`/project/${categorySlug}/${projectSlug}`);
   };
 
@@ -189,7 +192,11 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
               muted
               playsInline
               preload="metadata"
-              className="w-full h-full object-cover bg-black"
+              // @ts-ignore
+              controlsList="nodownload noplaybackrate nofullscreen"
+              disablePictureInPicture
+              onContextMenu={(e) => e.preventDefault()}
+              className="w-full h-full object-cover bg-black pointer-events-none select-none"
             />
           </div>
         )}
@@ -205,13 +212,15 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent z-10 pointer-events-none" />
 
         {project.watermarkLogo && (
-          <div className={`absolute top-4 ${isRight ? 'left-4 md:left-8' : 'right-4 md:right-8'} md:top-8 z-20 opacity-50 pointer-events-none`}>
+          <div className={`absolute top-4 ${isRight ? 'left-4 md:left-8' : 'right-4 md:right-8'} md:top-8 z-20 opacity-50 pointer-events-none select-none`}>
             <img
               src={project.watermarkLogo}
               alt="Watermark"
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
               loading="lazy"
               decoding="async"
-              className="w-auto h-[17px] sm:h-[22px] md:h-[34px] lg:h-[45px] drop-shadow-2xl object-contain"
+              className="w-auto h-[17px] sm:h-[22px] md:h-[34px] lg:h-[45px] drop-shadow-2xl object-contain select-none pointer-events-none"
               style={{ filter: 'brightness(0) invert(1)' }}
             />
           </div>
@@ -221,7 +230,10 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
       {/* ===== Mobile view: stills full-bleed rapet kiri-kanan + panel info margin ngepas (efek hollow) ===== */}
       <div className="relative z-20 md:hidden w-full pt-8 pb-8">
         {/* Stills 16:9, RAPET kiri-kanan (nggak ada margin), tetap tidak di-crop */}
-        <div className="relative w-full aspect-video bg-black overflow-hidden">
+        <div
+          onClick={handleWatchClick}
+          className="relative w-full aspect-video bg-black overflow-hidden cursor-pointer select-none"
+        >
           <div
             className="absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out"
             style={{ opacity: isPosterEnabled && showVideo ? 0 : 1 }}
@@ -241,7 +253,11 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
                 muted
                 playsInline
                 preload="metadata"
-                className="w-full h-full object-contain bg-black"
+                // @ts-ignore
+                controlsList="nodownload noplaybackrate nofullscreen"
+                disablePictureInPicture
+                onContextMenu={(e) => e.preventDefault()}
+                className="w-full h-full object-contain bg-black pointer-events-none"
               />
             </div>
           )}
@@ -257,25 +273,35 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
             </div>
 
             <div className={`flex items-center gap-3 flex-wrap w-full ${justifyClass}`}>
-              {showTitleImage ? (
-                <img
-                  src={titleImageSrc}
-                  alt={project.title}
-                  className="h-12 sm:h-16 max-w-[78vw] w-auto object-contain drop-shadow-lg"
-                  style={{ filter: 'brightness(0) invert(1)' }}
-                />
-              ) : (
-                <h3 className="film-title mb-0 text-white tracking-wide text-[1.9rem] leading-[1.05] sm:text-4xl">
-                  {project.title}
-                </h3>
-              )}
+              <div
+                onClick={handleWatchClick}
+                className="cursor-pointer transition-opacity hover:opacity-85"
+                title={`View ${project.title}`}
+              >
+                {showTitleImage ? (
+                  <img
+                    src={titleImageSrc}
+                    alt={project.title}
+                    draggable={false}
+                    onContextMenu={(e) => e.preventDefault()}
+                    className="h-12 sm:h-16 max-w-[78vw] w-auto object-contain drop-shadow-lg select-none"
+                    style={{ filter: 'brightness(0) invert(1)' }}
+                  />
+                ) : (
+                  <h3 className="film-title mb-0 text-white tracking-wide text-[1.9rem] leading-[1.05] sm:text-4xl">
+                    {project.title}
+                  </h3>
+                )}
+              </div>
               {project.watermarkLogo && (
                 <img
                   src={project.watermarkLogo}
                   alt="Watermark"
+                  draggable={false}
+                  onContextMenu={(e) => e.preventDefault()}
                   loading="lazy"
                   decoding="async"
-                  className="h-[22px] sm:h-[26px] w-auto object-contain drop-shadow-lg opacity-50"
+                  className="h-[22px] sm:h-[26px] w-auto object-contain drop-shadow-lg opacity-50 select-none pointer-events-none"
                   style={{ filter: 'brightness(0) invert(1)' }}
                 />
               )}
@@ -327,12 +353,18 @@ export function FeaturedProject({ project }: FeaturedProjectProps) {
             <span className="metadata text-white/95 text-xs sm:text-sm font-medium">{project.status}</span>
           </div>
 
-          <div className={`mb-3 md:mb-6 flex ${justifyClass} w-full`}>
+          <div
+            onClick={handleWatchClick}
+            className={`mb-3 md:mb-6 flex ${justifyClass} w-full cursor-pointer transition-opacity hover:opacity-85`}
+            title={`View ${project.title}`}
+          >
             {showTitleImage ? (
               <img
                 src={titleImageSrc}
                 alt={project.title}
-                className="max-w-full w-auto object-contain drop-shadow-2xl transition-all duration-300"
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+                className="max-w-full w-auto object-contain drop-shadow-2xl transition-all duration-300 select-none"
                 style={{
                   height: `${Math.round(24 * scale)}px`,
                   minHeight: '48px',

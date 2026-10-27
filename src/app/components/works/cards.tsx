@@ -114,7 +114,9 @@ export function AudioList({ tracks }: { tracks: AudioTrack[] }) {
                     <img
                         src={cur.artwork}
                         alt={cur.title}
-                        className="w-32 h-32 md:w-44 md:h-44 rounded-2xl md:rounded-3xl object-cover shrink-0"
+                        draggable={false}
+                        onContextMenu={(e) => e.preventDefault()}
+                        className="w-32 h-32 md:w-44 md:h-44 rounded-2xl md:rounded-3xl object-cover shrink-0 select-none pointer-events-none"
                         style={{ boxShadow: `0 16px 40px -14px ${hexToRgba(accent, 0.55)}` }}
                     />
                     <div className="flex-1 min-w-0">
@@ -190,7 +192,7 @@ export function AudioList({ tracks }: { tracks: AudioTrack[] }) {
                                 style={active
                                     ? { background: 'rgba(255,255,255,0.07)', border: `1px solid ${hexToRgba(t.accent, 0.45)}`, boxShadow: `0 0 24px -12px ${hexToRgba(t.accent, 0.6)}` }
                                     : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                                <img src={t.artwork} alt={t.title} loading="lazy" decoding="async" className="w-14 h-14 md:w-16 md:h-16 rounded-xl object-cover shrink-0" />
+                                <img src={t.artwork} alt={t.title} draggable={false} onContextMenu={(e) => e.preventDefault()} loading="lazy" decoding="async" className="w-14 h-14 md:w-16 md:h-16 rounded-xl object-cover shrink-0 select-none pointer-events-none" />
                                 <div className="flex-1 min-w-0">
                                     <div className="body-text text-base md:text-lg font-semibold truncate" style={{ color: active ? '#fff' : 'rgba(255,255,255,0.78)' }}>
                                         {t.title}
@@ -199,14 +201,14 @@ export function AudioList({ tracks }: { tracks: AudioTrack[] }) {
                                 </div>
                                 <span className="metadata text-[11px] md:text-xs text-white/40 tabular-nums shrink-0">{t.year}</span>
                                 {active && playing ? (
-                                    <span className="flex items-end gap-[2.5px] h-4 md:h-5 shrink-0" aria-hidden>
-                                        <span className="eq-bar" style={{ background: t.accent }} />
-                                        <span className="eq-bar" style={{ background: t.accent }} />
-                                        <span className="eq-bar" style={{ background: t.accent }} />
-                                    </span>
+                                     <span className="flex items-end gap-[2.5px] h-4 md:h-5 shrink-0" aria-hidden>
+                                         <span className="eq-bar" style={{ background: t.accent }} />
+                                         <span className="eq-bar" style={{ background: t.accent }} />
+                                         <span className="eq-bar" style={{ background: t.accent }} />
+                                     </span>
                                 ) : (
-                                    <Play className="w-4 h-4 md:w-5 md:h-5 text-white/40 shrink-0" fill="currentColor" />
-                                )}
+                                     <Play className="w-4 h-4 md:w-5 md:h-5 text-white/40 shrink-0" fill="currentColor" />
+                                 )}
                             </button>
                         );
                     })}
@@ -226,8 +228,8 @@ export const PhotoCard = memo(function PhotoCard({ photo }: { photo: Photo }) {
     const [open, setOpen] = useState(false);
     return (
         <>
-            <button type="button" onClick={() => setOpen(true)} className="group relative w-full text-left rounded-xl overflow-hidden liquid-glass-card block">
-                <img src={photo.image} alt={photo.title || 'Photography'} loading="lazy" decoding="async" className="w-full h-auto block transition-transform duration-700 group-hover:scale-[1.04]" />
+            <button type="button" onClick={() => setOpen(true)} className="group relative w-full text-left rounded-xl overflow-hidden liquid-glass-card block select-none">
+                <img src={photo.image} alt={photo.title || 'Photography'} draggable={false} onContextMenu={(e) => e.preventDefault()} loading="lazy" decoding="async" className="w-full h-auto block transition-transform duration-700 group-hover:scale-[1.04] select-none pointer-events-none" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 <div className="absolute inset-x-0 bottom-0 p-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
                     {photo.title && <p className="text-white/90 text-sm font-medium">{photo.title}</p>}

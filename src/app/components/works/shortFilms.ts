@@ -35,6 +35,15 @@ import lale4 from '@/assets/images/laberinto/lale4.webp';
 import lale5 from '@/assets/images/laberinto/lale5.webp';
 import lale6 from '@/assets/images/laberinto/lale6.webp';
 import lale7 from '@/assets/images/laberinto/lale7.webp';
+import tpwt1 from '@/assets/images/tpwt/tpwt1.webp';
+import tpwt2 from '@/assets/images/tpwt/tpwt2.webp';
+import tpwt3 from '@/assets/images/tpwt/tpwt3.webp';
+import tpwt4 from '@/assets/images/tpwt/tpwt4.webp';
+import tpwt5 from '@/assets/images/tpwt/tpwt5.webp';
+import tpwt6 from '@/assets/images/tpwt/tpwt6.webp';
+import tpwt7 from '@/assets/images/tpwt/tpwt7.webp';
+import tpwt8 from '@/assets/images/tpwt/tpwt8.webp';
+import tpwtTle from '@/assets/images/cstm-title/tpwtTle.png';
 
 export const shortFilms: Project[] = [
     {
@@ -137,5 +146,20 @@ export const shortFilms: Project[] = [
         cinematicStills: [lale2, lale3, lale4, lale5, lale6, lale7],
         clientLogos: [{ name: hsno, logo: hsno, hasGlassBadge: true }],
         titleImage: logoLaberintoDeIllusione,
+    },
+    {
+        id: 6, title: 'The path we took', category: 'Short Film', year: '2024', isFeatured: true,
+        description: 'Lale falls for a virtual girl, but every moment together is just his hallucination.',
+        image: tpwt8,
+        videoUrl: 'https://www.dropbox.com/scl/fi/1n5zei328qtahwgyk2p7n/LaberintoDeIllusiuonemp4.mp4?rlkey=0soj8wrgww0lhfh9aa0ceroz4&st=6d6ztjmz&raw=1',
+        credits: [
+            { role: 'Writer & Director', name: 'Valerianus Alvin Tjuaesa' },
+            { role: 'Director of Photography', name: 'Muhammad Nur Husein' },
+            { role: 'Editor', name: 'Valerianus Alvin Tjuarsa' },
+            { role: 'Cast', name: 'Lady Rahma Cantique Kusuma, Dzikri Agri Algiansyah' },
+        ],
+        cinematicStills: [tpwt1, tpwt2, tpwt3, tpwt4, tpwt5, tpwt6],
+        // clientLogos: [{ name: hsno, logo: hsno, hasGlassBadge: true }],
+        titleImage: tpwtTle,
     },
 ];

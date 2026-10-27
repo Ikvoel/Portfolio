@@ -73,17 +73,24 @@ export function OptimizedImage({
           ref={imgRef}
           src={src}
           alt={alt}
+          draggable={false}
+          onContextMenu={(e) => e.preventDefault()}
           loading={priority ? 'eager' : 'lazy'}
           decoding={priority ? 'sync' : 'async'}
           // @ts-ignore
           fetchPriority={priority ? 'high' : 'auto'}
           onLoad={() => setIsLoaded(true)}
           onError={() => setIsLoaded(true)}
-          className={`w-full h-full object-cover transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'
+          className={`w-full h-full object-cover select-none transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'
             }`}
           {...props}
         />
       </picture>
+      {/* Invisible protective shield against direct image saving/drag */}
+      <div
+        className="absolute inset-0 z-[5] pointer-events-none"
+        onContextMenu={(e) => e.preventDefault()}
+      />
     </div>
   );
 }

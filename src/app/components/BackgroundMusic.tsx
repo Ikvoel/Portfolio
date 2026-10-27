@@ -75,7 +75,7 @@ export function BackgroundMusic({ audioUrl = defaultGhostAudio }: BackgroundMusi
               opacity: [0.5, 0, 0.5],
             }}
             transition={{
-              duration: 2,
+              duration: 1,
               repeat: Infinity,
               ease: "easeInOut",
             }}

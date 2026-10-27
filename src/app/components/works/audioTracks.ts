@@ -10,5 +10,5 @@ import ghost from '@/assets/bgmusic/ghost.wav'
 export const audioTracks: AudioTrack[] = [
     { id: 1, title: 'Present to you', film: 'My Hand, Her Signature', year: '2026', role: 'Composer', audio: presenttoyou, artwork: mhhsskor, accent: '#14b8a6' },
     { id: 2, title: 'Bounce of Memories — Score', film: 'Bounce of Memories', year: '2025', role: 'Composer', audio: returnbom, artwork: bom, accent: '#3b82f6' },
-    { id: 3, title: 'Laberinto de Illusione — Theme', film: 'Laberinto de Illusione', year: '2024', role: 'Composer & Sound Design', audio: ghost, artwork: mhhsskor, accent: '#ec4899' },
+    // { id: 3, title: 'Laberinto de Illusione — Theme', film: 'Laberinto de Illusione', year: '2024', role: 'Composer & Sound Design', audio: ghost, artwork: mhhsskor, accent: '#ec4899' },
 ];

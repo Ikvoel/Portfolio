@@ -37,7 +37,7 @@ function normalizeVideoUrl(url: string | undefined): string | undefined {
   let n = url!.trim();
   if (n.includes('drive.google.com')) {
     const m = n.match(/[-\w]{25,}/);
-    if (m) return `https://drive.google.com/uc?export=download&id=${m[0]}`;
+    if (m) return `https://drive.google.com/file/d/${m[0]}/preview`;
   }
   if (n.includes('dropbox.com')) {
     if (n.includes('dl=raw1')) n = n.replace('dl=raw1', 'raw=1');

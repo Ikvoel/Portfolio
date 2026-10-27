@@ -87,9 +87,15 @@ export function BentoSelector({ onSelect, countFor, pools, nonce }: BentoSelecto
                     <button
                         key={t.id}
                         type="button"
-                        onClick={() => onSelect(t.id)}
+                        onClick={() => {
+                            if (typeof window !== 'undefined') {
+                                sessionStorage.setItem('portfolio_home_scrollY', String(window.scrollY));
+                                sessionStorage.setItem('portfolio_return_to_bento', 'true');
+                            }
+                            onSelect(t.id);
+                        }}
                         style={style}
-                        className={`bento-glow group w-full ${t.h} ${t.span}`}
+                        className={`bento-glow group w-full select-none ${t.h} ${t.span}`}
                     >
                         {/* Thumbnail blend SCREEN — terang ngambang "di atas kaca" */}
                         {image && (
@@ -97,9 +103,11 @@ export function BentoSelector({ onSelect, countFor, pools, nonce }: BentoSelecto
                                 src={image}
                                 alt=""
                                 aria-hidden="true"
+                                draggable={false}
+                                onContextMenu={(e) => e.preventDefault()}
                                 loading="lazy"
                                 decoding="async"
-                                className="absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-[0.45] saturate-[0.9] pointer-events-none transition-transform duration-700 group-hover:scale-[1.04]"
+                                className="absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-[0.45] saturate-[0.9] pointer-events-none select-none transition-transform duration-700 group-hover:scale-[1.04]"
                             />
                         )}
 

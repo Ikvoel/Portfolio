@@ -21,16 +21,27 @@
 
   html {
     font-size: 16px;
-    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: #000;
+    background: #020719;
     color: #fff;
     overflow-x: hidden;
+    overscroll-behavior-y: none;
+  }
+
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  button:active, a:active, [role="button"]:active {
+    transform: scale(0.975);
+    transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
 
   h1,
@@ -95,6 +106,20 @@
   *:focus-visible {
     outline: 2px solid rgba(255, 255, 255, 0.4);
     outline-offset: 2px;
+  }
+
+  /* Anti-download & anti-copy protection for media */
+  img, video {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    -webkit-user-drag: none !important;
+    -khtml-user-drag: none !important;
+    -moz-user-drag: none !important;
+    -o-user-drag: none !important;
+    user-drag: none !important;
+    -webkit-touch-callout: none !important;
   }
 }
 

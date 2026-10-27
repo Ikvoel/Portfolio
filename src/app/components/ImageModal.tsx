@@ -59,13 +59,22 @@ export function ImageModal({ isOpen, onClose, image }: ImageModalProps) {
                 <X className="w-5 h-5 text-white" />
               </motion.button>
 
-              <div className="relative liquid-glass-card overflow-hidden">
+              <div className="relative liquid-glass-card overflow-hidden select-none">
                 <img
                   src={image.image}
                   alt={image.title}
+                  draggable={false}
+                  onContextMenu={(e) => e.preventDefault()}
                   loading="eager"
                   decoding="async"
-                  className="w-full h-auto max-h-[85vh] object-contain"
+                  className="w-full h-auto max-h-[85vh] object-contain select-none pointer-events-none"
+                />
+
+                {/* Protective overlay shield preventing right click or copying */}
+                <div
+                  className="absolute inset-0 z-10 cursor-default"
+                  onContextMenu={(e) => e.preventDefault()}
+                  onDragStart={(e) => e.preventDefault()}
                 />
 
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6">

@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router';
 import { ArrowLeft, Play, Share2, Check } from 'lucide-react';
 import { getProjectById } from './works/data';
 import hsno from "@/assets/images/logo/hsno.png"
+import { CinematicVideoPlayer } from './ui/CinematicVideoPlayer';
+import { ImageModal } from './ImageModal';
 
 const MODAL_SPECTRAL = `
   radial-gradient(52% 44% at 20% 16%, rgba(29,151,241,0.5), transparent 62%),
@@ -43,7 +45,7 @@ function normalizeVideoUrl(url: string | undefined): string | undefined {
     let n = url!.trim();
     if (n.includes('drive.google.com')) {
         const m = n.match(/[-\w]{25,}/);
-        if (m) return `https://drive.google.com/uc?export=download&id=${m[0]}`;
+        if (m) return `https://drive.google.com/file/d/${m[0]}/preview`;
     }
     if (n.includes('dropbox.com')) {
         if (n.includes('dl=raw1')) n = n.replace('dl=raw1', 'raw=1');
@@ -168,6 +170,7 @@ export function ProjectPage() {
     const navigate = useNavigate();
     const [isPlaying, setIsPlaying] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [selectedStill, setSelectedStill] = useState<string | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
 
     const project = getProjectById(id || '', cat);
@@ -182,7 +185,12 @@ export function ProjectPage() {
                 <h1 className="film-title text-3xl mb-4">Project Not Found</h1>
                 <button
                     type="button"
-                    onClick={() => navigate('/')}
+                    onClick={() => {
+                        if (typeof window !== 'undefined') {
+                            sessionStorage.setItem('portfolio_return_to_bento', 'true');
+                        }
+                        navigate('/');
+                    }}
                     className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -198,8 +206,6 @@ export function ProjectPage() {
     const safeCredits = project.credits || [];
     const safeStills = project.cinematicStills || [];
     const watermarkLogo = project.clientLogos?.[0]?.logo;
-    const ytEmbed = getYoutubeEmbed(videoUrl);
-    const driveEmbed = getDriveEmbed(videoUrl);
     const titleImg = project.titleImage || (project as any).titleimage;
     const showTitleImage = (project.category === 'Short Film' || project.category === 'Short MV Film' || project.category === 'Music Video') && !!titleImg;
 
@@ -222,12 +228,14 @@ export function ProjectPage() {
     };
 
     const HeroContent = ({ isPlaying = false }) => (
-        <div className="max-w-4xl [&_*]:drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
+        <div className="max-w-4xl [&_*]:drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] select-none">
             {showTitleImage ? (
                 <img
                     src={titleImg}
                     alt={project.title}
-                    className="h-12 md:h-24 lg:h-32 w-auto object-contain drop-shadow-2xl mb-4 md:mb-6"
+                    draggable={false}
+                    onContextMenu={(e) => e.preventDefault()}
+                    className="h-12 md:h-24 lg:h-32 w-auto object-contain drop-shadow-2xl mb-4 md:mb-6 select-none pointer-events-none"
                     style={{ filter: 'brightness(0) invert(1)' }}
                 />
             ) : (
@@ -274,32 +282,14 @@ export function ProjectPage() {
         </div>
     );
 
-    const Player = ytEmbed ? (
-        <div className="relative w-full aspect-video md:max-w-[1280px]">
-            <iframe
-                src={ytEmbed}
-                title={project.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-                style={{ border: 0 }}
-            />
-        </div>
-    ) : driveEmbed ? (
-        <div className="relative w-full aspect-video md:max-w-[1280px]">
-            <iframe
-                src={driveEmbed}
-                title={project.title}
-                allow="autoplay; encrypted-media; fullscreen"
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-                style={{ border: 0 }}
-            />
-        </div>
-    ) : (
-        <video ref={videoRef} src={videoUrl} controls className="w-full h-auto md:h-full object-contain block" playsInline>
-            Your browser does not support the video tag.
-        </video>
+    const Player = (
+        <CinematicVideoPlayer
+            src={videoUrl}
+            title={project.title}
+            subtitle={catConfig.badge}
+            poster={project.image}
+            autoPlay={true}
+        />
     );
 
     return (
@@ -323,7 +313,12 @@ export function ProjectPage() {
                     </button>
                     <button
                         type="button"
-                        onClick={() => navigate('/')}
+                        onClick={() => {
+                            if (typeof window !== 'undefined') {
+                                sessionStorage.setItem('portfolio_return_to_bento', 'true');
+                            }
+                            navigate('/');
+                        }}
                         aria-label="Back to home"
                         title="Back to home"
                         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
@@ -331,7 +326,9 @@ export function ProjectPage() {
                         <img
                             src={hsno}
                             alt="hsno"
-                            className="h-6 md:h-8 w-auto object-contain select-none"
+                            draggable={false}
+                            onContextMenu={(e) => e.preventDefault()}
+                            className="h-6 md:h-8 w-auto object-contain select-none pointer-events-none"
                         />
                     </button>
                 </div>
@@ -339,9 +336,15 @@ export function ProjectPage() {
 
             <div className="relative z-10 w-full">
                 {!isPlaying ? (
-                    <div className="relative w-full min-h-[60vh] md:h-[85vh] overflow-hidden flex flex-col justify-end">
-                        <div className="absolute inset-0">
-                            <img src={project.image} alt={project.title} className="w-full h-full object-cover block" />
+                    <div className="relative w-full min-h-[60vh] md:h-[85vh] overflow-hidden flex flex-col justify-end select-none">
+                        <div className="absolute inset-0 select-none">
+                            <img
+                                src={project.image}
+                                alt={project.title}
+                                draggable={false}
+                                onContextMenu={(e) => e.preventDefault()}
+                                className="w-full h-full object-cover block select-none pointer-events-none"
+                            />
                             <div className="absolute inset-0 bg-gradient-to-t from-[#020D2F] via-[#020D2F]/40 to-transparent pointer-events-none" />
                         </div>
 
@@ -363,7 +366,7 @@ export function ProjectPage() {
                     </div>
                 ) : (
                     <div className="relative w-full">
-                        <div className="relative w-full md:h-[85vh] bg-black flex items-center justify-center overflow-hidden">
+                        <div className="relative w-full p-4 md:p-8 bg-black/60 flex items-center justify-center overflow-hidden">
                             {Player}
                         </div>
                         <div className="w-full p-6 md:p-16 lg:p-24 bg-gradient-to-b from-black/30 to-transparent">
@@ -412,16 +415,20 @@ export function ProjectPage() {
                             {safeStills.map((still, idx) => (
                                 <div
                                     key={idx}
-                                    className="relative mb-4 md:mb-6 break-inside-avoid overflow-hidden rounded-xl bg-white/[0.02] border border-white/[0.06] group"
+                                    onClick={() => setSelectedStill(still)}
+                                    className="relative mb-4 md:mb-6 break-inside-avoid overflow-hidden rounded-xl bg-white/[0.02] border border-white/[0.06] group cursor-pointer transition-transform hover:scale-[1.02] select-none"
+                                    title="Click to view full photo"
                                 >
                                     <img
                                         src={still}
                                         alt={`Behind the scenes ${idx + 1}`}
+                                        draggable={false}
+                                        onContextMenu={(e) => e.preventDefault()}
                                         loading="lazy"
                                         decoding="async"
-                                        className="w-full h-auto block transition-transform duration-1000 group-hover:scale-[1.03]"
+                                        className="w-full h-auto block transition-transform duration-1000 group-hover:scale-[1.03] select-none pointer-events-none"
                                     />
-                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
+                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 pointer-events-none" />
                                 </div>
                             ))}
                         </div>
@@ -439,14 +446,16 @@ export function ProjectPage() {
                             </p>
                         </div>
                         {watermarkLogo && (
-                            <div className="flex flex-col items-start md:items-end">
+                            <div className="flex flex-col items-start md:items-end select-none">
                                 <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-2 md:mb-3">
                                     {catConfig.studioHeading}
                                 </h2>
                                 <img
                                     src={watermarkLogo}
                                     alt="Production Studio"
-                                    className="h-6 md:h-10 w-auto object-contain opacity-80"
+                                    draggable={false}
+                                    onContextMenu={(e) => e.preventDefault()}
+                                    className="h-6 md:h-10 w-auto object-contain opacity-80 select-none pointer-events-none"
                                     style={{ filter: 'brightness(0) invert(1)' }}
                                 />
                             </div>
@@ -454,6 +463,20 @@ export function ProjectPage() {
                     </div>
                 </section>
             </div>
+
+            {selectedStill && (
+                <ImageModal
+                    isOpen={!!selectedStill}
+                    onClose={() => setSelectedStill(null)}
+                    image={{
+                        title: `${project.title} - Behind The Scenes`,
+                        category: catConfig.badge,
+                        year: project.year,
+                        image: selectedStill,
+                        description: project.description || 'Behind the scenes production still and visual study.',
+                    }}
+                />
+            )}
         </div>
     );
 }

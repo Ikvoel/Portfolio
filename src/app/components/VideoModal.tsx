@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Play, Plus, Heart, Share2 } from 'lucide-react';
+import { CinematicVideoPlayer } from './ui/CinematicVideoPlayer';
 
 const MODAL_SPECTRAL = `
   radial-gradient(52% 44% at 20% 16%, rgba(29,151,241,0.5), transparent 62%),
@@ -106,25 +107,21 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
     </motion.div>
   );
 
-  const Player = ytEmbed ? (
-    <div className="relative w-full aspect-video md:max-w-[1280px]">
-      <iframe src={ytEmbed} title={title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen className="absolute inset-0 w-full h-full" style={{ border: 0 }} />
-    </div>
-  ) : driveEmbed ? (
-    <div className="relative w-full aspect-video md:max-w-[1280px]">
-      <iframe src={driveEmbed} title={title} allow="autoplay; encrypted-media; fullscreen" allowFullScreen className="absolute inset-0 w-full h-full" style={{ border: 0 }} />
-      <div aria-hidden className="pointer-events-auto absolute top-0 inset-x-0 h-12 md:h-14 z-10"
-        style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.55) 55%, transparent 100%)' }} />
-    </div>
-  ) : (
-    <video ref={videoRef} src={videoUrl} controls autoPlay className="w-full h-auto md:h-full object-contain block" playsInline>Your browser does not support the video tag.</video>
+  const Player = (
+    <CinematicVideoPlayer
+      src={videoUrl}
+      title={title}
+      subtitle={category || 'Film'}
+      poster={image}
+      autoPlay={true}
+    />
   );
 
   // SELURUH modal di-PORTAL ke body → lepas dari jebakan backdrop-filter ancestor (fix "gak bisa buka" di dalam modal bento)
   const modal = typeof document !== 'undefined' ? createPortal(
     <AnimatePresence>
       {isOpen && (
-        <motion.div ref={modalRef} key="vm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="fixed inset-0 z-[9999] bg-[#070510] overflow-y-auto">
+        <motion.div ref={modalRef} key="vm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="fixed inset-0 z-[9999] bg-[#070510] overflow-y-auto select-none">
           <div className="pointer-events-none fixed inset-0 -z-10" style={{ background: MODAL_SPECTRAL }} />
           <div className="pointer-events-none fixed inset-0 -z-10" style={{ background: 'radial-gradient(circle at 50% 40%, transparent 30%, rgba(0,0,0,0.5) 100%)' }} />
 
@@ -138,9 +135,19 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
           <div className="relative w-full">
             <AnimatePresence mode="wait">
               {!isPlaying ? (
-                <motion.div key="hero-state" initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} className="relative w-full md:h-[85vh] overflow-hidden flex flex-col">
-                  <div className="relative w-full md:h-full flex-shrink-0">
-                    <img src={image} alt={title} className="w-full h-auto md:h-full object-cover block" />
+                <motion.div key="hero-state" initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden flex flex-col">
+                  <div className="relative w-full md:h-full flex-shrink-0 select-none">
+                    <div className="relative w-full h-full">
+                      <img
+                        src={image}
+                        alt={title}
+                        draggable={false}
+                        onContextMenu={(e) => e.preventDefault()}
+                        className="w-full h-full object-cover block select-none pointer-events-none"
+                      />
+                      {/* Protective overlay to block any interaction */}
+                      <div className="absolute inset-0 pointer-events-none" onContextMenu={(e) => e.preventDefault()} />
+                    </div>
                     <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-[#070510]/80 via-transparent to-transparent pointer-events-none" />
                     <motion.button onClick={handlePlay} className="absolute inset-0 flex items-center justify-center z-20 group" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <div className="w-20 h-20 md:w-32 md:h-32 rounded-full liquid-glass-floating flex items-center justify-center">
@@ -152,7 +159,7 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
                   <div className="hidden md:block absolute bottom-0 left-0 w-full p-16 lg:p-24 z-20"><HeroContent /></div>
                 </motion.div>
               ) : (
-                <motion.div key="video-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="relative w-full">
+                <motion.div key="video-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="relative w-full h-[70vh] md:h-[85vh]">
                   <div className="relative w-full md:h-[85vh] bg-black flex items-center justify-center overflow-hidden">{Player}</div>
                   <div className="w-full p-6 md:p-16 lg:p-24 bg-gradient-to-b from-black/30 to-transparent"><HeroContent isPlaying={true} /></div>
                 </motion.div>
@@ -185,9 +192,15 @@ export function VideoModal({ isOpen, onClose, videoUrl, title, titleImage, year,
                 <h2 className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/55 font-semibold mb-8 md:mb-10">Behind The Scenes</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {safeStills.map((still, idx) => (
-                    <motion.div key={idx} className="relative aspect-[16/10] overflow-hidden rounded-xl bg-white/[0.02] border border-white/[0.06] group" whileHover={{ scale: 0.98 }} transition={{ duration: 0.4 }}>
-                      <img src={still} alt={`Behind the scenes ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
+                    <motion.div key={idx} className="relative aspect-[16/10] overflow-hidden rounded-xl bg-white/[0.02] border border-white/[0.06] group select-none" whileHover={{ scale: 0.98 }} transition={{ duration: 0.4 }}>
+                      <img
+                        src={still}
+                        alt={`Behind the scenes ${idx + 1}`}
+                        draggable={false}
+                        onContextMenu={(e) => e.preventDefault()}
+                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 pointer-events-none select-none"
+                      />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 pointer-events-none" />
                     </motion.div>
                   ))}
                 </div>

@@ -55,7 +55,13 @@ export function WorksSection() {
 					</p>
 				</div>
 				<BentoSelector
-					onSelect={(id: FilterId) => navigate(`/works/${FILTER_SLUG[id]}`)}
+					onSelect={(id: FilterId) => {
+						if (typeof window !== 'undefined') {
+							sessionStorage.setItem('portfolio_home_scrollY', String(window.scrollY));
+							sessionStorage.setItem('portfolio_return_to_bento', 'true');
+						}
+						navigate(`/works/${FILTER_SLUG[id]}`);
+					}}
 					countFor={countFor}
 					pools={pools}
 					nonce={nonce}

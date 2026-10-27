@@ -1,4 +1,6 @@
+import { useState } from "react"
 import { OptimizedImage } from "./ui/OptimizedImage"
+import { ImageModal } from "./ImageModal"
 
 import bts1 from "@/assets/images/bts/1.webp"
 import bts2 from "@/assets/images/bts/2.webp"
@@ -7,14 +9,15 @@ import bts4 from "@/assets/images/bts/4.webp"
 import bts5 from "@/assets/images/bts/5.webp"
 
 const btsPhotos = [
-	{ id: 1, src: bts1, alt: "On set moment" },
-	{ id: 2, src: bts2, alt: "Assistant Camera Work" },
-	{ id: 3, src: bts3, alt: "Behind the scenes" },
-	{ id: 4, src: bts4, alt: "On set moment" },
-	{ id: 5, src: bts5, alt: "Set work" },
+	{ id: 1, src: bts1, alt: "On set moment", description: "Camera department & lighting workflow on set" },
+	{ id: 2, src: bts2, alt: "Assistant Camera Work", description: "Pulling focus and lens calibration during production" },
+	{ id: 3, src: bts3, alt: "Behind the scenes", description: "Directing cast & blocking shots on location" },
+	{ id: 4, src: bts4, alt: "On set moment", description: "Gimbal and handheld camera rig operation" },
+	{ id: 5, src: bts5, alt: "Set work", description: "Setting up practical lights and atmosphere" },
 ]
 
 export function About() {
+	const [selectedPhoto, setSelectedPhoto] = useState<typeof btsPhotos[0] | null>(null)
 	return (
 		<section className="py-24 px-4 md:px-6 relative overflow-hidden">
 			<div className="max-w-7xl mx-auto relative z-10">
@@ -71,10 +74,12 @@ export function About() {
 										{btsPhotos.map((photo) => (
 											<div
 												key={photo.id}
-												className="flex-shrink-0 relative rounded-xl overflow-hidden group cursor-pointer"
+												onClick={() => setSelectedPhoto(photo)}
+												className="flex-shrink-0 relative rounded-xl overflow-hidden group cursor-pointer transition-transform hover:scale-[1.03]"
 												style={{ width: "clamp(140px, 35vw, 210px)", height: "100%" }}
+												title={`View ${photo.alt}`}
 											>
-												<OptimizedImage src={photo.src} alt={photo.alt} className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500" />
+												<OptimizedImage src={photo.src} alt={photo.alt} className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500 pointer-events-none" />
 												<div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all duration-500" />
 												<div className="absolute inset-0 border border-transparent group-hover:border-[var(--accent-red-subtle)] transition-all duration-300 rounded-xl" />
 											</div>
@@ -86,6 +91,20 @@ export function About() {
 					</div>
 				</div>
 			</div>
+
+			{selectedPhoto && (
+				<ImageModal
+					isOpen={!!selectedPhoto}
+					onClose={() => setSelectedPhoto(null)}
+					image={{
+						title: selectedPhoto.alt,
+						category: "Behind The Scenes",
+						year: "2025",
+						image: selectedPhoto.src,
+						description: selectedPhoto.description,
+					}}
+				/>
+			)}
 
 			<style>{`
         div::-webkit-scrollbar {
